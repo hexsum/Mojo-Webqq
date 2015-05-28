@@ -1,0 +1,34 @@
+Mojo-Webqq v1.0
+========================
+使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为Webqq-Client的重构项目，要求Perl版本高于5.10
+
+安装步骤
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+   
+   推荐使用CPAN安装 Mojo::Webqq
+
+核心依赖模块
+
+   Mojolicious
+   Encode::Locale
+   Webqq::Encryption
+
+可选模块
+
+   Webqq::Qun
+
+版本更新记录
+
+  请参见 Changes 文件
+
+COPYRIGHT 和 LICENCE
+
+Copyright (C) 2014 by sjdy521
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.10.0 or,
+at your option, any later version of Perl 5 you may have available.

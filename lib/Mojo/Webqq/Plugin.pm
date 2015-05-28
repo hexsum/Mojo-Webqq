@@ -1,0 +1,63 @@
+package Mojo::Webqq::Plugin;
+sub load {
+    my $self = shift;
+    my @module_name;
+    my %opt;
+    if(ref $_[0] eq "ARRAY"){
+        @module_name = @{shift};
+    }
+    else{
+        push @module_name,shift;
+    }
+    %opt= @_;
+    
+    for my $module_name (@module_name){
+        my $module_function = undef;
+        if(substr($module_name,0,1) eq '+'){
+            substr($module_name,0,1) = "";
+            $module = $module_name;
+        }
+        else{
+            $module = "Mojo::Webqq::Plugin::" . $module_name;
+        }
+        eval "require $module";
+        $self->die("加载插件[ $module ]失败: $@\n") if $@;
+        $module_function = *{"${module}::call"}{CODE};
+        $self->die("加载插件[ $module ]失败: 未获取到call函数引用\n") if ref $module_function ne 'CODE';
+        $self->debug("加载插件[ $module ]");
+        $self->plugins->{$module}{code} = $module_function;
+        $self->plugins->{$module}{name} = $module;
+        $self->plugins->{$module}{data} = $opt{data};
+        $self->plugins->{$module}{priority} = $opt{priority} || 0;
+        $self->plugins->{$module}{auto_call} = 1 unless defined $opt{auto_call} ;
+        $self->emit("plugin_load",$module);
+    }
+}
+
+sub call{
+    my $self = shift;
+    my @plugins;
+    if(ref $_[0] eq 'ARRAY'){
+        @plugins = @{$_[0]};
+        shift;
+    }
+    else{
+        push @plugins,$_[0];
+        shift;
+    }
+    for(sort {$self->plugins->{$b}{priority} <=> $self->plugins->{$a}{priority}} @plugins){
+        if(exists $self->plugins->{$_}){
+            eval {
+                &{$self->plugins->{$_}{code}}($self,$self->plugins->{$_}{data},@_);   
+            };
+            $self->error($@) if $@;            
+            $self->debug("执行插件[ $_ ]");
+            $self->emit("plugin_call",$_);
+        }
+        else{
+            $self->error("运行插件[ $_ ]失败：找不到该插件"); 
+        }
+    }
+}
+
+1;

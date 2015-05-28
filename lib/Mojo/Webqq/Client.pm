@@ -1,0 +1,222 @@
+package Mojo::Webqq::Client;
+use strict;
+use Mojo::IOLoop;
+$Mojo::Webqq::Client::CLIENT_COUNT  = 0;
+$Mojo::Webqq::Client::LAST_DISPATCH_TIME  = undef;
+$Mojo::Webqq::Client::SEND_INTERVAL  = 0;
+
+use Mojo::Webqq::Client::Remote::_prepare_for_login;
+use Mojo::Webqq::Client::Remote::_check_verify_code;
+use Mojo::Webqq::Client::Remote::_get_img_verify_code;
+use Mojo::Webqq::Client::Remote::_login1;
+use Mojo::Webqq::Client::Remote::_check_sig;
+use Mojo::Webqq::Client::Remote::_login2;
+use Mojo::Webqq::Client::Remote::_get_vfwebqq;
+use Mojo::Webqq::Client::Remote::_cookie_proxy;
+use Mojo::Webqq::Client::Remote::change_state;
+use Mojo::Webqq::Client::Remote::_get_offpic;
+use Mojo::Webqq::Client::Remote::_recv_message;
+use Mojo::Webqq::Client::Remote::_relink;
+use Mojo::Webqq::Client::Remote::logout;
+
+use Mojo::Webqq::Message::Send::Status;
+
+use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron Mojo::EventEmitter Mojo::Webqq::Base);
+
+sub run{
+    my $self = shift;
+    $self->ready();
+
+    my $plugins = $self->plugins;
+    for(
+        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
+        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
+    ){
+        $self->call($_);
+    }
+
+    $self->emit("run");
+    Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+}
+sub stop{
+    my $self = shift;
+    $self->is_stop(1);
+    $Mojo::Webqq::Client::CLIENT_COUNT > 1?$Mojo::Webqq::Client::CLIENT_COUNT--:exit;
+}
+sub ready{
+    my $self = shift;
+    $self->set_message_queue();
+    $self->interval(600,sub{
+        $self->update_group;
+    });
+
+    $self->timer(60,sub{
+        $self->interval(600,sub{
+            $self->update_discuss;    
+        });
+    });
+
+    $self->timer(60+60,sub{
+        $self->interval(600,sub{
+            $self->update_friend;
+        });
+    });
+
+    $self->info("开始接收消息...\n");
+    $self->_recv_message(); 
+    $self->emit("ready");
+    $Mojo::Webqq::Client::CLIENT_COUNT++;
+}
+
+sub timer {
+    my $self = shift;
+    Mojo::IOLoop->timer(@_);
+    return $self;
+}
+sub interval{
+    my $self = shift;
+    Mojo::IOLoop->recurring(@_);
+    return $self;
+}
+sub relogin{
+    my $self = shift;
+    $self->info("正在重新登录...\n");
+    $self->logout();
+    $self->login_state("relogin");
+    $self->sess_sig_cache(Mojo::Webqq::Cache->new);
+    $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
+    $self->ua->cookie_jar->empty;
+    
+    $self->user(+{});
+    $self->friend([]);
+    $self->group([]);
+    $self->discuss([]);
+    $self->recent([]);
+
+    $self->login(qq=>$self->qq,pwd=>$self->pwd);
+    $self->emit("relogin");
+}
+sub login {
+    my $self = shift;
+    my %p = @_;
+    $self->qq($p{qq})->pwd($p{pwd});
+    if(
+           $self->_prepare_for_login()    
+        && $self->_check_verify_code()     
+        && $self->_get_img_verify_code()
+
+    ){
+        while(){
+            my $ret = $self->_login1();
+            if($ret == -1){
+                $self->_get_img_verify_code();
+                next;
+            }
+            elsif($ret == 1){
+                   $self->_check_sig() 
+                && $self->_get_vfwebqq()
+                && $self->_login2();
+                last;
+            }
+            else{
+                last;
+            }
+        }
+    }
+
+    #登录不成功，客户端退出运行
+    if($self->login_state ne 'success'){
+        $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）\n");
+        $self->stop();
+    }
+    else{
+        $self->info("登录成功\n");
+        $self->update_user;
+        $self->update_friend;
+        $self->update_group;
+        $self->update_discuss;
+        $self->update_recent;
+
+        $self->emit("login");
+    }
+}
+
+sub set_message_queue{
+    my $self = shift;
+    #设置从接收消息队列中接收到消息后对应的处理函数
+    $self->message_queue->get(sub{
+        my $msg = shift;
+        return if $self->is_stop; 
+        if($msg->msg_class eq "recv"){
+            if($msg->type eq 'message'){
+                if($self->has_subscribers("receive_offpic")){
+                    for(@{$msg->raw_content}){
+                        if($_->{type} eq 'offpic'){
+                            $self->_get_offpic($_->{file_path},$msg->sender_id);
+                        }   
+                    }
+                }
+                #$self->_detect_new_friend($msg);
+            }
+            elsif($msg->type eq 'group_message'){
+                #$self->_detect_new_group($msg);
+                #$self->_detect_new_group_member($msg);
+            }
+            elsif($msg->type eq 'discuss_message'){
+                #$self->_detect_new_discuss($msg);
+                #$self->_detect_new_discuss_member($msg);
+            }
+            elsif($msg->type eq 'state_message'){
+                my $friend = $self->search_friend(id=>$msg->id);
+                if(defined $friend){
+                    $friend->state($msg->state);
+                    $friend->client_type($msg->client_type);
+                    $self->emit(friend_state_change=>$friend);
+                }
+                return $self;
+            }
+            
+            #接收队列中接收到消息后，调用相关的消息处理回调，如果未设置回调，消息将丢弃
+            $self->emit(receive_message=>$msg);
+        }
+        elsif($msg->msg_class eq "send"){
+            #消息的ttl值减少到0则丢弃消息
+            if($msg->ttl <= 0){
+                my $status = Mojo::Webqq::Message::Send::Status->new(code=>-1,msg=>"发送失败");
+                if(ref $msg->cb eq 'CODE'){
+                    $msg->cb->(
+                        $self,
+                        $msg,
+                        $status,
+                    );
+                }
+                $self->emit(send_message=>
+                    $msg,
+                    $status,
+                );
+                return;
+            }
+            my $ttl = $msg->ttl;
+            $msg->ttl($ttl--);
+
+            my $delay = 0;
+            my $now = time;
+            if(defined $Mojo::Webqq::Client::LAST_DISPATCH_TIME){
+                $delay = $now<$Mojo::Webqq::Client::LAST_DISPATCH_TIME+$Mojo::Webqq::Client::SEND_INTERVAL?
+                            $Mojo::Webqq::Client::LAST_DISPATCH_TIME+$Mojo::Webqq::Client::SEND_INTERVAL-$now
+                        :   0;
+            }
+            $self->timer($delay,sub{
+                $msg->msg_time(time);
+                    $msg->type eq 'message'           ?   $self->_send_message($msg)
+                :   $msg->type eq 'group_message'     ?   $self->_send_group_message($msg)
+                :   $msg->type eq 'sess_message'      ?   $self->_send_sess_message($msg)
+                :   $msg->type eq 'discuss_message'   ?   $self->_send_discuss_message($msg)
+                :                                           undef
+                ;
+            });
+            $Mojo::Webqq::Client::LAST_DISPATCH_TIME = $now+$delay;
+        }
+    });
+}
+1;
