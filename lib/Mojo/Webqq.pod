@@ -187,7 +187,7 @@ A Webqq Client Framework base on Mojolicious
     gid
     type    #group
 
-=item Mojo::Webqq::Recent::Discuss
+=head2 Mojo::Webqq::Recent::Discuss
     
     属性：
     did
