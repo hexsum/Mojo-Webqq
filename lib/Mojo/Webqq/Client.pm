@@ -112,6 +112,12 @@ sub login {
                 $self->_get_img_verify_code();
                 next;
             }
+            elsif($ret == -2){
+                $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
+                $self->encrypt_method("js");
+                $self->relogin();
+                last;
+            }
             elsif($ret == 1){
                    $self->_check_sig() 
                 && $self->_get_vfwebqq()
@@ -219,4 +225,75 @@ sub set_message_queue{
         }
     });
 }
+
+sub mail{
+    my $self  = shift;
+    my %opt = @_;
+    #stmp
+    #port
+    #tls
+    #tls_ca
+    #tls_cert
+    #tls_key
+    #user
+    #pass
+    #from
+    #to
+    #cc
+    #subject
+    #charset
+    #html
+    #text
+    #data
+    eval{local $SIG{__WARN__}=sub{};require Mojo::SMTP::Client;} ;
+    if($@){
+        $self->error("发送邮件，请先安装模块 Mojo::SMTP::Client");
+        return;
+    }
+    my $smtp = Mojo::SMTP::Client->new(
+        address => $opt{smtp},
+        port    => $opt{port} || 25,
+        tls     => $opt{tls},
+        tls_ca  => $opt{tls_ca},
+        tls_cert=> $opt{tls_cert},
+        tls_key => $opt{tls_key},
+    ); 
+    unless(defined $smtp){
+        $self->error("Mojo::SMTP::Client客户端初始化失败");
+        return;
+    }
+    my $data;
+    if(defined $opt{data}){$data = $opt{data}}
+    else{
+        my @data;
+        push @data,("From: $opt{from}","To: $opt{to}");
+        push @data,"Cc: $opt{cc}" if defined $opt{cc};
+        push @data,"Subject: $opt{subject}";
+        my $charset = defined $opt{charset}?$opt{charset}:"UTF-8";
+        if(defined $opt{text}){
+            push @data,("Content-Type: text/plain; charset=$charset",'',$opt{text});
+        }
+        elsif(defined $opt{html}){
+            push @data,("Content-Type: text/html; charset=$charset",'',$opt{html});
+        }
+        $data = join "\r\n",@data;
+    }
+    $smtp->send(
+        auth    => {login=>$opt{user},password=>$opt{pass}},
+        from    => $opt{from},
+        to      => $opt{to},
+        data    => $data,
+        quit    => 1,
+        sub{
+            my ($smtp, $resp) = @_;
+            if($resp->error){
+                $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
+                return;
+            }
+        },
+    );
+
+    
+}
+
 1;

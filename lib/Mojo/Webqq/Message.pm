@@ -302,7 +302,13 @@ sub parse_receive_msg {
     }
 
     #更新客户端ptwebqq值
-    elsif ( $json->{retcode} == 116 ) { $self->ptwebqq($json->{p}); }
+    elsif ( $json->{retcode} == 116 ) { 
+        $self->debug("更新ptwebqq的值[ $json->{p} ]");
+        $self->ptwebqq($json->{p}); 
+        $self->ua->cookie_jar->add(
+            Mojo::Cookie::Response->new(name=>"ptwebqq",value=>$json->{p},path=>"/",domain=>"qq.com",),
+        );
+    }
 
     #未重新登录
     elsif ( $json->{retcode} == 100 ) {

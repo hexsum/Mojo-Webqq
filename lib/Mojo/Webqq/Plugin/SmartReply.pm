@@ -40,12 +40,12 @@ sub call{
                 return;
             }   
             if($limit >=5 and $limit <=6){
-                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制\n");
+                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制");
                 return;
             }
             if($limit > 6){
                 $ban{$msg->sender->id} = 1;
-                $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，1小时内提问无视\n");
+                $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，1小时内提问无视");
                 $client->timer(3600,sub{delete $ban{$msg->sender->id};});
             }
         } 

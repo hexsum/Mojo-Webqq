@@ -130,9 +130,11 @@ sub update_group {
     my $group = shift;
     if(defined $group){
         $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group"; 
-        $self->info("更新群 [ " . $group->gname .  " ] 信息...\n");
+        $self->info("更新群 [ " . $group->gname .  " ] 信息...");
         my $group_info = $self->_get_group_info($group->gcode);
         if(defined $group_info){
+            $self->debug("更新群 [ " . $group->gname .  " ] 信息成功,但暂时没有获取到群成员信息")
+                if ref $group_info->{member} ne 'ARRAY';
             my $old_group = dclone($group);
             for (@{$group_info->{member}}){
                 $_->{_client} = $self ;
@@ -144,7 +146,7 @@ sub update_group {
             $self->emit(lose_group_member=>$_) for @{$lost_members};
         }
         else{
-            $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...\n");
+            $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
         }
         return $self;
     }
@@ -163,9 +165,14 @@ sub update_group {
             push @groups,Mojo::Webqq::Group->new($g);
             next;
         }
-        for(@{$group_info->{member}}){
-            $_->{_client} = $self ;
-            $_ = Mojo::Webqq::Group::Member->new($_) ;
+        if(ref $group_info->{member} ne 'ARRAY'){
+            $self->debug("更新群 [ " . $group_info->{gname} .  " ] 信息成功,但暂时没有获取到群成员信息");
+        }
+        else{
+            for(@{$group_info->{member}}){
+                $_->{_client} = $self ;
+                $_ = Mojo::Webqq::Group::Member->new($_) ;
+            }
         }
         push @groups,Mojo::Webqq::Group->new($group_info);
     } 
@@ -260,9 +267,11 @@ sub update_discuss {
             push @discusss,Mojo::Webqq::Discuss->new($d);
             next;
         }
-        for(@{$discuss_info->{member}}){
-            $_->{_client} = $self;
-            $_ = Mojo::Webqq::Discuss::Member->new($_) ;
+        if(ref $discuss_info->{member} eq "ARRAY"){
+            for(@{$discuss_info->{member}}){
+                $_->{_client} = $self;
+                $_ = Mojo::Webqq::Discuss::Member->new($_) ;
+            }
         }
         push @discusss,Mojo::Webqq::Discuss->new($discuss_info);
     } 

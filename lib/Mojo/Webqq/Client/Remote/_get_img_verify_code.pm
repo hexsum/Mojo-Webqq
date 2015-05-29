@@ -21,7 +21,9 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
     print $fh $content;
     close $fh; 
     if(-t STDIN){
-        $self->info("请输入图片验证码 [ $filename ]: ");
+        my $info = $self->log->format->(time,"info","请输入图片验证码 [ $filename ]: ");
+        chomp $info;
+        $self->log->append($info);
         my $verifycode = <STDIN>;
         chomp($verifycode);
         $self->verifycode($verifycode)

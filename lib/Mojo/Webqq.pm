@@ -17,6 +17,8 @@ has type                    => 'smartqq';  #smartqq|webqq
 has ua_debug                => 0;
 has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
+has email                   => undef;
+has encrypt_method          => "perl";
 
 has version                 => $Mojo::Webqq::VERSION;
 
@@ -48,7 +50,7 @@ has log    => sub{Mojo::Webqq::Log->new(path=>$_[0]->log_path,level=>$_[0]->log_
         . " " 
         . $title 
         . $_ 
-        . "\n";  
+        . "\n";
     }
     return $return;
 })};

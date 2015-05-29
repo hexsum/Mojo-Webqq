@@ -1,4 +1,4 @@
-use Webqq::Encryption qw(pwd_encrypt);
+use Webqq::Encryption qw(pwd_encrypt pwd_encrypt_js);
 sub Mojo::Webqq::Client::_login1{ 
     my $self = shift;
     $self->info("尝试进行登录(阶段1)...\n");
@@ -15,11 +15,16 @@ sub Mojo::Webqq::Client::_login1{
     #}
     
     eval{
-        $passwd = pwd_encrypt($self->pwd,$self->md5_salt,$self->verifycode,1) ;
+        if($self->encrypt_method eq "perl"){
+            $passwd = pwd_encrypt($self->pwd,$self->md5_salt,$self->verifycode,1) ;
+        }
+        else{
+            $passwd = pwd_encrypt_js($self->pwd,$self->md5_salt,$self->verifycode,1) ;
+        }
     };
     if($@){
         $self->error("客户端加密算法执行错误：$@\n");
-        return 0; 
+        return $self->encrypt_method eq "perl"?-2:-3; 
     }
     
     my $query_string_ul = 'http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10';
@@ -67,8 +72,13 @@ sub Mojo::Webqq::Client::_login1{
         return -1;
     }
     elsif($d{retcode} == 3){
-        $self->fatal("您输入的帐号或密码不正确，客户端终止运行...\n");
-        $self->stop();
+        if($self->encrypt_method eq "perl"){
+            return -2;
+        }
+        else{
+            $self->fatal("您输入的帐号或密码不正确，客户端终止运行...\n");
+            $self->stop();
+        }
     }   
     elsif($d{retcode} != 0){
         $self->fatal("$d{status}，客户端终止运行...\n");
