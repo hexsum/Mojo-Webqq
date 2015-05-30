@@ -60,7 +60,7 @@ sub call{
             "info"      =>  $input,
         );
 
-        push @query_string,(loc=>$msg->sender->city."市") if $ms->type eq "group_message" and  $msg->sender->city; 
+        push @query_string,(loc=>$msg->sender->city."市") if $msg->type eq "group_message" and  $msg->sender->city; 
         $client->http_get($api,{json=>1},form=>{@query_string},sub{
             my $json = shift;
             return unless defined $json;
