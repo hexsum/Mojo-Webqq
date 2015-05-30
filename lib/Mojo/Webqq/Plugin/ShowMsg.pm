@@ -7,7 +7,7 @@ sub call{
             my($client,$msg)=@_; 
             if($msg->type eq 'message'){
                 my $sender_nick = $msg->sender->markname || $msg->sender->nick;
-                my $sender_categorie = $sender_nick->categorie || "好友";
+                my $sender_categorie = $msg->sender->categorie || "好友";
                 #my $receiver_nick = $msg->receiver->nick;
                 my $receiver_nick = "我";
                 $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick|$sender_categorie :"},$msg->content);

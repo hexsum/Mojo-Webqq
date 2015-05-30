@@ -1,4 +1,5 @@
 package Mojo::Webqq::Base;
+use Scalar::Util qw(blessed);
 use Carp qw();
 use Mojo::JSON;
 use Encode qw(encode_utf8 encode decode);
@@ -113,11 +114,11 @@ sub reform_hash{
 
 sub dump{
     my $self = shift;
-    my $clone = dclone($self);
-    for(keys %$clone){
-        if($_ eq "_client"){delete $clone->{$_};next}
-        my $bless_name =  blessed($clone->{$_});
-        $clone->{$_} =  "Object($bless_name)" if defined $bless_name;
+    my $clone = {};
+    bless $clone,blessed($self) if blessed($self); 
+    for(keys %$self){
+        next if $_ eq "_client";
+        $clone->{$_} = $_ eq "member"?"[ ARRAY ]":$self->{$_};
     }
     print Dumper $clone;
     return $self;

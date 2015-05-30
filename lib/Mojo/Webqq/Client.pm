@@ -244,7 +244,7 @@ sub mail{
     #charset
     #html
     #text
-    #data
+    #data MIME::Lite产生的发送数据
     eval{local $SIG{__WARN__}=sub{};require Mojo::SMTP::Client;} ;
     if($@){
         $self->error("发送邮件，请先安装模块 Mojo::SMTP::Client");
