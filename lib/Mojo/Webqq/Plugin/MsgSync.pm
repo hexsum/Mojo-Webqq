@@ -95,8 +95,10 @@ sub call{
         for(grep {$gname  ne $_->gname} @groups){ 
             $client->send_group_message($_,"[${sender_nick}#$gname] " . $msg->content);
         }
-        for(@ircs){
-            $_->{client}->write(PRIVMSG => $_->{channel},decode("utf8",":[$sender_nick] ". $msg->content));
+        for my $irc (grep {$_->{is_join}} @ircs){
+            for(split /\n/,$msg->content){
+                $irc->{client}->write(PRIVMSG => $irc->{channel},decode("utf8",":[$sender_nick] ". $_));
+            }
         }
     };
     $client->on(receive_message=>$callback,send_message=>$callback);
