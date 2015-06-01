@@ -41,11 +41,11 @@ A Webqq Client Framework base on Mojolicious
 
 群管理、聊天记录统计、QQ消息报警、QQ机器人、在QQ群中执行Perl代码，查询Perldoc文档、消息转发、QQ和IRC联通等等
 
-原先的Webqq-Client模块采用的是LWP+AnyEvent实现阻塞和非阻塞请求
+原先的L<Webqq::Client>模块采用的是LWP+AnyEvent实现阻塞和非阻塞请求
 
 代码比较混乱，存在诸多bug，易用性和可扩展性较差
 
-此项目是Webqq-Client模块的重构，基于L<Mojolicious>框架，具体更多良好特性，比如：
+此项目是L<Webqq::Client>模块的重构，基于L<Mojolicious>框架，具体更多良好特性，比如：
 
 基于L<Mojo::Base>更好的对象模型、基于L<Mojo::EventEmitter>灵活的事件管理机制、
 
@@ -57,7 +57,7 @@ A Webqq Client Framework base on Mojolicious
 
 数据类型包含 个人、好友、群组、讨论组、最近联系人 几大类型，每种类型都专门设计了类
 
-所以的类都继承Mojo::Webqq::Base具有dump的方法，这些数据类型均由系统自动创建和维护，一般情况下，你只需要对对象进行只读操作
+所有的类都继承Mojo::Webqq::Base具有dump的方法，这些数据类型均由系统自动创建和维护，一般情况下，你只需要对对象进行只读操作
 
 =head2 Mojo::Webqq::User 个人
 
@@ -199,9 +199,9 @@ A Webqq Client Framework base on Mojolicious
 
 =head1 消息类型
 
-消息类似主要包含好友消息、群消息、讨论组消息、群临时消息、讨论组临时消息
+消息类型主要包含好友消息、群消息、讨论组消息、群临时消息、讨论组临时消息
 
-所有的消息类都继承Mojo::Webqq::Message::Base，具备dump的方法
+所有的消息类都继承Mojo::Webqq::Message::Base，具备dump方法
 
 消息的对象均由系统创建和维护，你只需要对消息对象进行只读操作即可
 
@@ -335,6 +335,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     $client->version    #客户端版本
     $client->qq         #登录帐号
     $client->pwd        #密码32位md5值
+    $client->encrypt_method        #perl|js 登录加密算法，系统会会自动选择
 
     $client->user;       #获取Mojo::Webqq::User对象
     $client->group;      #返回客户端存储所有群组的数组引用，一般情况下你不应该直接操作该数据
@@ -355,12 +356,13 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     ua_debug    #设置该参数，打印调试信息
     log_level   #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path    #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
+    encrypt_method #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
 
     $client->new(security=>0,ua_debug=>0);
 
 =head2 on()
 
-基于Mojo::EventEmitter的事件注册方法，可支持同时设置多个事件的回调
+基于Mojo::EventEmitter的事件注册方法，可支持同时设置多个事件回调
     
     $client->on("event1"=>sub{...},"event2"=>sub{...},);
 
@@ -380,7 +382,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     
 =head2 run()
 
-客户端进入事件循环，正式开始运行，一般放在代码的最后，不可获取
+客户端进入事件循环，正式开始运行，一般放在代码的最后，不可或缺
 
     $client->run();
 
@@ -469,9 +471,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 这类事件采用的是较为特殊的处理方式，比如新增群成员时，如果你的帐号是管理员权限，你会收到相关的通知
 
-但如果是非管理员权限,则完全不会收到任何通知提醒，以新增群成员为例
-
-为了统一实现功能，采用两种机制:
+但如果是非管理员权限,则完全不会收到任何通知提醒，以新增群成员为例，为了统一实现功能，采用两种机制:
 
 1）客户端定期更新好友、群组、讨论组数据，和原始数据对比来发现新增或者丢失的成员，当前定期更新频率为10分钟
 2）当群成员在群里发言时，客户端会马上在数据库中搜索相关群成员，如果搜索不到则判断为新增群成员，马上更新数据库，并触发事件
@@ -586,12 +586,12 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 加载一个或者多个插件，多个插件使用数组引用，支持的插件参数包括:
 
-    priority        #设置插件优先级，默认是0，较高的优先级能够使得插件优先执行
-    auto_call       #设置是否加载完成后自动执行，默认为1
-    data            #设置加载插件时可以携带的数据，将会在call的时候传递给插件本身
+    priority        #可选，设置插件优先级，默认是0，较高的优先级能够使得插件优先执行
+    auto_call       #可选，设置是否加载完成后自动执行，默认为1
+    data            #可选，设置加载插件时可以携带的数据，将会在call的时候传递给插件本身
 
     $client->load(["plugin1","plugin2"],data=>[1,2,3,]);
-    $client->load("plugin",[priority=>0,auto_call=>1]);
+    $client->load("plugin",priority=>0,auto_call=>1);
 
 加载插件时，可以通过auto_call设置是否自动执行（默认在run的时候会执行），priority可以设置插件执行的优先级
 
@@ -632,7 +632,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 当多个消息处理类的插件对同一个消息进行处理时，往往存在冲突的情况
 
-比如一个插件对消息处理完并不希望其他插件再继续处理该消息（默认情况下，receive_message事件会广播个所有订阅该事件的回调）
+比如一个插件对消息处理完并不希望其他插件再继续处理该消息（默认情况下，receive_message事件会广播给所有订阅该事件的回调）
 
 这种情况下，可以通过设置不同的插件优先级，使得事件被触发时，优先级较高的插件获得优先执行
 

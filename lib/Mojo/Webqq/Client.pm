@@ -229,7 +229,7 @@ sub set_message_queue{
 sub mail{
     my $self  = shift;
     my %opt = @_;
-    #stmp
+    #smtp
     #port
     #tls
     #tls_ca

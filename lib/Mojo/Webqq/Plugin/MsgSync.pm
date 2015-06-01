@@ -96,7 +96,7 @@ sub call{
             $client->send_group_message($_,"[${sender_nick}#$gname] " . $msg->content);
         }
         for my $irc (grep {$_->{is_join}} @ircs){
-            for(split /\n/,$msg->content){
+            for(split /\n/,$client->truncate($msg->content,max_bytes=>2000,max_lines=>10)){
                 $irc->{client}->write(PRIVMSG => $irc->{channel},decode("utf8",":[$sender_nick] ". $_));
             }
         }
