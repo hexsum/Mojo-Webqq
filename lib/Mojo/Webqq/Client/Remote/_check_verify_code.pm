@@ -27,12 +27,12 @@ sub Mojo::Webqq::Client::_check_verify_code{
     my $content = $self->http_get($self->gen_url($api_url,@query_string),$headers);
     return 0 unless defined $content;
     my %d = ();
-    @d{qw( retcode cap_cd md5_salt verifysession isRandSalt)} = $content=~/'(.*?)'/g ;
+    @d{qw( retcode cap_cd md5_salt ptvfsession isRandSalt)} = $content=~/'(.*?)'/g ;
     $d{md5_salt} =~ s/\\\\x/\x/g; 
     $self->md5_salt($d{md5_salt})
          ->cap_cd($d{cap_cd})
-         ->verifysession($d{verifysession})
-         ->isRandSalt($d{isRandSalt});
+         ->isRandSalt($d{isRandSalt})
+         ->ptvfsession($d{ptvfsession});
     if($d{retcode} ==0){
         $self->info("检查结果: 很幸运，本次登录不需要验证码\n");
         $self->verifycode($d{cap_cd});

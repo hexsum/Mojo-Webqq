@@ -1,4 +1,11 @@
-2015-06-01 Mojo::Webqq v1.1 发布
+2015-06-01 Mojo::Webqq v1.2
+1）修复encrypt_method属性导致的死循环问题
+2）旧版本和新版本的Mojo::UserAgent::CookieJar::all函数不兼容导致登录失败问题 感谢 @moqimoqi.com|PERL学习交流 的反馈
+3）修复首次登录无法获取到群成员信息再次更新群信息时大量触发new_group_member事件的bug
+4）客户端全局消息发送间隔从原来的0s设置为3s，以防止发送消息过快被腾讯屏蔽
+5）修复Mojo::Webbqq::Run使用smartmatch操作符导致部分perl版本不兼容问题 感谢 @杰克|PERL学习交流 的反馈
+
+2015-06-01 Mojo::Webqq v1.1
 1）新增Perlcode、Perldoc、MsgSync插件
 2）修复长时间登录无法更新数据的bug
 3）修复ShowMsg插件的bug

@@ -21,7 +21,7 @@ sub Mojo::Webqq::Client::_login2{
     return 0 unless defined $data;
     if($data->{retcode} ==0){
         $self->psessionid($data->{result}{psessionid})
-             ->vfwebqq($data->{result}{vfwebqq})
+             #->vfwebqq($data->{result}{vfwebqq})
              ->login_state('success')
              ->_cookie_proxy();
         return 1;

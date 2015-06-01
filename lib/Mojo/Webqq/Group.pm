@@ -62,14 +62,14 @@ sub add_group_member{
 
 sub is_empty{
     my $self = shift;
-    return 0+@{$self->{member}};
+    return !(ref($self->member eq "ARRAY")?0+@{$self->member}:0);
 }
 
 sub update{
     my $self = shift;
     my $hash = shift;
     for(keys %$self){
-        if($_ eq "member" and exists $hash->{member} and ref $hash->{member} eq "ARRAY"){
+        if($_ eq "member" and ref $hash->{member} eq "ARRAY"){
             my @member = map { $self->{_client}->new_group_member->new($_) } @{$hash->{member}};
             if( $self->is_empty() ){
                 $self->member(\@member);

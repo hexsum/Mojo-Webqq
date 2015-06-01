@@ -1,10 +1,9 @@
 package Mojo::Webqq::Run;
- 
+use List::Util qw(first);
 use Mojo::Base;
 use base qw(Mojo::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) }
 
-no warnings qw(experimental::smartmatch); 
 use bytes;
 use Carp;
 use Errno;
@@ -207,7 +206,7 @@ sub watch {
         my $proc = $self->get_proc($pid);
          
         $self->log->error('Cant start IO watcher off NULL process'           ) and return unless $proc;
-        $self->log->error("[process $proc->{pid}]: IO ($io) is unsupported"  ) and return unless $io ~~ [qw/stdout stderr stdres/];
+        $self->log->error("[process $proc->{pid}]: IO ($io) is unsupported"  ) and return unless first {$io eq $_} qw/stdout stderr stdres/;
         $self->log->error("[process $proc->{pid}]: IO handler ($io) is EMPTY") and return unless $proc->{"hdr_$io"};
          
         my $id = fileno $proc->{"hdr_$io"};
@@ -443,7 +442,7 @@ sub _validateRunStruct {
                 if $cmd_ref eq '' && length $s->{cmd} == 0;
          
         $self->error('Command can be pure scalar, arrayref or coderef.') and return
-                if $cmd_ref ne '' && not $cmd_ref ~~ ['CODE', 'ARRAY'];
+                if $cmd_ref ne '' && not defined first {$cmd_ref eq $_} ('CODE', 'ARRAY');
  
         # callbacks...
         $self->error("STDOUT callback defined, but is not code reference.") and return

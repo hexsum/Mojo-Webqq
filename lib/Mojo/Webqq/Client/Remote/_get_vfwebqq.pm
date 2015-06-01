@@ -20,6 +20,6 @@ sub Mojo::Webqq::Client::_get_vfwebqq {
         return 0;
     }
     $self->vfwebqq($json->{result}{vfwebqq});
-    return $json->{result}{vfwebqq};
+    return 1;
 }
 1;

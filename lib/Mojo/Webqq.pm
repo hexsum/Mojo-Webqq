@@ -1,6 +1,6 @@
 package Mojo::Webqq;
 use strict;
-$Mojo::Webqq::VERSION = "1.1";
+$Mojo::Webqq::VERSION = "1.2";
 use Mojo::Base;
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -13,12 +13,12 @@ use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::We
 
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
-has type                    => 'smartqq';  #smartqq|webqq
+has type                    => 'smartqq';  #smartqq
 has ua_debug                => 0;
 has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
 has email                   => undef;
-has encrypt_method          => "perl";
+has encrypt_method          => "perl";     #perl|js
 
 has version                 => $Mojo::Webqq::VERSION;
 
@@ -79,7 +79,6 @@ has ua                      => sub {
 
 has qq                     => undef;
 has pwd                    => undef;
-has from_uin               => undef;
 has is_need_img_verifycode => 0;
 has img_verifycode_source  => 'TTY';             #NONE|TTY|CALLBACK
 has send_msg_id            => sub {
@@ -95,12 +94,10 @@ has vfwebqq                => undef;
 has ptwebqq                => undef;
 has passwd_sig             => '';
 has verifycode             => undef;
-has verifysession          => undef;
-has pt_verifysession       => undef;
+has ptvfsession            => undef;
 has md5_salt               => undef;
 has cap_cd                 => undef;
 has isRandSalt             => 0;
-has ptvfsession            => undef;
 has api_check_sig          => undef;
 has g_login_sig            => undef;
 has g_style                => 5;

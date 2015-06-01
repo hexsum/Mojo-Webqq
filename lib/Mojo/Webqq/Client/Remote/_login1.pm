@@ -56,7 +56,7 @@ sub Mojo::Webqq::Client::_login1{
         login_sig       =>  $self->g_login_sig,
         pt_randsalt     =>  $self->isRandSalt, 
         pt_vcode_v1     =>  0,
-        pt_verifysession_v1 =>   $self->verifysession || $self->search_cookie("verifysession"),
+        pt_verifysession_v1 =>   $self->ptvfsession || $self->search_cookie("ptvfsession"),
         
     );
 
@@ -84,8 +84,7 @@ sub Mojo::Webqq::Client::_login1{
         $self->fatal("$d{status}，客户端终止运行...\n");
         $self->stop();
     }
-    $self->api_check_sig($d{api_check_sig})
-         ->ptwebqq($self->search_cookie('ptwebqq'));
+    $self->api_check_sig($d{api_check_sig})->ptwebqq($self->search_cookie('ptwebqq'));
     return 1;
 }
 1;

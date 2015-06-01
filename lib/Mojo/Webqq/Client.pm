@@ -3,7 +3,7 @@ use strict;
 use Mojo::IOLoop;
 $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
 $Mojo::Webqq::Client::LAST_DISPATCH_TIME  = undef;
-$Mojo::Webqq::Client::SEND_INTERVAL  = 0;
+$Mojo::Webqq::Client::SEND_INTERVAL  = 3;
 
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
 use Mojo::Webqq::Client::Remote::_check_verify_code;
@@ -86,7 +86,7 @@ sub relogin{
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
     $self->ua->cookie_jar->empty;
-    
+
     $self->user(+{});
     $self->friend([]);
     $self->group([]);
@@ -106,7 +106,7 @@ sub login {
         && $self->_get_img_verify_code()
 
     ){
-        while(){
+        while(1){
             my $ret = $self->_login1();
             if($ret == -1){
                 $self->_get_img_verify_code();
@@ -116,7 +116,7 @@ sub login {
                 $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
                 $self->encrypt_method("js");
                 $self->relogin();
-                last;
+                return;
             }
             elsif($ret == 1){
                    $self->_check_sig() 

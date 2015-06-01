@@ -155,7 +155,7 @@ sub update_group {
             $group_info = $g;
         }
         if(ref $group_info->{member} ne 'ARRAY'){
-            $self->debug("更新群 [ " . $group_info->{gname} .  " ] 信息成功,但暂时没有获取到群成员信息");
+            $self->debug("更新群 [ " . $group_info->{gname} .  " ]信息成功(未获取到群成员信息)");
         }
         push @groups, $self->new_group($group_info);
     } 
