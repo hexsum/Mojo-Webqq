@@ -1,1 +1,7 @@
+2015-06-01 Mojo::Webqq v1.1 发布
+1）新增Perlcode、Perldoc、MsgSync插件
+2）修复长时间登录无法更新数据的bug
+3）修复ShowMsg插件的bug
+4）修复好友、群组、消息对象调用dump方法时错误的bug
+
 2015-05-27 Mojo::Webqq v1.0 release
