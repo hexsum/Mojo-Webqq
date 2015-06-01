@@ -32,8 +32,7 @@ sub update_user {
         $self->warn("更新个人信息失败\n");
         return;
     }       
-    $user_info->{_client} = $self;
-    $self->user(Mojo::Webqq::User->new($user_info));
+    $self->user($self->new_user($user_info));
 }
 
 sub add_friend {
@@ -64,28 +63,26 @@ sub update_friend {
     my $friend = shift;
     if(defined $friend){
         $self->die("不支持的数据类型") if ref $friend ne "Mojo::Webqq::Friend";
-        $self->info("更新好友 [ " . $friend->nick .  " ] 信息...\n");
+        $self->debug("更新好友 [ " . $friend->nick .  " ] 信息...\n");
         my $friend_info = $self->_get_friend_info($friend->id);  
         if(defined $friend_info){$friend->update($friend_info);}
         else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");}
         return $self;
     }
-    $self->info("更新好友信息...\n"); 
+    my @friends;
+    $self->debug("更新好友信息...\n"); 
     my $friends_info = $self->_get_user_friends();
     if(defined $friends_info){
-        for(@{$friends_info}){
-            $_->{_client}=$self;
-            $_ = Mojo::Webqq::Friend->new($_);
-        }
+        push @friends,$self->new_friend($_) for @{$friends_info};
         if(ref $self->friend eq "ARRAY" and @{$self->friend}  == 0){
             #@{$self->friend} = @{$friends_info}; 
-            $self->friend($friends_info);
+            $self->friend(\@friends);
         }
         else{
-            my($new_friends,$lost_friends) = $self->array_diff($self->friend,$friends_info,sub{$_[0]->id});
+            my($new_friends,$lost_friends) = $self->array_diff($self->friend,\@friends,sub{$_[0]->id});
             $self->emit(new_friend=>$_) for @{$new_friends};
             $self->emit(lose_friend=>$_) for @{$lost_friends};
-            $self->friend($friends_info);
+            $self->friend(\@friends);
         }
     }
     else{$self->warn("更新好友信息失败\n");}
@@ -130,20 +127,12 @@ sub update_group {
     my $group = shift;
     if(defined $group){
         $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group"; 
-        $self->info("更新群 [ " . $group->gname .  " ] 信息...");
+        $self->debug("更新群 [ " . $group->gname .  " ] 信息...");
         my $group_info = $self->_get_group_info($group->gcode);
         if(defined $group_info){
-            $self->debug("更新群 [ " . $group->gname .  " ] 信息成功,但暂时没有获取到群成员信息")
-                if ref $group_info->{member} ne 'ARRAY';
-            my $old_group = dclone($group);
-            for (@{$group_info->{member}}){
-                $_->{_client} = $self ;
-                $_ = Mojo::Webqq::Group::Member->new($_) ;
-            }
+            $self->debug("更新群 [ " . $group->gname .  " ] 信息成功(未获取到群成员信息)") 
+                if ref $group_info->{member} ne "ARRAY";
             $group->update($group_info);
-            my($new_members,$lost_members)  = $self->array_diff($old_group->member,$group->member,sub{$_[0]->id});
-            $self->emit(new_group_member=>$_) for @{$new_members};
-            $self->emit(lose_group_member=>$_) for @{$lost_members};
         }
         else{
             $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
@@ -154,27 +143,21 @@ sub update_group {
     $self->info("更新群列表信息...\n");
     my $group_list = $self->_get_group_list_info(); 
     unless(defined $group_list){
-        $self->warn("更新群信息失败\n");
+        $self->warn("更新群列表信息失败\n");
         return $self;
     }
     for my $g (@{$group_list}){
+        my $group_info;
         $self->info("更新[ " . $g->{gname} . " ]信息\n");
-        my $group_info = $self->_get_group_info($g->{gcode});
+        $group_info = $self->_get_group_info($g->{gcode});
         unless(defined $group_info){
             $self->warn("更新[ " . $g->{gname} . " ]信息失败\n");
-            push @groups,Mojo::Webqq::Group->new($g);
-            next;
+            $group_info = $g;
         }
         if(ref $group_info->{member} ne 'ARRAY'){
             $self->debug("更新群 [ " . $group_info->{gname} .  " ] 信息成功,但暂时没有获取到群成员信息");
         }
-        else{
-            for(@{$group_info->{member}}){
-                $_->{_client} = $self ;
-                $_ = Mojo::Webqq::Group::Member->new($_) ;
-            }
-        }
-        push @groups,Mojo::Webqq::Group->new($group_info);
+        push @groups, $self->new_group($group_info);
     } 
     if(ref $self->group eq "ARRAY" and @{$self->group} == 0){
         $self->group(\@groups);
@@ -183,13 +166,17 @@ sub update_group {
         my($new_groups,$lost_groups,$sames) = $self->array_diff($self->group,\@groups,sub{$_[0]->gid});  
         $self->emit(new_group=>$_) for @{$new_groups};
         $self->emit(lose_group=>$_) for @{$lost_groups};
-        for(@{$sames}){
-            my($og,$ng) = ($_->[0],$_->[1]);
-            if(ref $og->member eq "ARRAY" and ref $ng->member eq "ARRAY" and @{$og->member}!=0 and @{$ng->member}!=0){
-                my($new_members,$lost_members) = $self->array_diff($og->member,$ng->member,sub{$_[0]->id});
-                $self->emit(new_group_member=>$_) for @{$new_members};
-                $self->emit(lose_group_member=>$_) for @{$lost_members}; 
-            }
+        for (
+            grep { ref($_->[0]->member) eq "ARRAY"
+                and ref($_->[1]->member) eq "ARRAY"
+                and @{$_->[0]->member}!=0 
+                and @{$_->[1]->member}!=0
+            } @{$sames}
+        ){
+            my($old_group,$new_group) = ($_->[0],$_->[1]);
+            my($new_members,$lose_members) = $self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
+            $self->emit(new_group_member=>$_) for @{$new_members};
+            $self->emit(lose_group_member=>$_) for @{$lose_members};
         }
         $self->group(\@groups);
     }
@@ -230,50 +217,40 @@ sub add_discuss_member {
 
 sub update_discuss {
     my $self = shift;
-    my $discuss =shift;
+    my $discuss = shift;
     if(defined $discuss){
-        $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss";
-        $self->info("更新群 [ " . $discuss->dname .  " ] 信息...\n"); 
+        $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss"; 
+        $self->debug("更新讨论组 [ " . $discuss->dname .  " ] 信息...");
         my $discuss_info = $self->_get_discuss_info($discuss->did);
         if(defined $discuss_info){
-            my $old_discuss = dclone($discuss);
-            for(@{$discuss_info->{member}}){
-                $_->{_client} = $self;
-                $_ = Mojo::Webqq::Discuss::Member->new($_);
-            } 
+            $self->debug("更新讨论组 [ " . $discuss->dname .  " ] 信息成功(未获取到成员信息)") 
+                if ref $discuss_info->{member} ne "ARRAY";
             $discuss->update($discuss_info);
-            my($new_members,$lost_members) = $self->array_diff($old_discuss->member,$discuss->member,sub{$_[0]->id});
-            $self->emit(new_discuss_member=>$_) for @{$new_members};
-            $self->emit(lose_discuss_member=>$_) for @{$lost_members};
         }
         else{
-            $self->warn("更新群 [ " . $discuss->dname .  " ] 信息失败...\n");
+            $self->warn("更新讨论组 [ " . $discuss->dname .  " ] 信息失败...");
         }
         return $self;
     }
-
     my @discusss;
-    $self->info("更新讨论组列表信息...\n");  
+    $self->info("更新讨论组列表信息...\n");
     my $discuss_list = $self->_get_discuss_list_info(); 
     unless(defined $discuss_list){
-        $self->warn("更新群信息失败\n");
+        $self->warn("更新讨论组列表信息失败\n");
         return $self;
     }
     for my $d (@{$discuss_list}){
+        my $discuss_info;
         $self->info("更新[ " . $d->{dname} . " ]信息\n");
-        my $discuss_info = $self->_get_disucss_info($d->{did});
+        $discuss_info = $self->_get_discuss_info($d->{did});
         unless(defined $discuss_info){
             $self->warn("更新[ " . $d->{dname} . " ]信息失败\n");
-            push @discusss,Mojo::Webqq::Discuss->new($d);
-            next;
+            $discuss_info = $d;
         }
-        if(ref $discuss_info->{member} eq "ARRAY"){
-            for(@{$discuss_info->{member}}){
-                $_->{_client} = $self;
-                $_ = Mojo::Webqq::Discuss::Member->new($_) ;
-            }
+        if(ref $discuss_info->{member} ne 'ARRAY'){
+            $self->debug("更新讨论组 [ " . $discuss_info->{dname} .  " ] 信息成功(未获取到成员信息)");
         }
-        push @discusss,Mojo::Webqq::Discuss->new($discuss_info);
+        push @discusss, $self->new_discuss($discuss_info);
     } 
     if(ref $self->discuss eq "ARRAY" and @{$self->discuss} == 0){
         $self->discuss(\@discusss);
@@ -282,13 +259,17 @@ sub update_discuss {
         my($new_discusss,$lost_discusss,$sames) = $self->array_diff($self->discuss,\@discusss,sub{$_[0]->did});  
         $self->emit(new_discuss=>$_) for @{$new_discusss};
         $self->emit(lose_discuss=>$_) for @{$lost_discusss};
-        for(@{$sames}){
-            my($od,$nd) = ($_->[0],$_->[1]);
-            if(ref $od->member eq "ARRAY" and ref $nd->member eq "ARRAY" and @{$od->member}!=0 and @{$nd->member}!=0){
-                my($new_members,$lost_members) = $self->array_diff($od->member,$nd->member,sub{$_[0]->id});
-                $self->emit(new_discuss_member=>$_) for @{$new_members};
-                $self->emit(lose_discuss_member=>$_) for @{$lost_members}; 
-            }
+        for (
+            grep { ref($_->[0]->member) eq "ARRAY"
+                and ref($_->[1]->member) eq "ARRAY"
+                and @{$_->[0]->member}!=0 
+                and @{$_->[1]->member}!=0
+            } @{$sames}
+        ){
+            my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
+            my($new_members,$lose_members) = $self->array_diff($old_discuss->member,$new_discuss->member,sub{$_[0]->id});
+            $self->emit(new_discuss_member=>$_) for @{$new_members};
+            $self->emit(lose_discuss_member=>$_) for @{$lose_members};
         }
         $self->discuss(\@discusss);
     }
@@ -350,6 +331,44 @@ sub search_recent {
     else{
         return first {my $f = $_;(first {$p{$_} ne $f->$_} keys %p) ? 0 : 1;} @{$self->recent};
     }
+}
+
+
+sub new_user{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::User->new($hash);
+}
+sub new_friend{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::Friend->new($hash);
+}
+sub new_group{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::Group->new($hash);
+}
+sub new_group_member{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::Group::Member->new($hash);
+}
+sub new_discuss{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::Discuss->new($hash);
+}
+sub new_discuss_member{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    Mojo::Webqq::Discuss::Member->new($hash);
 }
 
 1;

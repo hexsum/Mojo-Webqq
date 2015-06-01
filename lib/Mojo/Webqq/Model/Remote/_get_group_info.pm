@@ -11,16 +11,31 @@ sub Mojo::Webqq::Model::_get_group_info {
 
     my $headers = {Referer => 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',json=>1};
     my $json = $self->http_get($self->gen_url($api_url,@query_string),$headers);
-    $json = {} unless defined $json;
+    return unless defined $json;
     my $ginfo_status = exists $json->{result}{ginfo}?"[ginfo-ok]":"[ginfo-not-ok]";
-    my $minfo_status = exists $json->{result}{minfo}?"[minfo-ok]":"[minfo-not-ok]";
+    my $minfo_status = ref $json->{result}{minfo} eq "ARRAY"?"[minfo-ok]":"[minfo-not-ok]";
     
     return undef unless exists $json->{result}{ginfo};
-    #return undef unless exists $json->{result}{minfo};
+    $json->{result}{ginfo}{gcode} = delete $json->{result}{ginfo}{code};
+    $json->{result}{ginfo}{gname} = delete $json->{result}{ginfo}{name};
+    $json->{result}{ginfo}{gmemo} = delete $json->{result}{ginfo}{memo};
+    #$json->{result}{ginfo}{gclass} = delete $json->{result}{ginfo}{class};
+    $json->{result}{ginfo}{gcreatetime} = delete $json->{result}{ginfo}{createtime};
+    $json->{result}{ginfo}{glevel} = delete $json->{result}{ginfo}{level};
+    $json->{result}{ginfo}{gowner} = delete $json->{result}{ginfo}{owner};
+    $json->{result}{ginfo}{gmarkname} = delete $json->{result}{ginfo}{markname};
+    
+    delete $json->{result}{ginfo}{fingermemo};
+    delete $json->{result}{ginfo}{face};
+    delete $json->{result}{ginfo}{option};
+    delete $json->{result}{ginfo}{class};
+    delete $json->{result}{ginfo}{flag};
     delete $json->{result}{ginfo}{members}; 
+    
+    $self->reform_hash($json->{result}{ginfo});
+
     #retcode等于0说明包含完整的ginfo和minfo
-    if($json->{retcode}==0){
-        return undef unless exists $json->{result}{minfo};
+    if(exists $json->{result}{minfo} and ref $json->{result}{minfo} eq "ARRAY"){
         my %cards;
         for  (@{ $json->{result}{cards} }){
             $cards{$_->{muin}} = $_->{card};
@@ -30,22 +45,6 @@ sub Mojo::Webqq::Model::_get_group_info {
             $state{$_->{uin}}{client_type} = $self->code2client($_->{client_type});
             $state{$_->{uin}}{state} = $self->code2state($_->{'stat'});
         }
-        $json->{result}{ginfo}{gcode} = delete $json->{result}{ginfo}{code};
-        $json->{result}{ginfo}{gname} = delete $json->{result}{ginfo}{name};
-        $json->{result}{ginfo}{gmemo} = delete $json->{result}{ginfo}{memo};
-        #$json->{result}{ginfo}{gclass} = delete $json->{result}{ginfo}{class};
-        $json->{result}{ginfo}{gcreatetime} = delete $json->{result}{ginfo}{createtime};
-        $json->{result}{ginfo}{glevel} = delete $json->{result}{ginfo}{level};
-        $json->{result}{ginfo}{gowner} = delete $json->{result}{ginfo}{owner};
-        $json->{result}{ginfo}{gmarkname} = delete $json->{result}{ginfo}{markname};
-
-        delete $json->{result}{ginfo}{fingermemo};
-        delete $json->{result}{ginfo}{face};
-        delete $json->{result}{ginfo}{option};
-        delete $json->{result}{ginfo}{class};
-        delete $json->{result}{ginfo}{flag};
-
-        $self->reform_hash($json->{result}{ginfo});
         for my $m(@{ $json->{result}{minfo} }){
             $m->{card} = $cards{$m->{uin}} if exists $cards{$m->{uin}} ; 
             if(exists $state{$m->{uin}}){
@@ -67,6 +66,7 @@ sub Mojo::Webqq::Model::_get_group_info {
             $m->{gmarkname} = $json->{result}{ginfo}{gmarkname};
             $m->{id}    = delete $m->{uin};
             $self->reform_hash($m);
+            $m->{_client} = $self;
         }
         $json->{result}{ginfo}{member} = delete $json->{result}{minfo};
     }

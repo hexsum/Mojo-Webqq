@@ -1,7 +1,7 @@
 package Mojo::Webqq::Friend;
 use strict;
 use Mojo::Base;
-use base qw(Mojo::Base Mojo::Webqq::Base Mojo::Webqq::Model);
+use base qw(Mojo::Base Mojo::Webqq::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) }
 has [qw(
     flag
@@ -14,14 +14,12 @@ has [qw(
     vip_level   
     state       
     client_type 
-    _client
 )];
 
-sub qq{
+has qq => sub{
     my $self = shift;
-    if(@_==1){$self->{qq} = $_[0]}
-    else{return $self->{qq} if defined $self->{qq};return $self->_client->get_qq_from_id($self->id);}
-}
+    return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
+};
 sub update{
     my $self = shift;
     my $hash = shift;

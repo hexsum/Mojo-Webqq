@@ -15,8 +15,20 @@ has [qw(
     glevel
     gowner
     gmarkname    
-    member
 )];
+has member => sub{[]};
+
+sub new {
+    my $class = shift;
+    my $self ;
+    bless $self=@_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {}, ref $class || $class;
+    if(exists $self->{member} and ref $self->{member} eq "ARRAY"){
+        for( @{ $self->{member} } ){
+            $_ = $self->{_client}->new_group_member($_) if ref $_ ne "Mojo::Webqq::Group::Member";
+        } 
+    }
+    $self;
+}
 
 sub search_group_member{
     my $self = shift;
@@ -48,11 +60,30 @@ sub add_group_member{
     return $self;
 }   
 
+sub is_empty{
+    my $self = shift;
+    return 0+@{$self->{member}};
+}
+
 sub update{
     my $self = shift;
     my $hash = shift;
     for(keys %$self){
-        $self->{$_} = $hash->{$_} if exists $hash->{$_} ;
+        if($_ eq "member" and exists $hash->{member} and ref $hash->{member} eq "ARRAY"){
+            my @member = map { $self->{_client}->new_group_member->new($_) } @{$hash->{member}};
+            if( $self->is_empty() ){
+                $self->member(\@member);
+            }
+            else{
+                my($new_members,$lost_members)=$self->array_diff($self->member, \@member,sub{$_[0]->id});
+                $self->{_client}->emit(new_group_member=>$_) for @{$new_members};
+                $self->{_client}->emit(lose_group_member=>$_) for @{$lost_members};
+                $self->member(\@member);
+            }
+        }
+        else{
+            $self->{$_} = $hash->{$_} if exists $hash->{$_} ;
+        }
     }
     $self;
 }

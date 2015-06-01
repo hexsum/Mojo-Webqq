@@ -411,14 +411,13 @@ sub msg_put{
             $self->update_friend();     
             $sender = $self->search_friend(id=>$msg->{sender_id});
             unless(defined $sender){
-                $sender = Mojo::Webqq::Friend->new( 
+                $sender = $self->new_friend(
                     id          =>  $msg->{sender_id},
                     nick        =>  "昵称未知",
                     categorie   =>  "陌生人",
                 );
                 $self->add_friend($sender,1);
             }
-            
         }
         $msg->{sender} = $sender;
         $msg->{receiver} = $receiver;
@@ -434,14 +433,13 @@ sub msg_put{
                 $self->update_group($group);
                 $sender = $group->search_group_member(id=>$msg->{sender_id});
                 unless(defined $sender){
-                    $sender = Mojo::Webqq::Group::Member->new(
+                    $sender = $self->new_group_member(
                         id=>$msg->{sender_id},
                         nick=>"昵称未知",   
                         gid=>$group->gid,
                         gcode=>$group->gcode,
                         gname=>$group->gname,
                         gmarkname=>$group->gmarkname,
-                        _client=>$self,
                     );
                     $group->add_group_member($sender,1); 
                 }
@@ -453,14 +451,13 @@ sub msg_put{
             return unless defined $group;
             $sender = $group->search_group_member(id=>$msg->{sender_id});
             unless(defined $sender){
-                $sender = Mojo::Webqq::Group::Member->new(
+                $sender = $self->new_group_member(
                     id  =>  $msg->{sender_id},  
                     nick=>"昵称未知",
                     gid =>  $group->gid,
                     gcode=>$group->gcode,   
                     gname=>$group->gname,
                     gmarkname=>$group->gmarkname,
-                    _client=>$self,
                 );
                 $group->add_group_member($sender,1);
             }
@@ -481,14 +478,13 @@ sub msg_put{
                     $self->update_group($group);
                     $sender = $group->search_group_member(id=>$msg->{sender_id});
                     unless(defined $sender){
-                        $sender = Mojo::Webqq::Group::Member->new(
+                        $sender = $self->new_group_member(
                             gid=>$msg->{group_id},
                             gcode=>$group->gcode,
                             gname=>$group->gname,
                             gmarkname=>$group->gmarkname,
                             id=>$msg->{sender_id},
                             nick=>"昵称未知",
-                            _client=>$self,
                         ); 
                         $group->add_group_member($sender,1);
                     }
@@ -500,14 +496,13 @@ sub msg_put{
                 return unless defined $group;
                 $sender = $group->search_group_member(id=>$msg->{sender_id});
                 unless(defined $sender){
-                    $sender = Mojo::Webqq::Group::Member->new(
+                    $sender = $self->new_group_member(
                         gid=>$msg->{group_id},
                         id=>$msg->{sender_id},
                         nick=>"昵称未知",
                         gcode=>$group->gcode,
                         gname=>$group->gname,
                         gmarkname=>$group->gmarkname,
-                        _client=>$self,
                     ); 
                     $group->add_group_member($sender,1);
                 }
@@ -526,19 +521,23 @@ sub msg_put{
                 unless(defined $sender){
                     $self->update_discuss($discuss);
                     $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-                    $sender = Mojo::Webqq::Discuss::Member->new(
+                    $sender = $self->new_discuss_member(
                         did=>$msg->{discuss_id},
                         id=>$msg->{sender_id},
                         nick=>"昵称未知",
-                        _client=>$self,
                     ) unless defined $sender;
                 }
             }                
             else{            
                 $self->update_discuss();
                 $discuss = $self->search_discuss(did=>$msg->{discuss_id});
+                return unless defined $discuss;
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-                $sender = Mojo::Webqq::Discuss::Member->new(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知")                     unless defined $sender; 
+                $sender = $self->new_discuss_member(
+                    did=>$msg->{discuss_id},
+                    id=>$msg->{sender_id},
+                    nick=>"昵称未知"
+                ) unless defined $sender; 
             }                
             $msg->{sender} = $sender;
             $msg->{receiver} = $receiver;
@@ -555,7 +554,7 @@ sub msg_put{
             unless(defined $sender){
                 $self->update_discuss($discuss);
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-                $sender = Mojo::Webqq::Discuss::Member->new(_client=>$self,did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
+                $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
                     unless defined $sender;
             }
         }
@@ -564,7 +563,7 @@ sub msg_put{
             $discuss = $self->search_discuss(did=>$msg->{discuss_id});
             return unless defined $discuss;
             $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-            $sender = Mojo::Webqq::Discuss::Member->new(_client=>$self,did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
+            $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
                 unless defined $sender;
         }
         $msg->{sender} = $sender;

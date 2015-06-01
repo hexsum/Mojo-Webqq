@@ -10,6 +10,7 @@ has [qw(
     occupation
     allow
     college 
+    qq
     id
     blood
     constel
@@ -27,13 +28,6 @@ has [qw(
     gender
     mobile
     signature
-    _client
 )];
-
-sub qq{
-    my $self = shift;
-    if(@_==1){$self->{qq} = $_[0]}
-    else{return $self->{qq} if defined $self->{qq};return $self->_client->get_qq_from_id($self->id);}
-}
 
 1;
