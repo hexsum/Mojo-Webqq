@@ -245,7 +245,7 @@ sub mail{
     #html
     #text
     #data MIME::Lite产生的发送数据
-    eval{local $SIG{__WARN__}=sub{};require Mojo::SMTP::Client;} ;
+    eval{ require Mojo::SMTP::Client;} ;
     if($@){
         $self->error("发送邮件，请先安装模块 Mojo::SMTP::Client");
         return;
@@ -253,10 +253,10 @@ sub mail{
     my $smtp = Mojo::SMTP::Client->new(
         address => $opt{smtp},
         port    => $opt{port} || 25,
-        tls     => $opt{tls},
-        tls_ca  => $opt{tls_ca},
-        tls_cert=> $opt{tls_cert},
-        tls_key => $opt{tls_key},
+        tls     => $opt{tls}||"",
+        tls_ca  => $opt{tls_ca}||"",
+        tls_cert=> $opt{tls_cert}||"",
+        tls_key => $opt{tls_key}||"",
     ); 
     unless(defined $smtp){
         $self->error("Mojo::SMTP::Client客户端初始化失败");
@@ -292,7 +292,6 @@ sub mail{
             }
         },
     );
-
     
 }
 
