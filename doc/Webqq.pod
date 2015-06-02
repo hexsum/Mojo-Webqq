@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-A Webqq Client Framework base on Mojolicious
+Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 =head1 SYNOPSIS
 
