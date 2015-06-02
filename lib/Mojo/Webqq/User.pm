@@ -1,7 +1,7 @@
 package Mojo::Webqq::User;
 use strict;
 use Mojo::Base;
-@Mojo::Webqq::User::ISA = qw(Mojo::Base Mojo::Webqq::Base Mojo::Webqq::Model);
+use base qw(Mojo::Base Mojo::Webqq::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has [qw(
     face

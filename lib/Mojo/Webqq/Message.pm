@@ -425,7 +425,7 @@ sub msg_put{
     }
     elsif($msg->{type} eq "group_message"){ 
         my $sender;
-        my $group; 
+        my $group;  
         $group = $self->search_group(gid=>$msg->{group_id});
         if(defined $group){
             $sender = $group->search_group_member(id=>$msg->{sender_id});

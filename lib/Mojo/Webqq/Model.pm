@@ -180,13 +180,13 @@ sub update_group {
         }
         $self->group(\@groups);
     }
-     
 }
 
 sub search_group {
     my $self = shift;
     my %p = @_;
     delete $p{member};
+    delete $p{_client};
     if(wantarray){
         return grep {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->group};
     }
@@ -279,6 +279,7 @@ sub search_discuss {
     my $self = shift;
     my %p = @_;
     delete $p{member};
+    delete $p{_client};
     if(wantarray){
         return grep {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->discuss};
     }

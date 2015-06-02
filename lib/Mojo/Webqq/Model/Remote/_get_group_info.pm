@@ -66,7 +66,6 @@ sub Mojo::Webqq::Model::_get_group_info {
             $m->{gmarkname} = $json->{result}{ginfo}{gmarkname};
             $m->{id}    = delete $m->{uin};
             $self->reform_hash($m);
-            $m->{_client} = $self;
         }
         $json->{result}{ginfo}{member} = delete $json->{result}{minfo};
     }

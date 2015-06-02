@@ -1,3 +1,10 @@
+2015-06-01 Mojo::Webqq v1.3
+1）修复大量文档错误
+2）修复接收消息失败无法累计失败次数自动重连的bug
+3）修复发送邮件产生warning的问题
+4）客户端的mail方法，发送邮件添加发送成功的debug日志
+5）MsgSync插件对发送给irc的消息进行截断，防止出现irc flood导致客户端被服务器踢下线
+
 2015-06-01 Mojo::Webqq v1.2
 1）修复encrypt_method属性导致的死循环问题
 2）旧版本和新版本的Mojo::UserAgent::CookieJar::all函数不兼容导致登录失败问题 感谢 @moqimoqi.com|PERL学习交流 的反馈
