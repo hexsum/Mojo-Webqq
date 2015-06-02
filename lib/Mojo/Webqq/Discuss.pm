@@ -1,6 +1,7 @@
 package Mojo::Webqq::Discuss;
 use strict;
 use Mojo::Base;
+use List::Util qw(first);
 use base qw(Mojo::Base Mojo::Webqq::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has [qw(
@@ -16,7 +17,7 @@ sub new {
     bless $self=@_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {}, ref $class || $class;
     if(exists $self->{member} and ref $self->{member} eq "ARRAY"){
         for( @{ $self->{member} } ){
-            $_ = $self->{_client}->new_discuss_member($_);
+            $_ = $self->{_client}->new_discuss_member($_) if ref $_ ne "Mojo::Webqq::Discuss::Member";
         }
     }
     $self;
@@ -50,6 +51,11 @@ sub add_discuss_member{
         push @{$self->member},$member;
     }
     return $self;
+}
+
+sub is_empty{
+    my $self = shift;
+    return !(ref($self->member eq "ARRAY")?0+@{$self->member}:0);
 }
 
 sub update{

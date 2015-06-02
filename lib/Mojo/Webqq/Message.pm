@@ -242,7 +242,7 @@ sub parse_receive_msg {
             elsif ( $m->{poll_type} eq 'discu_message' ) {
                 my $msg = {
                     type        => "discuss_message",
-                    discuss_id       => $m->{value}{did},
+                    discuss_id  => $m->{value}{did},
                     msg_id    => $m->{value}{msg_id},
                     sender_id => $m->{value}{send_uin},
                     msg_time  => $m->{value}{'time'},

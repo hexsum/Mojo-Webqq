@@ -17,7 +17,6 @@ sub Mojo::Webqq::Model::_get_discuss_list_info {
     return undef if $json->{retcode}!=0;  
     for(@{ $json->{result}{dnamelist} }){
         $_->{dname} = delete $_->{name};
-        $_->{downer} = delete $_->{owner};
         $self->reform_hash($_);
     } 
     return $json->{result}{dnamelist};

@@ -16,7 +16,7 @@ sub Mojo::Webqq::Model::_get_discuss_info {
 
     my $json = $self->http_get($self->gen_url($api_url,@query_string),$headers);
 
-    $json = {} unless defined $json;
+    return unless defined $json;
     return undef if $json->{retcode}!=0;
     return undef unless exists $json->{result}{info};
     
@@ -66,7 +66,7 @@ sub Mojo::Webqq::Model::_get_discuss_info {
     }
 
     $self->reform_hash($discuss_info);
-    $discuss_info->{ member } =  (@$minfo>0?$minfo:undef),
+    $discuss_info->{ member } = $minfo if @$minfo>0;
     return $discuss_info;
 }
 1;

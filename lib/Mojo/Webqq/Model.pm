@@ -281,10 +281,10 @@ sub search_discuss {
     delete $p{member};
     delete $p{_client};
     if(wantarray){
-        return grep {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->discuss};
+        return grep {my $d = $_;(first {$p{$_} ne $d->$_} keys %p) ? 0 : 1;} @{$self->discuss};
     }
     else{
-        return first {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->discuss};
+        return first {my $d = $_;(first {$p{$_} ne $d->$_} keys %p) ? 0 : 1;} @{$self->discuss};
     }
 }
 
