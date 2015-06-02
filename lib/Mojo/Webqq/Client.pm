@@ -290,6 +290,9 @@ sub mail{
                 $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
                 return;
             }
+            else{
+                $self->debug("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送成功");
+            }
         },
     );
     
