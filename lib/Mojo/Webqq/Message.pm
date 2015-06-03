@@ -102,13 +102,13 @@ sub send_discuss_message{
     my $self = shift;
     if(@_==1){
         my $msg = shift;
-        $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::DisucssMessage";
+        $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::DiscussMessage";
         $self->message_queue->put($msg);
         return $self;
     }
     my ($discuss,$content) = @_;
     if(ref $discuss eq "Mojo::Webqq::Discuss" and defined $discuss->did){
-        my $msg =  Mojo::Webqq::Message::Send::DisucssMessage->new({
+        my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
             msg_id      => $self->gen_message_id,
             sender_id   => $self->user->id,
             discuss_id  => $discuss->did,

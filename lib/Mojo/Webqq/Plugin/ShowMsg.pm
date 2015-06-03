@@ -46,17 +46,17 @@ sub call{
             if($msg->type eq 'message'){
                 my $sender_nick = "我";
                 my $receiver_nick = $msg->receiver->markname || $msg->receiver->nick;
-                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick->$receiver_nick :"},$msg->content);
+                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick->$receiver_nick :"},$msg->content . $attach);
             }
             elsif($msg->type eq 'group_message'){
                 my $gname = $msg->group->gname;
                 my $sender_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick->$gname :"},$msg->content);
+                $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick->$gname :"},$msg->content . $attach);
             }
             elsif($msg->type eq 'discuss_message'){
                 my $dname = $msg->discuss->dname;
                 my $sender_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"讨论组消息",title=>"$sender_nick->$dname :"},$msg->content);
+                $client->info({time=>$msg->msg_time,level=>"讨论组消息",title=>"$sender_nick->$dname :"},$msg->content . $attach);
             }
             elsif($msg->type eq 'sess_message'){
                 my $sender_nick = "我";
@@ -66,12 +66,12 @@ sub call{
                 if($msg->via eq "group"){
                     $receiver_nick = $msg->receiver->card||$msg->receiver->nick;
                     $gname = $msg->group->gname;
-                    $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick->$receiver_nick|$gname :"},$msg->content);
+                    $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick->$receiver_nick|$gname :"},$msg->content . $attach);
                 }
                 elsif($msg->via eq "discuss"){
                     $receiver_nick = $msg->receiver->nick;
                     $dname = $msg->discuss->dname;
-                    $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick->$receiver_nick|$dname :"},$msg->content);
+                    $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick->$receiver_nick|$dname :"},$msg->content . $attach);
                 }
             }
         }

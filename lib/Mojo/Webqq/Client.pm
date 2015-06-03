@@ -188,6 +188,7 @@ sub set_message_queue{
         elsif($msg->msg_class eq "send"){
             #消息的ttl值减少到0则丢弃消息
             if($msg->ttl <= 0){
+                $self->debug("消息[ " . $msg->msg_id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
                 my $status = Mojo::Webqq::Message::Send::Status->new(code=>-1,msg=>"发送失败");
                 if(ref $msg->cb eq 'CODE'){
                     $msg->cb->(
@@ -203,7 +204,7 @@ sub set_message_queue{
                 return;
             }
             my $ttl = $msg->ttl;
-            $msg->ttl($ttl--);
+            $msg->ttl(--$ttl);
 
             my $delay = 0;
             my $now = time;
