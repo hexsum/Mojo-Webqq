@@ -32,7 +32,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
     $self->md5_salt($d{md5_salt})
          ->cap_cd($d{cap_cd})
          ->isRandSalt($d{isRandSalt})
-         ->ptvfsession($d{ptvfsession});
+         ->pt_verifysession($d{ptvfsession});
     if($d{retcode} ==0){
         $self->info("检查结果: 很幸运，本次登录不需要验证码\n");
         $self->verifycode($d{cap_cd});

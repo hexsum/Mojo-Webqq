@@ -56,7 +56,7 @@ sub Mojo::Webqq::Client::_login1{
         login_sig       =>  $self->g_login_sig,
         pt_randsalt     =>  $self->isRandSalt, 
         pt_vcode_v1     =>  0,
-        pt_verifysession_v1 =>   $self->ptvfsession || $self->search_cookie("ptvfsession"),
+        pt_verifysession_v1 =>   $self->pt_verifysession || $self->search_cookie("verifysession"),
         
     );
 

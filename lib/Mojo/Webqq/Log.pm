@@ -30,7 +30,7 @@ sub append {
  
   return unless my $handle = $self->handle;
   flock $handle, LOCK_EX;
-  $handle->print(encode("locale",decode("utf8",$msg))) or croak "Can't write to log: $!";
+  $handle->print(encode(console_out,decode("utf8",$msg))) or croak "Can't write to log: $!";
   flock $handle, LOCK_UN;
 }
  

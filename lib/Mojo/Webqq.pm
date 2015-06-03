@@ -94,6 +94,7 @@ has vfwebqq                => undef;
 has ptwebqq                => undef;
 has passwd_sig             => '';
 has verifycode             => undef;
+has pt_verifysession       => undef,
 has ptvfsession            => undef;
 has md5_salt               => undef;
 has cap_cd                 => undef;
