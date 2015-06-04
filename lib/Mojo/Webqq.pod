@@ -678,7 +678,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     >>> print "hello world";
 
-=head2 ojo::Webqq::Plugin::SmartReply
+=head2 Mojo::Webqq::Plugin::SmartReply
 
 实现机器人的智能回复，支持好友消息、群消息、群临时消息、讨论组临时消息的自动回复
 
@@ -687,7 +687,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     $client->load("SmartReply",priority=>7);
     #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比一般插件优先级更高，插件默认优先级是0
 
-=head2 ojo::Webqq::Plugin::Openqq
+=head2 Mojo::Webqq::Plugin::Openqq
 
 提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息，以及通过接口发送好友消息、群消息、群临时消息和讨论组临时消息
 
