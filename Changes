@@ -1,3 +1,7 @@
+2015-06-05 Mojo::Webqq v1.3.4
+1）pod文档错误纠正
+2）修复发送消息的msg_id一直不变的bug
+
 2015-06-04 Mojo::Webqq v1.3.3
 1）增加IO::Socket::SSL依赖模块版本 1.94+
 2）增加Openqq插件，支持提供http api接口进行信息获取和消息发送
