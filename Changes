@@ -1,3 +1,9 @@
+2015-06-04 Mojo::Webqq v1.3.3
+1）增加IO::Socket::SSL依赖模块版本 1.94+
+2）增加Openqq插件，支持提供http api接口进行信息获取和消息发送
+3）修复Perlcode、Perldoc插件执行时导致进程阻塞的bug
+4）t/https.t测试脚本失败时打印更多错误信息 感谢 @乀﹒安乐，仅此|PERL学习交流 群 的测试反馈
+
 2015-06-03 Mojo::Webqq v1.3.2
 1）修复处理讨论组消息导致程序异常的bug
 2）修复消息队列中的消息ttl无法递减的bug
