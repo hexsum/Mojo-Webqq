@@ -19,7 +19,7 @@ use Mojo::Reactor;
 has 'num_forks'  => sub { 0 };
 has 'max_forks'  => sub { 0 };
 has 'log'        => sub { Mojo::Webqq::Log   ->new };
-has 'ioloop'     => sub { Mojo::IOLoop->new };
+has 'ioloop'     => sub { Mojo::IOLoop->singleton };
 has [qw/reactor error is_child/];
  
 our $VERSION = '0.3';

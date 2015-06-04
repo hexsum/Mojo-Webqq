@@ -4,6 +4,28 @@ use Carp qw();
 use Mojo::JSON;
 use Encode qw(encode_utf8 encode decode);
 use Data::Dumper;
+sub to_hash{
+    my $self = shift;   
+    my $hash = {};
+    for(keys %$self){
+        next if substr($_,0,1) eq "_";
+        next if $_ eq "member";
+        $hash->{$_} = $self->{$_};
+    }
+    $self->reform_hash($hash,1);
+    if(exists $self->{member}){
+        $hash->{member} = [];
+        if(ref $self->{member} eq "ARRAY"){
+            for my $m(@{$self->{member}}){
+                my $member_hash = $m->to_hash();
+                $self->reform_hash($member_hash,1);
+                push @{$hash->{member}},$member_hash;
+            }
+        }
+    }
+
+    return $hash;
+}
 sub decode_json{
     my $self = shift;
     my $r = eval{
@@ -105,9 +127,13 @@ sub code2client {
 sub reform_hash{
     my $self = shift;
     my $hash = shift;
+    my $flag = shift || 0;
     for(keys %$hash){
         $self->die("不支持的hash结构\n") if ref $hash->{$_} ne "";
-        Encode::_utf8_off($hash->{$_}) if Encode::is_utf8($hash->{$_});
+        if($flag){
+            Encode::_utf8_on($hash->{$_}) if not Encode::is_utf8($hash->{$_}); 
+        }
+        else{Encode::_utf8_off($hash->{$_}) if Encode::is_utf8($hash->{$_});}
     }
     $self;
 }

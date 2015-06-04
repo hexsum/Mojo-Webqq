@@ -9,6 +9,7 @@ WriteMakefile(
     LICENSE             => "perl",
     PREREQ_PM         => {
         "Mojolicious"           => '6.11',
+        "IO::Socket::SSL"       => '1.94',
         "Encode::Locale"        => 0,
         "Webqq::Encryption"     => 0,
     }, # e.g., Module::Name => 1.1

@@ -47,11 +47,14 @@ sub call{
     }
     for(sort {$self->plugins->{$b}{priority} <=> $self->plugins->{$a}{priority}} @plugins){
         if(exists $self->plugins->{$_}){
+            $self->debug("执行插件[ $_ ]");
             eval {
                 &{$self->plugins->{$_}{code}}($self,$self->plugins->{$_}{data},@_);   
             };
-            $self->error($@) if $@;            
-            $self->debug("执行插件[ $_ ]");
+            if($@){
+                $self->error("插件[ $_ ]执行错误: $@");            
+                next;
+            }
             $self->emit("plugin_call",$_);
         }
         else{

@@ -39,7 +39,7 @@ sub call{
                     $client->reply_message($msg,$reply) if $reply;
                 },
             );
-            $run->start;
+            #$run->start;
         }
         elsif($msg->content =~ /perldoc\s+((\w+::)*\w+)/){# or $msg->content =~ /((\w+::)+\w+)/){
             $msg->allow_plugin(0);

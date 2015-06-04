@@ -91,11 +91,12 @@ sub update_friend {
 sub search_friend {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     if(wantarray){
-        return grep {my $f = $_;(first {$p{$_} ne $f->$_} keys %p) ? 0 : 1;} @{$self->friend};
+        return grep {my $f = $_;(first {$p{$_} ne $f->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->friend};
     }
     else{
-        return first {my $f = $_;(first {$p{$_} ne $f->$_} keys %p) ? 0 : 1;} @{$self->friend};
+        return first {my $f = $_;(first {$p{$_} ne $f->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->friend};
     }
 }
 
@@ -185,25 +186,27 @@ sub update_group {
 sub search_group {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     delete $p{member};
     delete $p{_client};
     if(wantarray){
-        return grep {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->group};
+        return grep {my $g = $_;(first {$p{$_} ne $g->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->group};
     }
     else{
-        return first {my $g = $_;(first {$p{$_} ne $g->$_} keys %p) ? 0 : 1;} @{$self->group};
+        return first {my $g = $_;(first {$p{$_} ne $g->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->group};
     }
 }
 
 sub search_group_member {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     my @member = map {@{$_->member}} @{$self->group};
     if(wantarray){
-        return grep {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @member;
+        return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
     else{
-        return first {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @member;
+        return first {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
 }
 
@@ -278,25 +281,27 @@ sub update_discuss {
 sub search_discuss {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     delete $p{member};
     delete $p{_client};
     if(wantarray){
-        return grep {my $d = $_;(first {$p{$_} ne $d->$_} keys %p) ? 0 : 1;} @{$self->discuss};
+        return grep {my $d = $_;(first {$p{$_} ne $d->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->discuss};
     }
     else{
-        return first {my $d = $_;(first {$p{$_} ne $d->$_} keys %p) ? 0 : 1;} @{$self->discuss};
+        return first {my $d = $_;(first {$p{$_} ne $d->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->discuss};
     }
 }
 
 sub search_discuss_member {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     my @member = map {@{$_->member}} @{$self->discuss};
     if(wantarray){
-        return grep {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @member;
+        return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
     else{
-        return first {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @member;
+        return first {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
 }
 
@@ -326,11 +331,12 @@ sub update_recent {
 sub search_recent {
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     if(wantarray){
-        return grep {my $f = $_;(first {$p{$_} ne $f->$_} keys %p) ? 0 : 1;} @{$self->recent};
+        return grep {my $f = $_;(first {$p{$_} ne $f->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->recent};
     }
     else{
-        return first {my $f = $_;(first {$p{$_} ne $f->$_} keys %p) ? 0 : 1;} @{$self->recent};
+        return first {my $f = $_;(first {$p{$_} ne $f->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->recent};
     }
 }
 

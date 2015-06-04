@@ -386,6 +386,10 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->run();
 
+=head2 add_job($job_name,$time,$callback);
+
+定时执行任务
+
 =head2 update_friend()
 
 更新全部好友信息，客户端会自动调用该方法，通常你不需要主动使用
@@ -641,6 +645,74 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 这是一种建议性的插件协议，并非强制遵守
 
 除此之外，也可以采用插件的手动执行模式，自己根据需要来执行插件
+
+=head1 插件列表
+
+=head2 Mojo::Webqq::Plugin::MsgSync
+
+实现QQ群和IRC的联通，彼此的消息自动同步，欢迎加入irc.freenode.net的#ChinaPerl，该频道已经和[PERL学习交流]群联通
+    
+    $group1 = $client->search_group(gname=>"PERL学习交流");
+    $group2 = $client->search_group(gname=>"xxx");
+    $client->load("MsgSync",data=>[
+        {nick=>"xxx_",user=>"xxx",pass=>"xxx",channel=>"#ChinaPerl"},
+        $group1,
+        $group2]
+    );
+
+=head2 Mojo::Webqq::Plugin::Perldoc
+
+实现通过QQ消息查询perldoc文档，支持perldoc -f|-v xxx
+    
+    $client->load("Perldoc",priority=>10);
+    #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比其他插件优先级更高，插件默认优先级是0
+
+=head2 Mojo::Webqq::Plugin::Perlcode
+
+通过QQ消息执行Perl代码，仅支持在linux系统上使用
+
+    $client->load("Perlcode",priority=>11);
+    #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比其他插件优先级更高，插件默认优先级是0
+
+触发条件：消息以 >>> 开头，比如：
+
+    >>> print "hello world";
+
+=head2 ojo::Webqq::Plugin::SmartReply
+
+实现机器人的智能回复，支持好友消息、群消息、群临时消息、讨论组临时消息的自动回复
+
+为避免对群内成员产生影响，群内需要使用 @帐号昵称 来触发
+
+    $client->load("SmartReply",priority=>7);
+    #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比一般插件优先级更高，插件默认优先级是0
+
+=head2 ojo::Webqq::Plugin::Openqq
+
+提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息，以及通过接口发送好友消息、群消息、群临时消息和讨论组临时消息
+
+    $client->load("Openqq",data=>[ {host=>127.0.0.1,port=>5000}, ]);
+
+当前支持的API接口（均返回json格式数据）：
+
+    #信息获取
+    /openqq/get_user_info           #查询用户信息
+    /openqq/get_friend_info         #查询好友信息
+    /openqq/get_group_info          #查询群信息
+    /openqq/get_discuss_info        #查询讨论组信息
+    /openqq/get_recent_info         #查询最近联系人列表信息
+    
+    #消息发送，均支持GET和POST
+    /openqq/send_message            #发送好友消息 参数id=xxx&content=xxx 
+    /openqq/send_group_message      #发送群消息   参数gid=xxx&content=xxx
+    /openqq/send_discuss_message    #发送讨论组消息 参数did=xxx&content=xxx （由于腾讯限制，当前无法成功发送）
+    /openqq/send_sess_message       #发送群临时消息  参数 gid=xxx&id=xxx&content=xxx
+    /openqq/send_sess_message       #发送讨论组临时消息 参数 did=xxx&id=xxx&content=xxx
+
+调用示例
+
+    http://127.0.0.1:5000/get_user_info
+    http://127.0.0.1:5000/send_message?id=xxx&content=hello (中文需要utf8编码，且需要做urlencode)
 
 =head1 SEE ALSO
 

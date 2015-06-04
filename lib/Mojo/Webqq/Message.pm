@@ -58,7 +58,7 @@ sub send_message{
         $self->message_queue->put($msg);
         return $self;
     }
-    my ($friend,$content) = @_;
+    my ($friend,$content,$cb) = @_;
     if(ref $friend eq "Mojo::Webqq::Friend" and defined $friend->id){
         my $msg =  Mojo::Webqq::Message::Send::Message->new({
             msg_id      => $self->gen_message_id,
@@ -68,6 +68,7 @@ sub send_message{
             receiver    => $friend,
             content     => $content,
         });    
+        $msg->cb($cb) if ref $cb eq "CODE";
         $self->message_queue->put($msg);
     }
     else{
@@ -82,7 +83,7 @@ sub send_group_message{
         $self->message_queue->put($msg);
         return $self;
     }
-    my ($group,$content) = @_;
+    my ($group,$content,$cb) = @_;
     if(ref $group eq "Mojo::Webqq::Group" and defined $group->gid){
         my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
             msg_id      => $self->gen_message_id,
@@ -92,6 +93,7 @@ sub send_group_message{
             group       => $group,
             content     => $content,
         });
+        $msg->cb($cb) if ref $cb eq "CODE";
         $self->message_queue->put($msg);
     }
     else{
@@ -106,7 +108,7 @@ sub send_discuss_message{
         $self->message_queue->put($msg);
         return $self;
     }
-    my ($discuss,$content) = @_;
+    my ($discuss,$content,$cb) = @_;
     if(ref $discuss eq "Mojo::Webqq::Discuss" and defined $discuss->did){
         my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
             msg_id      => $self->gen_message_id,
@@ -116,6 +118,7 @@ sub send_discuss_message{
             discuss     => $discuss,
             content     => $content,
         });
+        $msg->cb($cb) if ref $cb eq "CODE";
         $self->message_queue->put($msg);
     }
     else{
@@ -130,7 +133,7 @@ sub send_sess_message{
         $self->message_queue->put($msg);
         return $self;
     }
-    my ($member,$content) = @_;
+    my ($member,$content,$cb) = @_;
     if(ref $member eq "Mojo::Webqq::Group::Member" and defined $member->gid and defined $member->id){
         my $msg =  Mojo::Webqq::Message::Send::SessMessage->new({
             msg_id      => $self->gen_message_id,
@@ -144,6 +147,7 @@ sub send_sess_message{
             via         => "group",
             sess_sig    => $self->_get_sess_sig($member->gid,$member->id,0),
         });
+        $msg->cb($cb) if ref $cb eq "CODE";
         $self->message_queue->put($msg);
     }
     elsif(ref $member eq "Mojo::Webqq::Discuss::Member" and defined $member->did and defined $member->id){
@@ -159,6 +163,7 @@ sub send_sess_message{
             via         => "discuss",
             sess_sig    => $self->_get_sess_sig($member->did,$member->id,1),
         });
+        $msg->cb($cb) if ref $cb eq "CODE";
         $self->message_queue->put($msg);
     }
     else{

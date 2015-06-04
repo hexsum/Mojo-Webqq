@@ -33,11 +33,12 @@ sub new {
 sub search_group_member{
     my $self = shift;
     my %p = @_;
+    return if 0 == grep {defined $p{$_}} keys %p;
     if(wantarray){
-        return grep {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @{$self->member};
+        return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->member};
     }
     else{
-        return first {my $m = $_;(first {$p{$_} ne $m->$_} keys %p) ? 0 : 1;} @{$self->member};
+        return first {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->member};
     } 
 }
 

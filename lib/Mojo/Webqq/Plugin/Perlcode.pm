@@ -7,6 +7,7 @@ BEGIN{
     $Mojo::Webqq::Plugin::Perlcode::is_hold_bsd_resource = 1 unless $@; 
 }
 use Mojo::Webqq::Run;
+my $run = Mojo::Webqq::Run->new;
 sub call{
     my $client = shift;
     $client->die(__PACKAGE__ . "只能运行在linux系统上") if $^O !~ /linux/; 
@@ -22,8 +23,8 @@ sub call{
             $code=~s/CORE:://g;
             $code=~s/CORE::GLOBAL:://g; 
             return unless $code;
-            $code = q#use feature qw(say);$|=1;BEGIN{use File::Path;use BSD::Resource;setrlimit(RLIMIT_NOFILE,100,100);setrlimit(RLIMIT_CPU,8,8);setrlimit(RLIMIT_FSIZE,1024,1024);setrlimit(RLIMIT_NPROC,5,5);setrlimit(RLIMIT_STACK,1024*1024*10,1024*1024*10);setrlimit(RLIMIT_DATA,1024*1024*10,1024*1024*10);*CORE::GLOBAL::fork=sub{};}$|=1;use POSIX qw(setuid setgid);{my($u,$g)= (getpwnam("nobody"))[2,3];mkpath('/tmp/webqq/bin/',{owner=>$u,group=>$g,mode=>0555}) unless -e '/tmp/webqq/bin';chdir '/tmp/webqq/bin';chroot '/tmp/webqq/bin' or die "chroot fail: $!";chdir "/";setuid($u);setgid($g);%ENV=();}# .  $code;
-            my $run = Mojo::Webqq::Run->new;
+            $code = q#use feature qw(say);local $|=1;BEGIN{use File::Path;use BSD::Resource;setrlimit(RLIMIT_NOFILE,100,100);setrlimit(RLIMIT_CPU,8,8);setrlimit(RLIMIT_FSIZE,1024,1024);setrlimit(RLIMIT_NPROC,5,5);setrlimit(RLIMIT_STACK,1024*1024*10,1024*1024*10);setrlimit(RLIMIT_DATA,1024*1024*10,1024*1024*10);*CORE::GLOBAL::fork=sub{};}$|=1;use POSIX qw(setuid setgid);{my($u,$g)= (getpwnam("nobody"))[2,3];mkpath('/tmp/webqq/bin/',{owner=>$u,group=>$g,mode=>0555}) unless -e '/tmp/webqq/bin';chdir '/tmp/webqq/bin';chroot '/tmp/webqq/bin' or die "chroot fail: $!";chdir "/";setuid($u);setgid($g);}local %ENV=();# .  $code;
+            #my $run = Mojo::Webqq::Run->new;
             $run->log($client->log);
             my ($stdout_buf,$stderr_buf,$is_stdout_cut,$is_stderr_cut);
             $run->spawn(
@@ -71,7 +72,7 @@ sub call{
                     $client->reply_message($msg,$content);
                 },
             );  
-            $run->start;
+            #$run->start;
         }    
     }); 
 }
