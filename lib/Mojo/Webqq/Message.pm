@@ -29,9 +29,8 @@ sub gen_message_queue{
 sub gen_message_id {
     my $self             = shift;
     my $last_send_msg_id = $self->send_msg_id;
-    my $send_msg_id      = $last_send_msg_id++;
-    $self->send_msg_id($send_msg_id);
-    return $send_msg_id;
+    $self->send_msg_id(++$last_send_msg_id);
+    return $last_send_msg_id;
 }
 
 sub reply_message{
