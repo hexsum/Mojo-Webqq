@@ -46,6 +46,15 @@ sub stop{
 sub ready{
     my $self = shift;
     $self->set_message_queue();
+    $self->on("model_update_fail"=>sub{
+        my $self = shift;
+        my $last_model_update_failure_count = $self->model_update_failure_count;
+        $self->model_update_failure_count(++$last_model_update_failure_count);  
+        if($self->model_update_failure_count >= $self->model_update_failure_count_max ){
+            $self->model_update_failure_count(0);
+            $self->_relink();
+        }
+    });
     $self->interval(600,sub{
         $self->update_group;
     });

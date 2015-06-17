@@ -30,6 +30,7 @@ sub update_user {
     my $user_info = $self->_get_user_info();
     unless ( defined $user_info ) {
         $self->warn("更新个人信息失败\n");
+        $self->emit("model_update_fail");
         return;
     }       
     $self->user($self->new_user($user_info));
@@ -63,14 +64,14 @@ sub update_friend {
     my $friend = shift;
     if(defined $friend){
         $self->die("不支持的数据类型") if ref $friend ne "Mojo::Webqq::Friend";
-        $self->debug("更新好友 [ " . $friend->nick .  " ] 信息...\n");
+        $self->info("更新好友 [ " . $friend->nick .  " ] 信息...\n");
         my $friend_info = $self->_get_friend_info($friend->id);  
         if(defined $friend_info){$friend->update($friend_info);}
-        else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");}
+        else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");$self->emit("model_update_fail");}
         return $self;
     }
     my @friends;
-    $self->debug("更新好友信息...\n"); 
+    $self->info("更新好友信息...\n"); 
     my $friends_info = $self->_get_user_friends();
     if(defined $friends_info){
         push @friends,$self->new_friend($_) for @{$friends_info};
@@ -85,7 +86,7 @@ sub update_friend {
             $self->friend(\@friends);
         }
     }
-    else{$self->warn("更新好友信息失败\n");}
+    else{$self->warn("更新好友信息失败\n");$self->emit("model_update_fail");}
 }
 
 sub search_friend {
@@ -128,7 +129,7 @@ sub update_group {
     my $group = shift;
     if(defined $group){
         $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group"; 
-        $self->debug("更新群 [ " . $group->gname .  " ] 信息...");
+        $self->info("更新群 [ " . $group->gname .  " ] 信息...");
         my $group_info = $self->_get_group_info($group->gcode);
         if(defined $group_info){
             $self->debug("更新群 [ " . $group->gname .  " ] 信息成功(未获取到群成员信息)") 
@@ -137,14 +138,16 @@ sub update_group {
         }
         else{
             $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
+            $self->emit("model_update_fail");
         }
         return $self;
     }
     my @groups;
-    $self->info("更新群列表信息...\n");
+    $self->debug("更新群列表信息...\n");
     my $group_list = $self->_get_group_list_info(); 
     unless(defined $group_list){
         $self->warn("更新群列表信息失败\n");
+        $self->emit("model_update_fail");
         return $self;
     }
     for my $g (@{$group_list}){
@@ -153,6 +156,7 @@ sub update_group {
         $group_info = $self->_get_group_info($g->{gcode});
         unless(defined $group_info){
             $self->warn("更新[ " . $g->{gname} . " ]信息失败\n");
+            $self->emit("model_update_fail");
             $group_info = $g;
         }
         if(ref $group_info->{member} ne 'ARRAY'){
@@ -223,7 +227,7 @@ sub update_discuss {
     my $discuss = shift;
     if(defined $discuss){
         $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss"; 
-        $self->debug("更新讨论组 [ " . $discuss->dname .  " ] 信息...");
+        $self->info("更新讨论组 [ " . $discuss->dname .  " ] 信息...");
         my $discuss_info = $self->_get_discuss_info($discuss->did);
         if(defined $discuss_info){
             $self->debug("更新讨论组 [ " . $discuss->dname .  " ] 信息成功(未获取到成员信息)") 
@@ -232,14 +236,16 @@ sub update_discuss {
         }
         else{
             $self->warn("更新讨论组 [ " . $discuss->dname .  " ] 信息失败...");
+            $self->emit("model_update_fail");
         }
         return $self;
     }
     my @discusss;
-    $self->info("更新讨论组列表信息...\n");
+    $self->debug("更新讨论组列表信息...\n");
     my $discuss_list = $self->_get_discuss_list_info(); 
     unless(defined $discuss_list){
         $self->warn("更新讨论组列表信息失败\n");
+        $self->emit("model_update_fail");
         return $self;
     }
     for my $d (@{$discuss_list}){
@@ -325,6 +331,7 @@ sub update_recent {
     }
     else{
         $self->warn("更新最近联系人信息失败\n");
+        $self->emit("model_update_fail");
     }
 }
 

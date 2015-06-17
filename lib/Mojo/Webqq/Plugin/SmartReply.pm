@@ -9,7 +9,7 @@ my @limit_reply = (
     "对不起，您的艾特次数太多",
     "说这么多话不累么，请休息几分钟",
     "能不能小窗我啊，别吵着大家",
-);        
+);
 sub call{
     my $client = shift;
     my $data   = shift;
@@ -51,7 +51,7 @@ sub call{
         } 
 
         my $input = $msg->content;
-        $input=~s/\@\Q$self_nick\E ?|\[[^\[\]]+\]\x01|\[[^\[\]]+\]//g;
+        $input=~s/\@\Q$user_nick\E ?|\[[^\[\]]+\]\x01|\[[^\[\]]+\]//g;
         return unless $input;
 
         my @query_string = (
