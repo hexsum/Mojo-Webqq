@@ -10,7 +10,7 @@ Mojo-Webqq v1.3.4
   Openqq                提供qq发送消息api接口                已发布      sjdy521
   Perlcode              通过qq消息查询perl文档               已发布      sjdy521
   Perldoc               通过qq消息执行perl代码               已发布      sjdy521
-  PostImgVerifycode     登录验证码发送到邮箱，实现远程登录   未完成      sjdy521
+  PostImgVerifycode     登录验证码发送到邮箱实现远程登录     未完成      sjdy521
   ShowMsg               打印客户端接收和发送的消息           已发布      sjdy521
   SmartReply            智能聊天回复                         已发布      sjdy521
   StockInfo             查询股票信息                         已发布      shalk
