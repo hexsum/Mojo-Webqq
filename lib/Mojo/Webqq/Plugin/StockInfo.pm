@@ -10,7 +10,7 @@ sub call{
     $client->on(receive_message => sub {
         my($client,$msg)=@_;
         return unless $msg->allow_plugin;
-        return unless $msg->content =~ /^gp\s+(.*)$/;
+        return unless $msg->content =~ /^gp\s+(.*)$/ or $msg->content =~ /^股票\s+(.*)$/;
         $msg->allow_plugin(0);
 
         my $stockid = stockid_convert($1); 
