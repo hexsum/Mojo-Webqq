@@ -40,8 +40,19 @@ sub run{
 }
 sub stop{
     my $self = shift;
+    my $mode = shift || "auto";
     $self->is_stop(1);
-    $Mojo::Webqq::Client::CLIENT_COUNT > 1?$Mojo::Webqq::Client::CLIENT_COUNT--:exit;
+    if($mode eq "auto"){
+        $Mojo::Webqq::Client::CLIENT_COUNT > 1?$Mojo::Webqq::Client::CLIENT_COUNT--:exit;
+    }
+    else{
+        $Mojo::Webqq::Client::CLIENT_COUNT--;
+    }
+}
+sub exit{
+    my $s = shift;  
+    my $code = shift;
+    exit(defined $code?$code+0:0);
 }
 sub ready{
     my $self = shift;
@@ -56,17 +67,20 @@ sub ready{
         }
     });
     $self->interval(600,sub{
+        return if $self->is_stop;
         $self->update_group;
     });
 
     $self->timer(60,sub{
         $self->interval(600,sub{
+            return if $self->is_stop;
             $self->update_discuss;    
         });
     });
 
     $self->timer(60+60,sub{
         $self->interval(600,sub{
+            return if $self->is_stop;
             $self->update_friend;
         });
     });

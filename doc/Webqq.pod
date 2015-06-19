@@ -391,6 +391,8 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 =head2 add_job($job_name,$time,$callback);
 
 定时执行任务
+    
+    $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
 
 =head2 update_friend()
 
@@ -463,6 +465,37 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 只需要对接收到的消息进行回复，使用reply_message会比较方便
 
     $client->reply_message($msg,$content);
+
+=head2 http_get http阻塞或非阻塞get请求
+
+该方法为Mojo::UserAgent的get方法的封装，调用方式基本和Mojo::UserAgent->get相同，但也存在细微差别
+
+阻塞http请求：
+
+    #标量上下文  返回http请求内容，若请求失败，返回内容为undef
+    my $http_body = $client->http_get($url,$header);
+
+    #列表上下文，返回http请求内容以及$ua,$tx
+    my ($http_body,$ua,$tx) = $client->http_get($url,$header);
+    
+    #可以在http header设置一些请求相关的选项，比如：
+    #json=>1 表示将响应的json数据进行json decode得到perl的hash引用
+    #retry_times=>3 表示请求失败自动重试次数，默认使用$client->ua_retry_times的值
+    my $json_decode_hash = $client->http_get($url,{json=>1,retry_times=>3,Host=>"www.qq.com"});
+
+    #http post请求
+    $client->http_post($url,$header,form=>$post_data);
+
+非阻塞http请求：
+
+    $client->http_get($url,$header,sub{
+        my($http_body,$ua,$tx) = @_;    
+        #请求失败 $http_body 返回undef
+    });
+
+=head2 http_post http阻塞或非阻塞post请求
+
+和 http_get 方法类似，不再赘述
 
 =head1 客户端事件
 
