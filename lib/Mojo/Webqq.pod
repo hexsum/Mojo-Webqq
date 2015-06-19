@@ -497,10 +497,6 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 和 http_get 方法类似，不再赘述
 
-=head2 mail 客户端阻塞或非阻塞发送邮件
-
-该方法依赖Mojo::SMTP::Client模块，具体使用方法请参照该模块
-
 =head1 客户端事件
 
 常见的事件发生时，比如接收到消息，有人加入群中等等，客户端会设置对应的事件名称，并在事件完成时进行触发
@@ -687,6 +683,12 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 除此之外，也可以采用插件的手动执行模式，自己根据需要来执行插件
 
 =head1 插件列表
+
+=head2 Mojo::Webqq::Plugin::StockInfo
+
+查询股票信息，聊天内容中输入 "gp 123456" 或者 "股票 123456" 触发
+
+目前仅支持上海和深圳6位数字股票代码
 
 =head2 Mojo::Webqq::Plugin::MsgSync
 

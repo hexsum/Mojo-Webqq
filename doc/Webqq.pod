@@ -684,6 +684,12 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 =head1 插件列表
 
+=head2 Mojo::Webqq::Plugin::StockInfo
+
+查询股票信息，聊天内容中输入 "gp 123456" 或者 "股票 123456" 触发
+
+目前仅支持上海和深圳6位数字股票代码
+
 =head2 Mojo::Webqq::Plugin::MsgSync
 
 实现QQ群和IRC的联通，彼此的消息自动同步，欢迎加入irc.freenode.net的#ChinaPerl，该频道已经和[PERL学习交流]群联通
