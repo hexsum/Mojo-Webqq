@@ -686,7 +686,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 =head2 Mojo::Webqq::Plugin::StockInfo
 
-查询股票信息，聊天内容中输入 "gp 123456" 或者 "股票 123456" 触发
+查询股票信息，聊天内容中输入 "gp 000001" 或者 "股票 000001" 触发
 
 目前仅支持上海和深圳6位数字股票代码
 
