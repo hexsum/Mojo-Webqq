@@ -2,6 +2,19 @@ Mojo-Webqq v1.3.4
 ========================
 使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本高于5.10
 
+插件列表：
+  
+  插件名称              功能说明                             当前状态    作者
+  ------------------------------------------------------------------------------
+  MsgSync               实现qq群和irc消息同步                已发布      sjdy521
+  Openqq                提供qq发送消息api接口                已发布      sjdy521
+  Perlcode              通过qq消息查询perl文档               已发布      sjdy521
+  Perldoc               通过qq消息执行perl代码               已发布      sjdy521
+  PostImgVerifycode     登录验证码发送到邮箱，实现远程登录   未完成      sjdy521
+  ShowMsg               打印客户端接收和发送的消息           已发布      sjdy521
+  SmartReply            智能聊天回复                         已发布      sjdy521
+  StockInfo             查询股票信息                         已发布      shalk
+
 安装步骤
 
    perl Makefile.PL
@@ -16,10 +29,6 @@ Mojo-Webqq v1.3.4
    Mojolicious
    Encode::Locale
    Webqq::Encryption
-
-可选模块
-
-   Webqq::Qun
 
 版本更新记录
 
