@@ -1,3 +1,10 @@
+2015-06-05 Mojo::Webqq v1.3.5
+1）pod文档大量完善
+2）Perlcode插件bug修复
+3）修复客户端stop之后仍然定时更新数据的bug
+4）增加StockInfo插件，感谢 @乀﹒安乐，仅此|PERL学习交流 群的反馈
+5）修复Openqq插件错误，感谢 @一棵草|PERL学习交流 群的反馈
+
 2015-06-05 Mojo::Webqq v1.3.4
 1）pod文档错误纠正
 2）修复发送消息的msg_id一直不变的bug
