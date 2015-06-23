@@ -24,7 +24,7 @@ sub call{
                 $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});  
             });
         }
-        else{$c->render(json=>{msg_id=>undef,code=>100,status=>"friend found"});}
+        else{$c->render(json=>{msg_id=>undef,code=>100,status=>"friend not found"});}
     };
     any [qw(GET POST)] => 'openqq/send_group_message'    => sub{
         my $c = shift;

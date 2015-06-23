@@ -141,7 +141,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     last_speak_time #最后发言时间
     level           ##等级 灌水|传说|潜水 等, 需要安装Webqq::Qun模块,暂未实现
     role            #角色 admin|owner|member, 需要安装Webqq::Qun模块,暂未实现
-    bad_record      #是否包含不良记录 0|1
+    bad_record      #是否包含不良记录 0|1,需要安装Webqq::Qun模块,暂未实现
     gid             #所在群的id
     gtype           #所在群的类型,  需要安装Webqq::Qun模块,暂未实现
     gnumber         #所在群的群号码, 需要安装Webqq::Qun模块,暂未实现
@@ -299,9 +299,9 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     msg_id          #消息id
     group_id        #群gid
     discuss_id      #讨论组did
-    sender_id       #发送消息的讨论组成员id
+    sender_id       #发送消息的讨论组成员id或群成员id
     receiver_id     #Mojo::Webqq::User对象
-    sender          #发送消息的讨论组成员对象 Mojo::Webqq::Discuss::Member
+    sender          #发送消息的讨论组成员对象或群成员对象
     group           #群对象 Mojo::Webqq::Group
     discuss         #讨论组对象 Mojo::Webqq::Discuss
     receiver        #群成员对象或者讨论组成员对象
@@ -317,7 +317,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     属性：
 
     code    #0 表示成功 非零表示失败
-    msg     #"发送给成功"|"发送失败"
+    msg     #"发送成功"|"发送失败"
     
     方法:
     is_success
@@ -366,7 +366,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     
     $client->on("event1"=>sub{...},"event2"=>sub{...},);
 
-参考下文客户端支持的是事件 
+参考下文客户端支持的事件 
 
 =head2 login() 
 
@@ -378,7 +378,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 =head2 relogin()
 
-重新登录，客户端默认会自动尝试登录
+重新登录，客户端默认会自动尝试重新登录
 
     $client->relogin()
     
@@ -392,7 +392,32 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 定时执行任务
     
+    #支持的时间格式为 HH:MM:SS
     $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
+
+=head2 mail(%opt) 非阻塞发送邮件
+
+该方法实际上是L<Mojo::SMTP::Client>的封装，使用该方法之前请确保你已经安装了L<Mojo::SMTP::Client>模块
+
+    发送邮件需要设置的参数：
+    smtp        #smtp服务器地址，例如smtp.163.com
+    port        #smtp服务器端口，默认25
+    tls         #0|1 是否使用tls，默认为 0
+    tls_ca      #tls证书路径
+    tls_cert    #tls公钥路径
+    tls_key     #tls密钥路径
+    user        #smtp帐号
+    pass        #smtp密码
+    from        #发送邮箱
+    to          #接收邮箱
+    cc          #抄送邮箱
+    subject     #主题
+    charset     #编码，默认UTF-8
+    html        #邮件正文内容，html格式
+    text        #邮件正文内容，纯文本格式
+    data        #设置该选项表示使用MIME::Lite生成的发送数据
+
+    $client->mail(smtp=>smtp.163.com,user=>xxx,pass=>xxx,from=>xxx,to=>xxx,subject=>"邮件测试",text=>"hello world");
 
 =head2 update_friend()
 
@@ -492,6 +517,10 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
         my($http_body,$ua,$tx) = @_;    
         #请求失败 $http_body 返回undef
     });
+
+注意：由于采用事件驱动，因此，你应该始终选择使用非阻塞的http请求模式，如果采用阻塞的http请求，在http请求完成之前
+
+整个程序都是被阻塞的，无法做其他任何事（包括接收和发送消息等）
 
 =head2 http_post http阻塞或非阻塞post请求
 
