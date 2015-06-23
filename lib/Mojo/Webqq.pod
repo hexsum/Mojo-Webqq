@@ -753,8 +753,8 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 调用示例
 
-    http://127.0.0.1:5000/get_user_info
-    http://127.0.0.1:5000/send_message?id=xxx&content=hello (中文需要utf8编码，且需要做urlencode)
+    http://127.0.0.1:5000/openqq/get_user_info
+    http://127.0.0.1:5000/openqq/send_message?id=xxx&content=hello (中文需要utf8编码，且需要做urlencode)
 
 =head1 SEE ALSO
 

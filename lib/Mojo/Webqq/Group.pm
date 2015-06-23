@@ -71,6 +71,7 @@ sub update{
     my $hash = shift;
     for(keys %$self){
         if($_ eq "member" and ref $hash->{member} eq "ARRAY"){
+            next if not @{$hash->{member}};
             my @member = map { $self->{_client}->new_group_member->new($_) } @{$hash->{member}};
             if( $self->is_empty() ){
                 $self->member(\@member);
