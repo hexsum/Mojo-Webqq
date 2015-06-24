@@ -159,6 +159,7 @@ sub update_group {
             $self->emit("model_update_fail");
             $group_info = $g;
         }
+        delete $group_info->{member} if $_[0]==1 and $group_info->{gname} eq "IT狂人";
         if(ref $group_info->{member} ne 'ARRAY'){
             $self->debug("更新群 [ " . $group_info->{gname} .  " ]信息成功(未获取到群成员信息)");
         }
@@ -175,13 +176,17 @@ sub update_group {
             grep { ref($_->[0]->member) eq "ARRAY"
                 and ref($_->[1]->member) eq "ARRAY"
                 and @{$_->[0]->member}!=0 
-                and @{$_->[1]->member}!=0
             } @{$sames}
         ){
-            my($old_group,$new_group) = ($_->[0],$_->[1]);
-            my($new_members,$lose_members) = $self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
-            $self->emit(new_group_member=>$_) for @{$new_members};
-            $self->emit(lose_group_member=>$_) for @{$lose_members};
+            if(@{$_->[1]->member}!=0){
+                my($old_group,$new_group) = ($_->[0],$_->[1]);
+                my($new_members,$lose_members) = $self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
+                $self->emit(new_group_member=>$_) for @{$new_members};
+                $self->emit(lose_group_member=>$_) for @{$lose_members};
+            }
+            else{
+                $_->[1]->member($_->[0]->member);
+            }
         }
         $self->group(\@groups);
     }

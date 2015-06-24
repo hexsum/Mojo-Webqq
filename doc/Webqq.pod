@@ -374,7 +374,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->login(qq=>xxxx,pwd=>xxxx);    #pwd必须是原始密码经过md5加密后的32位字符串
 
-注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA>和L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度
+注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度
 
 =head2 relogin()
 
