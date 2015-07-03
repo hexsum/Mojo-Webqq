@@ -762,7 +762,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息，以及通过接口发送好友消息、群消息、群临时消息和讨论组临时消息
 
-    $client->load("Openqq",data=>[ {host=>127.0.0.1,port=>5000}, ]);
+    $client->load("Openqq",data=>[ {host=>"127.0.0.1",port=>5000}, ]);
 
 当前支持的API接口（均返回json格式数据）：
 
