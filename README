@@ -1,4 +1,4 @@
-Mojo-Webqq v1.3.5
+Mojo-Webqq v1.3.6
 ========================
 使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本高于5.10
 

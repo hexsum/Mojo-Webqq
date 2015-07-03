@@ -98,11 +98,16 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     state           #好友状况 online|away|busy|silent|offline
     client_type     #好友客户端类型 pc|mobile|iphone|unknown
 
+    方法:
+    send            #给好友对象发送消息
+
 代码示例：
 
     my $friend = $client->search_friend(id=>xxx);
     print "好友昵称为: " ,$friend->nick,"\n";
     $friend->dump();
+
+    $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
 
 =head2 Mojo::Webqq::Group 群组
 
@@ -121,6 +126,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法：
     search_group_member  #根据群成员属性搜索群，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
+    send                 #给群对象发送消息 $group->send("hello world")
 
 =head2 Mojo::Webqq::Group::Member 群成员
 
@@ -152,6 +158,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     gowner          #所在群的拥有者id
     gmarkname       #所在群的备注名称
 
+    方法:
+    send            #给群成员对象发送消息 $member->send("hello world")
+
 =head2 Mojo::Webqq::Discuss 讨论组
 
     属性：
@@ -163,7 +172,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法:
 
-    search_discuss_member
+    search_discuss_member   #搜索讨论组成员
+    send                    #给讨论组对象发送消息
 
 =head2 Mojo::Webqq::Discuss::Member 讨论组成员
 
@@ -178,6 +188,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     dname
     did
     downer
+
+    方法：
+    send                    #给讨论组成员发送临时消息
 
 =head2 Mojo::Webqq::Recent::Friend 
 

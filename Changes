@@ -1,3 +1,8 @@
+20155-07-03 Mojo::Webqq v1.3.6
+1）修复在某些特殊情况下触发大量new_group_member事件的bug
+2）好友、群、讨论组等对象增加send方法，可以通过对象直接发送消息
+3）修复文档错误
+
 2015-06-05 Mojo::Webqq v1.3.5
 1）pod文档大量完善
 2）Perlcode插件bug修复
