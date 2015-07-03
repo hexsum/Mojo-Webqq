@@ -4,9 +4,13 @@ use Time::Piece;
 use Time::Seconds;
 sub add_job{
     my $self = shift;
-    my($type,$t,$callback) = @_;
+    my($type,$nt,$callback) = @_;
+    my $t = $nt;
     if(ref $callback ne 'CODE'){ 
         $self->die("设置的callback无效\n");
+    }
+    if(ref $nt eq "CODE"){
+        $t = $nt->();
     }
     my($hour,$minute) = split /:/,$t;
     my $time = {hour => $hour,minute => $minute,second=>0};
@@ -55,7 +59,7 @@ sub add_job{
             $callback->();
         };
         $self->error($@) if $@;
-        $self->add_job($type,$t,$callback);
+        $self->add_job($type,$nt,$callback);
     });
 }
 1;
