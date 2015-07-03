@@ -42,14 +42,14 @@ sub call{
                 stdout_cb => sub {
                     my ($pid, $chunk) = @_;
                     $stdout_buf.=$chunk;
-                    if(length($stdout_buf) > 200){
-                        $run->kill($pid);
-                        $stdout_buf = substr($stdout_buf,0,200);
-                        $stdout_buf .= "(已截断)";
-                    }
-                    elsif(count_lines($stdout_buf) > 10){
+                    if(count_lines($stdout_buf) > 10){
                         $run->kill($pid);
                         $stdout_buf  = join "\n",(split /\n/,$stdout_buf,11)[0..9];
+                        $stdout_buf .= "(已截断)";
+                    }
+                    elsif(length($stdout_buf) > 200){
+                        $run->kill($pid);
+                        $stdout_buf = substr($stdout_buf,0,200);
                         $stdout_buf .= "(已截断)";
                     }
                 },

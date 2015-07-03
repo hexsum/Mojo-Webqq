@@ -82,4 +82,9 @@ sub update{
     }
     $self;
 }
+sub send {
+    my $self = shift;
+    my $content = shift;
+    $self->{_client}->send_discuss_message($self,$content);
+} 
 1;

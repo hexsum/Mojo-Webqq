@@ -26,7 +26,7 @@ use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron Mojo::EventEmitter Mo
 sub run{
     my $self = shift;
     $self->ready();
-
+    
     my $plugins = $self->plugins;
     for(
         sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
@@ -50,7 +50,7 @@ sub stop{
     }
 }
 sub exit{
-    my $s = shift;  
+    my $self = shift;  
     my $code = shift;
     exit(defined $code?$code+0:0);
 }
