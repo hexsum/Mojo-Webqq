@@ -17,7 +17,7 @@ sub call{
     return if ref $data ne "ARRAY";
     for(@$data){
         if(ref $_ eq "Mojo::Webqq::Group"){
-            push @groups,$_; 
+            push @groups,$_->gname; 
         }
         elsif(ref $_ eq "HASH"){
             $_->{server} = "irc.freenode.net" unless defined $_->{server};
@@ -45,7 +45,9 @@ sub call{
             my ($command,$nick,$channel,$content) =
                 ($m->{command},substr($m->{prefix},0,index($m->{prefix},"!~")),$m->{params}[0],$m->{params}[1]);
             for(@groups){
-                $client->send_group_message($_,"[$nick#irc] " . encode("utf8",$content));
+                my $g = $client->search_group(gname=>$_);
+                next unless defined $g;
+                $client->send_group_message($g,"[$nick#irc] " . encode("utf8",$content));
             }
         });
         $irc->{client}->on(close=>sub{
@@ -91,9 +93,11 @@ sub call{
             $sender_nick = $msg->sender->nick;
         }
         my $gname = $msg->group->gname;
-        return unless first {$gname eq $_->gname} @groups;
-        for(grep {$gname  ne $_->gname} @groups){ 
-            $client->send_group_message($_,"[${sender_nick}#$gname] " . $msg->content);
+        return unless first {$gname eq $_} @groups;
+        for(grep {$gname  ne $_}  @groups){ 
+            my $g = $client->search_group(gname=>$_);
+            next unless defined $g;
+            $client->send_group_message($g,"[${sender_nick}#$gname] " . $msg->content);
         }
         for my $irc (grep {$_->{is_join}} @ircs){
             for(split /\n/,$client->truncate($msg->content,max_bytes=>2000,max_lines=>10)){
