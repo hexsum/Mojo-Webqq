@@ -28,6 +28,7 @@ has recent  => sub {[]};
 has group   => sub {[]};
 has discuss => sub {[]};
 
+has data    => sub {+{}};
 has plugins => sub{+{}};
 has log    => sub{Mojo::Webqq::Log->new(path=>$_[0]->log_path,level=>$_[0]->log_level,format=>sub{
     my ($time, $level, @lines) = @_;

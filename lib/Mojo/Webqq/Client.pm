@@ -26,7 +26,7 @@ use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron Mojo::EventEmitter Mo
 sub run{
     my $self = shift;
     $self->ready();
-    
+ 
     my $plugins = $self->plugins;
     for(
         sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
@@ -66,6 +66,16 @@ sub ready{
             $self->_relink();
         }
     });
+    $self->on(receive_message=>sub{
+        my($self,$msg)=@_;
+        return unless $msg->type =~/^message|sess_message$/;
+        my $sender_id = $msg->sender->id;
+        unless(exists $self->data->{$sender_id}) {
+            $self->data->{$sender_id}++;
+            $self->emit(first_talk=>$msg->sender,$msg);
+        }
+    });   
+    $self->interval(3600*4,sub{$self->data(+{})});
     $self->interval(600,sub{
         return if $self->is_stop;
         $self->update_group;
@@ -115,6 +125,7 @@ sub relogin{
     $self->group([]);
     $self->discuss([]);
     $self->recent([]);
+    $self->data(+{});
 
     $self->login(qq=>$self->qq,pwd=>$self->pwd);
     $self->emit("relogin");
@@ -181,7 +192,7 @@ sub set_message_queue{
                 if($self->has_subscribers("receive_offpic")){
                     for(@{$msg->raw_content}){
                         if($_->{type} eq 'offpic'){
-                            $self->_get_offpic($_->{file_path},$msg->sender_id);
+                            $self->_get_offpic($_->{file_path},$msg->sender);
                         }   
                     }
                 }

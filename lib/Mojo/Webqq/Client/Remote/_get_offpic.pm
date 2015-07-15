@@ -2,17 +2,18 @@ use File::Temp qw/:seekable/;
 sub Mojo::Webqq::Client::_get_offpic {
     my $self = shift;
     my $file_path = shift;
-    my $from_uin  = shift;
+    my $friend  = shift;
+    
     return  unless $self->has_subscribers("receive_offpic");
     my $api = 'http://w.qq.com/d/channel/get_offpic2';
     my @query_string = (
         file_path   =>  $file_path,
-        f_uin       =>  $from_uin,
+        f_uin       =>  $friend->id,
         clientid    =>  $self->clientid,  
         psessionid  =>  $self->psessionid,
     );
     my $callback = sub{
-        my ($data,$ua,$tx) = shift;
+        my ($data,$ua,$tx) = @_;
         return  unless $self->has_subscribers("receive_offpic");
         return unless defined $data;
         return unless $tx->res->heades->content_type =~/^image\/(.*)/;
@@ -34,7 +35,7 @@ sub Mojo::Webqq::Client::_get_offpic {
         close $tmp;
         eval{
             open(my $fh,"<:raw",$tmp->filename) or die $!;
-            $self->emit(receive_offpic => $fh,$tmp->filename);
+            $self->emit(receive_offpic => $fh,$tmp->filename,$friend);
             close $fh;
         };
         $self->error("[Mojo::Webqq::Client::_get_offpic] $@\n") if $@;
