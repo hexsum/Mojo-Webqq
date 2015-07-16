@@ -189,7 +189,7 @@ sub set_message_queue{
         return if $self->is_stop; 
         if($msg->msg_class eq "recv"){
             if($msg->type eq 'message'){
-                if($self->has_subscribers("receive_friend_pic")){
+                if($self->has_subscribers("receive_friend_pic") or $self->has_subscribers("receive_offpic")){
                     for(@{$msg->raw_content}){
                         if($_->{type} eq 'offpic'){
                             $self->_get_offpic($_->{file_path},$msg->sender);
