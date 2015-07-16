@@ -662,6 +662,31 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->on(lose_discuss_member=>sub{my ($client,$discuss_member)=@_});
 
+=head2 receive_friend_pic
+
+接收到好友发送的图片，图片默认下载到临时目录下，在回调执行结束后会自动删除
+
+由于腾讯smartqq本身的限制，只能接收好友图片，不支持接收群图片
+
+    $client->on(receive_friend_pic=>sub{ 
+        my($client,$fh,$filepath,$friend)=@_;
+        #$fh      图片文件的只读句柄
+        #filepath 图片文件的绝对路径
+        #$friend  发送图片的好友对象
+    });
+
+=head2 first_talk
+
+第一次接收到某人消息事件，第一次的定义为：收到某个用户在4小时内第一次发送的消息
+
+    $client->on(first_talk=>sub{
+        my($client,$sender,$msg) = @_;
+        #$sender 发送消息的好友 或者 群成员 或者 讨论组成员
+        #$msg    接收到的消息
+        $sender->send("怎么这么久才想起我?");
+    });
+    
+
 =head1 关于插件
 
 =head2 load
