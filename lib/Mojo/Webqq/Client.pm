@@ -284,7 +284,7 @@ sub mail{
     #html
     #text
     #data MIME::Lite产生的发送数据
-    eval{ require Mojo::SMTP::Client;} ;
+    eval{ require Mojo::SMTP::Client; } ;
     if($@){
         $self->error("发送邮件，请先安装模块 Mojo::SMTP::Client");
         return;
@@ -307,7 +307,8 @@ sub mail{
         my @data;
         push @data,("From: $opt{from}","To: $opt{to}");
         push @data,"Cc: $opt{cc}" if defined $opt{cc};
-        push @data,"Subject: $opt{subject}";
+        require MIME::Base64;
+        push @data,"Subject: =?UTF-8?B?" . MIME::Base64::encode_base64($opt{subject},"") . "?=";
         my $charset = defined $opt{charset}?$opt{charset}:"UTF-8";
         if(defined $opt{text}){
             push @data,("Content-Type: text/plain; charset=$charset",'',$opt{text});
