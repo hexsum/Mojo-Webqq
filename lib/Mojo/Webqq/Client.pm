@@ -263,6 +263,10 @@ sub set_message_queue{
 
 sub mail{
     my $self  = shift;
+    my $callback ;
+    if(ref $_[-1] eq "CODE"){
+        $callback = pop; 
+    }
     my %opt = @_;
     #smtp
     #port
@@ -323,10 +327,12 @@ sub mail{
             my ($smtp, $resp) = @_;
             if($resp->error){
                 $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
+                $callback->(0) if ref $callback eq "CODE"; 
                 return;
             }
             else{
                 $self->debug("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送成功");
+                $callback->(1) if ref $callback eq "CODE";
             }
         },
     );
