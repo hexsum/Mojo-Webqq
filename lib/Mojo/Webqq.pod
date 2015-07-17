@@ -408,7 +408,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     #支持的时间格式为 HH:MM:SS
     $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
 
-=head2 mail(%opt) 非阻塞发送邮件
+=head2 mail(%opt,[$callback]) 非阻塞发送邮件
 
 该方法实际上是L<Mojo::SMTP::Client>的封装，使用该方法之前请确保你已经安装了L<Mojo::SMTP::Client>模块
 
@@ -424,13 +424,16 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     from        #发送邮箱
     to          #接收邮箱
     cc          #抄送邮箱
-    subject     #主题
-    charset     #编码，默认UTF-8
-    html        #邮件正文内容，html格式
-    text        #邮件正文内容，纯文本格式
+    subject     #主题 utf8编码
+    html        #邮件正文内容，html格式 utf8编码
+    text        #邮件正文内容，纯文本格式 utf8编码
     data        #设置该选项表示使用MIME::Lite生成的发送数据
 
-    $client->mail(smtp=>smtp.163.com,user=>xxx,pass=>xxx,from=>xxx,to=>xxx,subject=>"邮件测试",text=>"hello world");
+    $client->mail(smtp=>smtp.163.com,user=>xxx,pass=>xxx,from=>xxx,to=>xxx,subject=>"邮件测试",text=>"hello world",sub{
+        my $send_status = shift;
+        if($send_status){print "发送成功"} 
+        else{print "发送失败"} 
+    });
 
 =head2 update_friend()
 
