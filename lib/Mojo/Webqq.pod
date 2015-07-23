@@ -674,7 +674,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     $client->on(receive_friend_pic=>sub{ 
         my($client,$fh,$filepath,$friend)=@_;
         #$fh      图片文件的只读句柄
-        #filepath 图片文件的绝对路径
+        #$filepath 图片文件的绝对路径
         #$friend  发送图片的好友对象
     });
 

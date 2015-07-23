@@ -12,8 +12,14 @@ sub add_job{
     if(ref $nt eq "CODE"){
         $t = $nt->();
     }
-    my($hour,$minute) = split /:/,$t;
-    my $time = {hour => $hour,minute => $minute,second=>0};
+    my $time = {};
+    if(ref $t eq "HASH"){
+        $time = $t;
+    }
+    else{
+        my($hour,$minute) = split /:/,$t;
+        $time = {hour => $hour,minute => $minute,second=>0};
+    }
     my $delay;
     #my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     my @now = localtime;

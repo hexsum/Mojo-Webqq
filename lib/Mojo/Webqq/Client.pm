@@ -119,6 +119,8 @@ sub relogin{
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
     $self->ua->cookie_jar->empty;
+    $self->model_update_failure_count(0);
+    $self->poll_failure_count(0);
 
     $self->user(+{});
     $self->friend([]);
