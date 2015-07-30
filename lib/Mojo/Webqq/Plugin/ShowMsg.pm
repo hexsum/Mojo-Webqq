@@ -1,4 +1,5 @@
 package Mojo::Webqq::Plugin::ShowMsg;
+$Mojo::Webqq::Plugin::ShowMsg::PRIORITY = 100;
 use POSIX qw(strftime);
 sub call{
     my $client = shift;

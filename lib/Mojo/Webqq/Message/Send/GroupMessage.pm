@@ -6,6 +6,7 @@ sub has { Mojo::Base::attr( __PACKAGE__, @_ ) };
 
 has type         => "group_message";
 has msg_class    => "send";
+has msg_from     => "none";
 has ttl          => 5;
 has allow_plugin => 1;
 has msg_time     => sub{time};

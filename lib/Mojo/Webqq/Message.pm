@@ -35,18 +35,20 @@ sub gen_message_id {
 
 sub reply_message{
     my $self = shift;
-    my ($msg,$content) = @_;
+    my ($msg,$content,$cb) = @_;
     if($msg->type eq "message"){
-        $self->send_message($msg->sender,$content);
+        $self->send_message($msg->sender,$content,$cb) if $msg->msg_class eq "recv";
+        $self->send_message($msg->receiver,$content,$cb) if $msg->msg_class eq "send";
     }
     elsif($msg->type eq "group_message"){
-        $self->send_group_message($msg->group,$content);
+        $self->send_group_message($msg->group,$content,$cb);
     }
     elsif($msg->type eq "discuss_message"){
-        $self->send_discuss_message($msg->discuss,$content);
+        $self->send_discuss_message($msg->discuss,$content,$cb);
     }
     elsif($msg->type eq "sess_message"){
-        $self->send_sess_message($msg->sender,$content);
+        $self->send_sess_message($msg->sender,$content,$cb) if $msg->msg_class eq "recv";
+        $self->send_sess_message($msg->receiver,$content,$cb) if $msg->msg_class eq "send";
     }
 }
 sub send_message{
@@ -54,6 +56,7 @@ sub send_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::Message";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
         return $self;
     }
@@ -67,7 +70,8 @@ sub send_message{
             receiver    => $friend,
             content     => $content,
         });    
-        $msg->cb($cb) if ref $cb eq "CODE";
+        $cb->($self,$msg) if ref $cb eq "CODE";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
     }
     else{
@@ -79,6 +83,7 @@ sub send_group_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::GroupMessage";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
         return $self;
     }
@@ -92,7 +97,8 @@ sub send_group_message{
             group       => $group,
             content     => $content,
         });
-        $msg->cb($cb) if ref $cb eq "CODE";
+        $cb->($self,$msg) if ref $cb eq "CODE";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
     }
     else{
@@ -104,6 +110,7 @@ sub send_discuss_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::DiscussMessage";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
         return $self;
     }
@@ -117,7 +124,8 @@ sub send_discuss_message{
             discuss     => $discuss,
             content     => $content,
         });
-        $msg->cb($cb) if ref $cb eq "CODE";
+        $cb->($self,$msg) if ref $cb eq "CODE";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
     }
     else{
@@ -129,6 +137,7 @@ sub send_sess_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::GroupMessage";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
         return $self;
     }
@@ -146,7 +155,8 @@ sub send_sess_message{
             via         => "group",
             sess_sig    => $self->_get_sess_sig($member->gid,$member->id,0),
         });
-        $msg->cb($cb) if ref $cb eq "CODE";
+        $cb->($self,$msg) if ref $cb eq "CODE";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
     }
     elsif(ref $member eq "Mojo::Webqq::Discuss::Member" and defined $member->did and defined $member->id){
@@ -162,7 +172,8 @@ sub send_sess_message{
             via         => "discuss",
             sess_sig    => $self->_get_sess_sig($member->did,$member->id,1),
         });
-        $msg->cb($cb) if ref $cb eq "CODE";
+        $cb->($self,$msg) if ref $cb eq "CODE";
+        $self->emit(before_send_message=>$msg);
         $self->message_queue->put($msg);
     }
     else{
@@ -584,7 +595,7 @@ sub msg_put{
     else{
         return;
     }
-
+    
     $self->message_queue->put($msg);
 }
 

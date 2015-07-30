@@ -1,4 +1,5 @@
 package Mojo::Webqq::Plugin::Perldoc;
+$Mojo::Webqq::Plugin::Perldoc::PRIORITY = 96;
 use Pod::Perldoc;
 use Mojo::Webqq::Run;
 use Mojo::Webqq::Cache;
@@ -8,11 +9,12 @@ my $metacpan_cache  = Mojo::Webqq::Cache->new;
 sub call{
     my $client = shift;
     my $data = shift;
-    $client->on(receive_message=>sub{
+    my $callback = sub{
         my($client,$msg)=@_;
         return if not $msg->allow_plugin;
         if($msg->content =~ /perldoc\s+-(v|f)\s+([^ ]+)/){
             $msg->allow_plugin(0);
+            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my($p,$v) = ("-$1",$2);
             my $run = Mojo::Webqq::Run->new;
             $run->log($client->log);
@@ -41,8 +43,9 @@ sub call{
             );
             #$run->start;
         }
-        elsif($msg->content =~ /perldoc\s+((\w+::)*\w+)/){# or $msg->content =~ /((\w+::)+\w+)/){
+        elsif($msg->content =~ /perldoc\s+((\w+::)*\w+)/){
             $msg->allow_plugin(0);
+            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $module = $1;
             my $cache  = $metacpan_cache->retrieve($module);
             if(defined $cache){
@@ -88,6 +91,8 @@ sub call{
                 }
             }); 
         }
-    });
+    };
+    $client->on(receive_message=>$callback);
+    $client->on(send_message=>$callback);
 }
 1;

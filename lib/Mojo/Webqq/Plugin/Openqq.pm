@@ -1,6 +1,7 @@
 use strict;
 use Mojo::Webqq::Server;
 package Mojo::Webqq::Plugin::Openqq;
+$Mojo::Webqq::Plugin::Openqq::PRIORITY = 98;
 my $server;
 sub call{
     my $client = shift;
@@ -20,8 +21,12 @@ sub call{
         if(defined $friend){
             $c->render_later;
             $client->send_message($friend,encode("utf8",$content),sub{
-                my($client,$msg,$status)=@_;
-                $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});  
+                my $msg= $_[1];
+                $msg->cb(sub{
+                    my($client,$msg,$status)=@_;
+                    $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});  
+                });
+                $msg->msg_from("api");
             });
         }
         else{$c->render(json=>{msg_id=>undef,code=>100,status=>"friend not found"});}
@@ -33,8 +38,12 @@ sub call{
         if(defined $group){
             $c->render_later;
             $client->send_group_message($group,encode("utf8",$content),sub{
-                my($client,$msg,$status)=@_;
-                $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                my $msg = $_[1];
+                $msg->cb(sub{
+                    my($client,$msg,$status)=@_;
+                    $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                });
+                $msg->msg_from("api");
             });
         }
         else{$c->render(json=>{msg_id=>undef,code=>101,status=>"group not found"});}
@@ -46,8 +55,12 @@ sub call{
         if(defined $discuss){
             $c->render_later;
             $client->send_discuss_message($discuss,encode("utf8",$content),sub{
-                my($client,$msg,$status)=@_;
-                $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                my $msg = $_[1];
+                $msg->cb(sub{
+                    my($client,$msg,$status)=@_;
+                    $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                });
+                $msg->msg_from("api");
             });
         }
         else{$c->render(json=>{msg_id=>undef,code=>102,status=>"discuss not found"});}
@@ -62,8 +75,12 @@ sub call{
             if(defined $member){
                 $c->render_later;
                 $client->send_sess_message($member,encode("utf8",$content),sub{
-                    my($client,$msg,$status)=@_;
-                    $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    my $msg = $_[1];
+                    $msg->cb(sub{
+                        my($client,$msg,$status)=@_;
+                        $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    });
+                    $msg->msg_from("api");
                 });
             }
             else{$c->render(json=>{msg_id=>undef,code=>103,status=>"group member not found"});}
@@ -74,8 +91,12 @@ sub call{
             if(defined $member){
                 $c->render_later;
                 $client->send_sess_message($member,encode("utf8",$content),sub{
-                    my($client,$msg,$status)=@_;
-                    $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    my $msg = $_[1];
+                    $msg->cb(sub{
+                        my($client,$msg,$status)=@_;
+                        $c->render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    });
+                    $msg->msg_from("api");
                 });
             }
             else{$c->render(json=>{msg_id=>undef,code=>104,status=>"discuss member not found"});}

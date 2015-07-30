@@ -224,6 +224,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     type            #常量"message"
     msg_class       #常量"recv"
+    msg_from        #消息的来源，比如来自某个插件，可自由定义，默认"none"
     ttl             #默认值5 当ttl减为0会被消息队列丢弃
     allow_plugin    #默认1
     msg_id          #消息id
@@ -243,6 +244,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     type            #常量"message"
     msg_class       #常量"send"
+    msg_from        #消息的来源，比如来自某个插件，可自由定义，默认"none"
     ttl             #默认值5 当ttl减为0会被消息队列丢弃
     allow_plugin    #默认1
     msg_id          #消息id
@@ -269,6 +271,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     type            #常量"group_message"
     msg_class       #常量"recv"
+    msg_from        #消息的来源，比如来自某个插件，可自由定义，默认"none"
     ttl             #默认值5 当ttl减为0会被消息队列丢弃
     allow_plugin    #默认1
     msg_id          #消息id
@@ -288,6 +291,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     type            #常量"discuss_message"
     msg_class       #常量"recv"
+    msg_from        #消息的来源，比如来自某个插件，可自由定义，默认"none"
     ttl             #默认值5 当ttl减为0会被消息队列丢弃
     allow_plugin    #默认1
     msg_id          #消息id
@@ -307,6 +311,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     type            #常量"sess_message"
     msg_class       #常量"recv"
+    msg_from        #消息的来源，比如来自某个插件，可自由定义，默认"none"
     ttl             #默认值5 当ttl减为0会被消息队列丢弃
     allow_plugin    #默认1
     msg_id          #消息id
@@ -455,21 +460,34 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 更新最近联系人信息，由于较少使用到，客户端仅在首次登录时调用该方法，更新一次
 
-=head2 send_message($friend,$content)
+=head2 send_message($friend,$content,[$callback])
     
 发送好友消息
     
     my $friend = $client->search_friend(id=>xxx);#$friend是一个Mojo::Webqq::Friend的对象
     $client->send_message($friend,"hello world");#发送内容必须是utf8编码
 
-=head2 send_group_message($group,$content)
+    在callback中对发送的消息进行预处理
+    $client->send_message($friend,"hello world",sub{
+        my ($client,$msg) = @_;
+        #对即将发送的消息进行预处理
+        $msg->msg_from("自定义的来源标识");
+    
+        #设置该条消息发送完毕后的回调函数
+        $msg->cb(sub{
+            my($client,$msg,$status)=@_;
+            print $msg->msg_id . "发送失败\n" if  not $status->is_success;
+        });
+    });
+
+=head2 send_group_message($group,$content,[$callback])
     
 发送群消息
 
     my $group = $client->search_group(gname=>"PERL学习交流");#$group是一个Mojo::Webqq::Group的对象
     $client->send_group_message($group,"hello world");
 
-=head2 send_discuss_message($discuss,$content)
+=head2 send_discuss_message($discuss,$content,[$callback])
 
 发送讨论组消息
 
@@ -478,7 +496,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 注意：由于webqq自身限制，当前无法成功发送讨论组消息
 
-=head2 send_sess_message($group_member|$discuss_member,$content)
+=head2 send_sess_message($group_member|$discuss_member,$content,[$callback])
     
 发送群临时消息或者讨论组临时消息
 
@@ -497,7 +515,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     $client->send_sess_message($discuss_member,"hello world");
      
 
-=head2 reply_message($msg,$content)
+=head2 reply_message($msg,$content,[$callback])
 
 对收到的消息进行回复，send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
@@ -689,6 +707,16 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
         $sender->send("怎么这么久才想起我?");
     });
     
+=head2 before_send_message 
+
+消息发送之前的事件，一般用于在即将发送消息前对消息进行预处理
+
+    $client->on(before_send_message=>sub{
+        my($client,$msg) = @_;
+        my $content = $msg->content;
+        $content .=  "我是可爱的小尾巴";
+        $msg->content($content);
+    });
 
 =head1 关于插件
 
@@ -720,6 +748,8 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 编写一个包 Mojo:Webqq::Plugin::HelloWorld
 
     package Mojo:Webqq::Plugin::HelloWorld;
+    $Mojo:Webqq::Plugin::HelloWorld::PRIORITY = 10; #除了在load中使用priority设置优先级，也可以通过包变量设置
+    $Mojo:Webqq::Plugin::HelloWorld::AUTO_CALL = 1; #通过包变量设置插件是否默认加载后立刻执行
     sub call{
         my $client = shift;
         my $data   = shift; #可能包含的data数据
@@ -762,28 +792,32 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 =head2 Mojo::Webqq::Plugin::MsgSync
 
-实现QQ群和IRC的联通，彼此的消息自动同步，欢迎加入irc.freenode.net的#ChinaPerl，该频道已经和[PERL学习交流]群联通
-    
-    $group1 = $client->search_group(gname=>"PERL学习交流");
-    $group2 = $client->search_group(gname=>"xxx");
-    $client->load("MsgSync",data=>[
-        {nick=>"xxx_",user=>"xxx",pass=>"xxx",channel=>"#ChinaPerl"},
-        $group1,
-        $group2]
-    );
+实现QQ群和IRC的联通，彼此的消息自动同步
+
+欢迎加入irc.freenode.net的#ChinaPerl，该频道已经和[PERL学习交流]群联通
+
+欢迎加入irc.freenode.net的#Mojolicious，该频道已经和[Mojolicious]群联通
+
+    $m->load("MsgSync",data=>{
+        irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",},
+        pairs=>[
+            ["#ChinaPerl",$m->search_group(gname=>"PERL学习交流")],
+            ["#Mojolicious",$m->search_group(gname=>"Mojolicious")],
+        ]
+    });    
 
 =head2 Mojo::Webqq::Plugin::Perldoc
 
 实现通过QQ消息查询perldoc文档，支持perldoc -f|-v xxx
     
-    $client->load("Perldoc",priority=>10);
+    $client->load("Perldoc");
     #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比其他插件优先级更高，插件默认优先级是0
 
 =head2 Mojo::Webqq::Plugin::Perlcode
 
 通过QQ消息执行Perl代码，仅支持在linux系统上使用
 
-    $client->load("Perlcode",priority=>11);
+    $client->load("Perlcode");
     #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比其他插件优先级更高，插件默认优先级是0
 
 触发条件：消息以 >>> 开头，比如：
@@ -796,7 +830,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 为避免对群内成员产生影响，群内需要使用 @帐号昵称 来触发
 
-    $client->load("SmartReply",priority=>7);
+    $client->load("SmartReply");
     #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比一般插件优先级更高，插件默认优先级是0
 
 =head2 Mojo::Webqq::Plugin::Openqq

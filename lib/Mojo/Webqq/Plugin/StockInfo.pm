@@ -1,8 +1,8 @@
 package Mojo::Webqq::Plugin::StockInfo;
+$Mojo::Webqq::Plugin::StockInfo::PRIORITY = 95;
 use strict;
 use 5.010;
 use Encode;
-#use Smart::Comments;
 
 sub call{
     my $client = shift ;

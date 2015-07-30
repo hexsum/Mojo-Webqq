@@ -1,4 +1,5 @@
 package Mojo::Webqq::Plugin::Perlcode;
+$Mojo::Webqq::Plugin::Perlcode::PRIORITY = 97;
 use File::Temp qw/tempfile/;
 use File::Path qw/mkpath rmtree/;
 use POSIX qw(strftime);
@@ -12,11 +13,12 @@ sub call{
     my $client = shift;
     $client->die(__PACKAGE__ . "只能运行在linux系统上") if $^O !~ /linux/; 
     $client->die(__PACKAGE__ . "依赖BSD::Resource模块，请先安装该模块") if !$Mojo::Webqq::Plugin::Perlcode::is_hold_bsd_resource; 
-    $client->on(receive_message=>sub{
+    my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
         if($msg->content=~/(?:>>>)(.*?)(?:__END__|$)/s or $msg->content =~/perl\s+-e\s+'([^']+)'/s){
             $msg->allow_plugin(0);
+            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $doc = '';
             my $code = $1;
             $code=~s/^\s+|\s+$//g;
@@ -83,7 +85,9 @@ sub call{
             );  
             #$run->start;
         }    
-    }); 
+    }; 
+    $client->on(receive_message=>$callback);
+    $client->on(send_message=>$callback);
 }
 
 sub count_lines{

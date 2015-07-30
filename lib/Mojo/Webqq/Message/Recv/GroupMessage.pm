@@ -5,6 +5,7 @@ use base qw(Mojo::Base Mojo::Webqq::Message::Base);
 sub has { Mojo::Base::attr( __PACKAGE__, @_ ) };
 has type         => "group_message";
 has msg_class    => "recv";
+has msg_from     => "none";
 has ttl          => 5;
 has allow_plugin => 1;
 has [qw(msg_id group_id sender_id sender group msg_time content raw_content)];

@@ -36,16 +36,16 @@ sub call{
             $limit{$key}{$msg->group->gid}{$msg->sender->id}++; 
             my $limit  = $limit{$key}{$msg->group->gid}{$msg->sender->id};
             if($limit>=3 and $limit<=4){
-                $client->reply_message($msg,"\@$sender_nick " . $limit_reply[int rand($#limit_reply+1)]);
+                $client->reply_message($msg,"\@$sender_nick " . $limit_reply[int rand($#limit_reply+1)],sub{$_[1]->msg_from("bot")});
                 return;
             }   
             if($limit >=5 and $limit <=6){
-                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制");
+                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->msg_from("bot")});
                 return;
             }
             if($limit > 6){
                 $ban{$msg->sender->id} = 1;
-                $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，1小时内提问无视");
+                $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，1小时内提问无视",sub{$_[1]->msg_from("bot")});
                 $client->timer(3600,sub{delete $ban{$msg->sender->id};});
             }
         } 
@@ -77,7 +77,7 @@ sub call{
 
             $reply  = "\@$sender_nick " . $reply  if $msg->type eq 'group_message' and rand(100)>20;
             $reply = $client->truncate($reply,max_bytes=>300,max_lines=>5) if $msg->type eq 'group_message';        
-            $client->reply_message($msg,$reply) if $reply;
+            $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;
         });
 
     }); 
