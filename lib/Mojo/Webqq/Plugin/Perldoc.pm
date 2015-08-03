@@ -1,6 +1,7 @@
 package Mojo::Webqq::Plugin::Perldoc;
 $Mojo::Webqq::Plugin::Perldoc::PRIORITY = 96;
 use Pod::Perldoc;
+use Term::ANSIColor;
 use Mojo::Webqq::Run;
 use Mojo::Webqq::Cache;
 my $metacpan_module_api = 'http://api.metacpan.org/v0/module/';
@@ -38,6 +39,7 @@ sub call{
                         $reply .= "\n查看更多内容: http://perldoc.perl.org/index-functions.html" if $p eq "-f";
                         $reply .= "\n查看更多内容: http://perldoc.perl.org/perlvar.html" if $p eq "-v";
                     }
+                    eval{$reply = Term::ANSIColor::colorstrip($reply);};
                     $client->reply_message($msg,$reply) if $reply;
                 },
             );

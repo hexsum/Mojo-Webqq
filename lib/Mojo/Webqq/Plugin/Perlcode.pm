@@ -8,6 +8,7 @@ BEGIN{
     $Mojo::Webqq::Plugin::Perlcode::is_hold_bsd_resource = 1 unless $@; 
 }
 use Mojo::Webqq::Run;
+use Term::ANSIColor;
 my $run = Mojo::Webqq::Run->new;
 sub call{
     my $client = shift;
@@ -58,14 +59,14 @@ sub call{
                 stderr_cb => sub {
                     my ($pid, $chunk) = @_;
                     $stderr_buf.=$chunk;
-                    if(length($stderr_buf) > 500){
+                    if(count_lines($stderr_buf) > 10){
                         $run->kill($pid);
-                        $stderr_buf = substr($stderr_buf,0,500);
+                        $stderr_buf  = join "\n",(split /\n/,$stderr_buf,11)[0..9];
                         $stderr_buf .= "(已截断)";
                     }
-                    elsif(count_lines($stderr_buf) > 10){
+                    elsif(length($stderr_buf) > 500){
                         $run->kill($pid);
-                        $stderr_buf  = join "\n",(split /\n/,$stdout_buf,11)[0..9];
+                        $stderr_buf = substr($stderr_buf,0,500);
                         $stderr_buf .= "(已截断)";
                     }
                 },
@@ -74,6 +75,10 @@ sub call{
                     my $content;
                     $stderr_buf =~s/(?<=at )\(eval .+?\)(?= line)/CODE/g;
                     $stderr_buf.= "(执行超时)" if $res->{stderr}=~/\Q;Execution timeout.\E$/;
+                    eval{
+                        $stderr_buf = Term::ANSIColor::colorstrip($stderr_buf);
+                        $stdout_buf = Term::ANSIColor::colorstrip($stdout_buf);
+                    };
                     if(defined $stdout_buf and defined $stderr_buf){
                         if($stdout_buf=~/\n$/){$content = $stdout_buf.$stderr_buf}
                         else{$content = $stdout_buf."\n".$stderr_buf}
