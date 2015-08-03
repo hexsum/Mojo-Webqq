@@ -15,11 +15,12 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $client=Mojo::Webqq->new(ua_debug=>0);
 
     my $qq = 12345678;
-    #你的qq密码需要先使用md5加密后再作为参数传递，不接受原始密码
-    my $pwd = md5_sum("your password");
+    my $pwd = "your password";
+
+    my $pwd_md5 = md5_sum($pwd);#得到原始密码的32位长度md5
 
     #客户端进行登录
-    $client->login(qq=>$qq,pwd=>$pwd);
+    $client->login(qq=>$qq,pwd=>$pwd_md5);
 
     #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
     $client->load("ShowMsg");
