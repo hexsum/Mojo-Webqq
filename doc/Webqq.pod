@@ -749,8 +749,8 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 编写一个包 Mojo:Webqq::Plugin::HelloWorld
 
     package Mojo:Webqq::Plugin::HelloWorld;
-    $Mojo:Webqq::Plugin::HelloWorld::PRIORITY = 10; #除了在load中使用priority设置优先级，也可以通过包变量设置
-    $Mojo:Webqq::Plugin::HelloWorld::AUTO_CALL = 1; #通过包变量设置插件是否默认加载后立刻执行
+    $Mojo:Webqq::Plugin::HelloWorld::PRIORITY = 10; #可省略，除了在load中使用priority设置优先级，也可以通过包变量设置
+    $Mojo:Webqq::Plugin::HelloWorld::AUTO_CALL = 1; #可省略，通过包变量设置插件是否默认加载后立刻执行
     sub call{
         my $client = shift;
         my $data   = shift; #可能包含的data数据

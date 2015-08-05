@@ -63,7 +63,7 @@ sub call{
         $irc->{client}->on(irc_privmsg=>sub{
             my(undef, $m) = @_; 
             my ($command,$nick,$channel,$content) =
-                ($m->{command},substr($m->{prefix},0,index($m->{prefix},"!~")),$m->{params}[0],$m->{params}[1]);
+                ($m->{command},substr($m->{prefix},0,index($m->{prefix},"!")),$m->{params}[0],$m->{params}[1]);
             if($content !~ /^(>>>6?|###|~~~|@@@|\/\/\/)/){
                 $content =~ s/^(\w+): /\@$1 /;
             }
