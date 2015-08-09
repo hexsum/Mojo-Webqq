@@ -44,10 +44,10 @@ sub call{
                 exec_timeout => 3,
                 stdout_cb => sub {
                     my ($pid, $chunk) = @_;
-                    $stdout_buf.=$chunk;
+                    $stdout_buf.=$chunk if defined $chunk;
                     if(count_lines($stdout_buf) > 10){
                         $run->kill($pid);
-                        $stdout_buf  = join "\n",(split /\n/,$stdout_buf,11)[0..9];
+                        $stdout_buf  = join "\n",(split /\r?\n/,$stdout_buf,11)[0..9];
                         $stdout_buf .= "(已截断)";
                     }
                     elsif(length($stdout_buf) > 200){
@@ -58,10 +58,10 @@ sub call{
                 },
                 stderr_cb => sub {
                     my ($pid, $chunk) = @_;
-                    $stderr_buf.=$chunk;
+                    $stderr_buf.=$chunk if defined $chunk;
                     if(count_lines($stderr_buf) > 10){
                         $run->kill($pid);
-                        $stderr_buf  = join "\n",(split /\n/,$stderr_buf,11)[0..9];
+                        $stderr_buf  = join "\n",(split /\r?\n/,$stderr_buf,11)[0..9];
                         $stderr_buf .= "(已截断)";
                     }
                     elsif(length($stderr_buf) > 500){
@@ -78,8 +78,8 @@ sub call{
                     eval{
                         $stderr_buf = Term::ANSIColor::colorstrip($stderr_buf);
                         $stdout_buf = Term::ANSIColor::colorstrip($stdout_buf);
-                    };
-                    if(defined $stdout_buf and defined $stderr_buf){
+                    };  
+                    if(defined $stdout_buf and $stderr_buf){
                         if($stdout_buf=~/\n$/){$content = $stdout_buf.$stderr_buf}
                         else{$content = $stdout_buf."\n".$stderr_buf}
                     }
@@ -97,7 +97,7 @@ sub call{
 
 sub count_lines{
     my $data = shift;
-    my $count =()=$data=~/\n/g;
+    my $count =()=$data=~/\r?\n/g;
     return $count++;
 }
 
