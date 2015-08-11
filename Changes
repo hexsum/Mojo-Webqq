@@ -1,3 +1,8 @@
+2015-08-11 Mojo::Webqq v1.4.0
+1）修复文档中示例代码关于登录密码MD5计算方法的描述存在歧义的问题
+2）增加更多系统表情的识别
+3）MsgSync插件和Perldoc插件细节完善
+
 2015-08-03 Mojo::Webqq v1.3.9
 1）MsgSync插件完善
 2）修复before_send_message事件在消息发送失败多次尝试过程中也会被多次触发的bug
