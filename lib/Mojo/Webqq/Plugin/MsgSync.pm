@@ -65,7 +65,7 @@ sub call{
             my ($command,$nick,$channel,$content) =
                 ($m->{command},substr($m->{prefix},0,index($m->{prefix},"!")),$m->{params}[0],$m->{params}[1]);
             if($content !~ /^(>>>6?|###|~~~|@@@|\/\/\/)/){
-                $content =~ s/^(\w+): /\@$1 /;
+                $content =~ s/^(\w+): ?/\@$1 /;
             }
             for my $pair (@pairs){
                 next unless first {$_->{type} eq "channel" and lc($_->{name}) eq lc($channel) } @$pair;

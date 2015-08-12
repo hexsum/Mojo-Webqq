@@ -241,6 +241,7 @@ sub parse_receive_msg {
 
             #收到的消息是群消息
             elsif ( $m->{poll_type} eq 'group_message' ) {
+                next if " \x{0000}\n\x{0000}\x{0000}\x{0000}\x{0000}\x{0002}\x{5B8B}\x{4F53}\r" eq $m->{value}{content}[1];
                 my $msg = {
                     type        => "group_message",
                     msg_id      => $m->{value}{msg_id},
@@ -298,6 +299,41 @@ sub parse_receive_msg {
                 else {
                     $self->fatal("您已被迫下线\n");
                     $self->stop();
+                }
+            }
+
+            elsif( $m->{poll_type} eq 'group_web_message' ){
+                if(exists $m->{value}{xml}){
+                    my %info;
+                    eval{
+                        require Mojo::DOM;
+                        Mojo::DOM->new($m->{value}{xml})->find('d > n')->each(sub{
+                            my ($e, $num) = @_;
+                            if($e->attr("t") eq "h" ){
+                                $info{qq} = $e->attr("u");
+                            }
+                            elsif($e->attr("t") eq "t" ){
+                                if($e->attr("s") eq decode("utf8","共享文件")){
+                                    $info{type} = 'share-file';
+                                }
+                                else{
+                                    $info{file} = encode("utf8",$e->attr("s"));
+                                }
+                            }
+                        });
+                    };
+                    if($info{type} eq 'share-file'){
+                        my $msg = {
+                            type        => "group_message",
+                            msg_id      => $m->{value}{msg_id},
+                            group_id    => $m->{value}{from_uin},
+                            msg_time    => time,
+                            content     => [[],decode("utf8","共享文件 \"$info{file}\"")],
+                            sender_id   => $m->{value}{send_uin},
+                            
+                        };
+                        $self->msg_put($msg);
+                    }
                 }
             }
 
