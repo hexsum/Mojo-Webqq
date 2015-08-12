@@ -85,29 +85,11 @@ sub call{
                 }
             }
         });
-        $irc->{client}->on(close=>sub{
-            $irc->{is_connect} = 0;
-            for(keys %irc_channel_status){$irc_channel_status{$_}=0}
-            $client->debug("irc[ $irc->{nick}|$irc->{server}:$irc->{port} ]已断开连接，尝试重新连接");
-            $irc->{client}->connect(sub{
-                if($_[1]){
-                    $client->error("irc[ $irc->{nick}|$irc->{server}:$irc->{port} ]连接失败: $_[1]");
-                    return;
-                }
-                $irc->{is_connect} = 1;
-                $client->debug("$irc->{nick} 已连接 $irc->{server}:$irc->{port}");
-                for my $channel( keys %irc_channel_status){
-                    $_[0]->write(join => $channel,sub{
-                        $client->debug("$irc->{nick} 尝试加入频道 $channel|$irc->{server}:$irc->{port}");
-                        $client->error("$irc->{nick} 加入频道 $channel|$irc->{server}:$irc->{port} 失败: $_[1]") if $_[1];
-                    });
-                }
-            });
-        });
-        $irc->{client}->connect(sub{
+        my $connect_callback;$connect_callback = sub{
             if($_[1]){
+                $irc->{is_connect} = 0;
                 $client->error("irc[ $irc->{nick}|$irc->{server}:$irc->{port} ]连接失败: $_[1]");
-                return;
+                $client->timer(3,sub{$irc->{client}->connect($connect_callback)});
             }
             $irc->{is_connect} = 1;
             $client->debug("$irc->{nick} 已连接 $irc->{server}:$irc->{port}"); 
@@ -117,8 +99,14 @@ sub call{
                     $client->error("$irc->{nick} 加入频道 $channel|$irc->{server}:$irc->{port} 失败: $_[1]") if $_[1];
                 });
             }
-            
+        };
+        $irc->{client}->on(close=>sub{
+            $irc->{is_connect} = 0;
+            for(keys %irc_channel_status){$irc_channel_status{$_}=0}
+            $client->debug("irc[ $irc->{nick}|$irc->{server}:$irc->{port} ]已断开连接，尝试重新连接");
+            $irc->{client}->connect($connect_callback);
         });
+        $irc->{client}->connect($connect_callback);
     }
 
     my $callback = sub{
