@@ -4,16 +4,18 @@ Mojo-Webqq v1.4.0
 
 插件列表
   
-  名称                  当前状态    作者        功能说明
+  名称                 优先级   当前状态    作者        功能说明
   ------------------------------------------------------------------------------
-  MsgSync               已发布      sjdy521     实现qq群和irc消息同步
-  Openqq                已发布      sjdy521     提供qq发送消息api接口
-  Perlcode              已发布      sjdy521     通过qq消息查询perl文档
-  Perldoc               已发布      sjdy521     通过qq消息执行perl代码
-  PostImgVerifycode     未完成      sjdy521     登录验证码发送到邮箱实现远程登录
-  ShowMsg               已发布      sjdy521     打印客户端接收和发送的消息
-  SmartReply            已发布      sjdy521     智能聊天回复
-  StockInfo             已发布      shalk       查询股票信息
+  ShowMsg              100      已发布      sjdy521     打印客户端接收和发送的消息
+  MsgSync              99       已发布      sjdy521     实现qq群和irc消息同步
+  Openqq               98       已发布      sjdy521     提供qq发送消息api接口
+  Perlcode             97       已发布      sjdy521     通过qq消息查询perl文档
+  Perldoc              96       已发布      sjdy521     通过qq消息执行perl代码
+  StockInfo            95       已发布      shalk       查询股票信息
+  KnowledgeBase        2        已发布      sjdy521     通过qq消息自定义问答知识库
+  FuckDaShen           1        已发布      sjdy521     对qq消息中出现的"大神"关键词进行鄙视
+  PostImgVerifycode    0        未完成      sjdy521     登录验证码发送到邮箱实现远程登录
+  SmartReply           0        已发布      sjdy521     智能聊天回复
 
 安装步骤
 

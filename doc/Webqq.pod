@@ -825,6 +825,27 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     >>> print "hello world";
 
+=head2 Mojo::Webqq::Plugin::KnowledgeBase
+
+通过QQ消息自定义问答知识库
+
+    $client->load("KnowledgeBase");
+
+触发条件： 消息以如下格式发送可以设定问题和答案，如果问题或答案包含空格可以使用引号 比如：
+
+    learn 今天天气怎么样  天气很好
+    学习  "你吃了吗"      当然吃了
+    learn '哈哈 你真笨'   "就你聪明"
+
+    del   今天天气怎么样
+    删除  '哈哈 你真笨'
+
+=head2 Mojo::Webqq::Plugin::FuckDaShen
+
+对qq消息中出现的"大神"关键词进行鄙视
+
+    $client->load("FuckDaShen");
+
 =head2 Mojo::Webqq::Plugin::SmartReply
 
 实现机器人的智能回复，支持好友消息、群消息、群临时消息、讨论组临时消息的自动回复
