@@ -8,7 +8,7 @@ sub call{
     my $file = $data->{file} || './KnowledgeBase.dat';
     my $base = {};
     $base = retrieve($file) if -e $file;
-    $client->timer(120,sub{nstore $base,$file});
+    #$client->timer(120,sub{nstore $base,$file});
     my $callback = sub{
         my($client,$msg) = @_;
         if($msg->content =~ /^(?:learn|学习)
@@ -24,6 +24,7 @@ sub call{
             $q=~s/^\s+|\s+$//g;
             $a=~s/^\s+|\s+$//g;
             push @{ $base->{$q} }, $a;
+            nstore($base,$file);
             $client->reply_message($msg,"知识库[ $q -> $a ]添加成功",sub{$_[1]->msg_from("bot")}); 
 
         }   
@@ -36,12 +37,13 @@ sub call{
             $q=~s/^\s+|\s+$//g;
             return unless defined $q;
             delete $base->{$q}; 
+            nstore($base,$file);
             $client->reply_message($msg,"知识库[ $q ]删除成功"),sub{$_[1]->msg_from("bot")};
         }
         else{
             return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $content = $msg->content;
-            $content =~s/^[a-zA-Z0-9_]+:// if $msg->msg_from eq "irc";
+            $content =~s/^[a-zA-Z0-9_]+: ?// if $msg->msg_from eq "irc";
             return unless exists $base->{$content};
             $msg->allow_plugin(0);
             my $len = @{$base->{$content}};
