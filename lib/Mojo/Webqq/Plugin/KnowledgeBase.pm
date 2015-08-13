@@ -5,7 +5,7 @@ use Storable qw(retrieve nstore);
 sub call{
     my $client = shift;
     my $data = shift;
-    my $file = shift || './KnowledgeBase.dat';
+    my $file = $data->{file} || './KnowledgeBase.dat';
     my $base = {};
     $base = retrieve($file) if -e $file;
     $client->timer(120,sub{nstore $base,$file});
