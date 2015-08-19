@@ -56,8 +56,8 @@ sub call{
 
         my @query_string = (
             "key"       =>  $data->{apikey} || "4c53b48522ac4efdfe5dfb4f6149ae51",
-            "userid"    =>  $msg->sender->qq,
-            "info"      =>  $input,
+            "userid"    =>  $msg->sender->id,
+            "info"      =>  decode("utf8",$input),
         );
 
         push @query_string,(loc=>$msg->sender->city."市") if $msg->type eq "group_message" and  $msg->sender->city; 
@@ -76,7 +76,7 @@ sub call{
             else{return}
 
             $reply  = "\@$sender_nick " . $reply  if $msg->type eq 'group_message' and rand(100)>20;
-            $reply = $client->truncate($reply,max_bytes=>300,max_lines=>5) if $msg->type eq 'group_message';        
+            $reply = $client->truncate($reply,max_bytes=>500,max_lines=>10) if $msg->type eq 'group_message';        
             $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;
         });
 
