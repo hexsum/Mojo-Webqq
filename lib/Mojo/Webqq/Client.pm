@@ -2,8 +2,6 @@ package Mojo::Webqq::Client;
 use strict;
 use Mojo::IOLoop;
 $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
-$Mojo::Webqq::Client::LAST_DISPATCH_TIME  = undef;
-$Mojo::Webqq::Client::SEND_INTERVAL  = 3;
 
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
 use Mojo::Webqq::Client::Remote::_check_verify_code;
@@ -19,24 +17,13 @@ use Mojo::Webqq::Client::Remote::_recv_message;
 use Mojo::Webqq::Client::Remote::_relink;
 use Mojo::Webqq::Client::Remote::logout;
 
-use Mojo::Webqq::Message::Send::Status;
-
-use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron Mojo::EventEmitter Mojo::Webqq::Base);
+use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron);
 
 sub run{
     my $self = shift;
     $self->ready();
- 
-    my $plugins = $self->plugins;
-    for(
-        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
-        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
-    ){
-        $self->call($_);
-    }
-
     $self->emit("run");
-    Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
+    $self->ioloop->start unless $self->ioloop->is_running;
 }
 sub stop{
     my $self = shift;
@@ -56,7 +43,6 @@ sub exit{
 }
 sub ready{
     my $self = shift;
-    $self->set_message_queue();
     $self->on("model_update_fail"=>sub{
         my $self = shift;
         my $last_model_update_failure_count = $self->model_update_failure_count;
@@ -70,8 +56,8 @@ sub ready{
         my($self,$msg)=@_;
         return unless $msg->type =~/^message|sess_message$/;
         my $sender_id = $msg->sender->id;
-        unless(exists $self->data->{$sender_id}) {
-            $self->data->{$sender_id}++;
+        unless(exists $self->data->{first_talk}{$sender_id}) {
+            $self->data->{first_talk}{$sender_id}++;
             $self->emit(first_talk=>$msg->sender,$msg);
         }
     });   
@@ -94,21 +80,29 @@ sub ready{
             $self->update_friend;
         });
     });
-
+    #加载插件
+    my $plugins = $self->plugins;
+    for(
+        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
+        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
+    ){
+        $self->call($_);
+    }
+    #接收消息
     $self->info("开始接收消息...\n");
-    $self->_recv_message(); 
-    $self->emit("ready");
+    $self->_recv_message();
     $Mojo::Webqq::Client::CLIENT_COUNT++;
+    $self->emit("ready");
 }
 
 sub timer {
     my $self = shift;
-    Mojo::IOLoop->timer(@_);
+    $self->ioloop->timer(@_);
     return $self;
 }
 sub interval{
     my $self = shift;
-    Mojo::IOLoop->recurring(@_);
+    $self->ioloop->recurring(@_);
     return $self;
 }
 sub relogin{
@@ -183,86 +177,6 @@ sub login {
     }
 }
 
-sub set_message_queue{
-    my $self = shift;
-    #设置从接收消息队列中接收到消息后对应的处理函数
-    $self->message_queue->get(sub{
-        my $msg = shift;
-        return if $self->is_stop; 
-        if($msg->msg_class eq "recv"){
-            if($msg->type eq 'message'){
-                if($self->has_subscribers("receive_friend_pic") or $self->has_subscribers("receive_offpic")){
-                    for(@{$msg->raw_content}){
-                        if($_->{type} eq 'offpic'){
-                            $self->_get_offpic($_->{file_path},$msg->sender);
-                        }   
-                    }
-                }
-                #$self->_detect_new_friend($msg);
-            }
-            elsif($msg->type eq 'group_message'){
-                #$self->_detect_new_group($msg);
-                #$self->_detect_new_group_member($msg);
-            }
-            elsif($msg->type eq 'discuss_message'){
-                #$self->_detect_new_discuss($msg);
-                #$self->_detect_new_discuss_member($msg);
-            }
-            elsif($msg->type eq 'state_message'){
-                my $friend = $self->search_friend(id=>$msg->id);
-                if(defined $friend){
-                    $friend->state($msg->state);
-                    $friend->client_type($msg->client_type);
-                    $self->emit(friend_state_change=>$friend);
-                }
-                return $self;
-            }
-            
-            #接收队列中接收到消息后，调用相关的消息处理回调，如果未设置回调，消息将丢弃
-            $self->emit(receive_message=>$msg);
-        }
-        elsif($msg->msg_class eq "send"){
-            #消息的ttl值减少到0则丢弃消息
-            if($msg->ttl <= 0){
-                $self->debug("消息[ " . $msg->msg_id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
-                my $status = Mojo::Webqq::Message::Send::Status->new(code=>-1,msg=>"发送失败");
-                if(ref $msg->cb eq 'CODE'){
-                    $msg->cb->(
-                        $self,
-                        $msg,
-                        $status,
-                    );
-                }
-                $self->emit(send_message=>
-                    $msg,
-                    $status,
-                );
-                return;
-            }
-            my $ttl = $msg->ttl;
-            $msg->ttl(--$ttl);
-
-            my $delay = 0;
-            my $now = time;
-            if(defined $Mojo::Webqq::Client::LAST_DISPATCH_TIME){
-                $delay = $now<$Mojo::Webqq::Client::LAST_DISPATCH_TIME+$Mojo::Webqq::Client::SEND_INTERVAL?
-                            $Mojo::Webqq::Client::LAST_DISPATCH_TIME+$Mojo::Webqq::Client::SEND_INTERVAL-$now
-                        :   0;
-            }
-            $self->timer($delay,sub{
-                $msg->msg_time(time);
-                    $msg->type eq 'message'           ?   $self->_send_message($msg)
-                :   $msg->type eq 'group_message'     ?   $self->_send_group_message($msg)
-                :   $msg->type eq 'sess_message'      ?   $self->_send_sess_message($msg)
-                :   $msg->type eq 'discuss_message'   ?   $self->_send_discuss_message($msg)
-                :                                           undef
-                ;
-            });
-            $Mojo::Webqq::Client::LAST_DISPATCH_TIME = $now+$delay;
-        }
-    });
-}
-
 sub mail{
     my $self  = shift;
     my $callback ;
@@ -292,6 +206,7 @@ sub mail{
         return;
     }
     my $smtp = Mojo::SMTP::Client->new(
+        ioloop  => $self->ioloop,
         address => $opt{smtp},
         port    => $opt{port} || 25,
         tls     => $opt{tls}||"",

@@ -1,11 +1,13 @@
 package Mojo::Webqq::Message::Queue;
 sub new{
     my $class  = shift;
+    my $callback_for_get = shift;
     my $self = {
         queue               =>  [],
         callback_for_get    =>  undef,        
         callback_for_get_bak   =>  undef,
     };
+    $self->{callback_for_get} = $callback_for_get if ref $callback_for_get eq "CODE";
     return bless $self,$class;
 }
 

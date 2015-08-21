@@ -13,8 +13,8 @@ my @limit_reply = (
 sub call{
     my $client = shift;
     my $data   = shift;
-    $client->interval(3600,sub{
-        my $key = strftime("%H",localtime(time-3600));
+    $client->interval(600,sub{
+        my $key = strftime("%H:%M",localtime(time-600));
         delete $limit{$key};
     });
     $client->on(receive_message=>sub{
@@ -25,6 +25,8 @@ sub call{
         my $sender_nick;
         my $user_nick = $client->user->nick;
         if($msg->type eq "group_message"){
+            my $me = $msg->group->search_group_member(id=>$client->user->id);
+            $user_nick = $me->card || $user_nick if defined $me;
             return if $msg->content !~/\@\Q$user_nick \E/;
             $sender_nick = $msg->sender->card || $msg->sender->nick ;
         }
@@ -35,15 +37,15 @@ sub call{
             my $key = POSIX::strftime("%H",localtime(time));
             $limit{$key}{$msg->group->gid}{$msg->sender->id}++; 
             my $limit  = $limit{$key}{$msg->group->gid}{$msg->sender->id};
-            if($limit>=3 and $limit<=4){
+            if($limit>=8 and $limit<=9){
                 $client->reply_message($msg,"\@$sender_nick " . $limit_reply[int rand($#limit_reply+1)],sub{$_[1]->msg_from("bot")});
                 return;
             }   
-            if($limit >=5 and $limit <=6){
+            if($limit >=10 and $limit <=11){
                 $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->msg_from("bot")});
                 return;
             }
-            if($limit > 6){
+            if($limit > 11){
                 $ban{$msg->sender->id} = 1;
                 $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，1小时内提问无视",sub{$_[1]->msg_from("bot")});
                 $client->timer(3600,sub{delete $ban{$msg->sender->id};});

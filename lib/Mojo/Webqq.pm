@@ -1,15 +1,14 @@
 package Mojo::Webqq;
 use strict;
 $Mojo::Webqq::VERSION = "1.4.1";
-use Mojo::Base;
+use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
-use base qw(Mojo::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 use Time::HiRes qw(gettimeofday);
 use POSIX;
 use Encode::Locale;
-use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
+use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
 
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
@@ -19,6 +18,7 @@ has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
 has email                   => undef;
 has encrypt_method          => "perl";     #perl|js
+has ioloop                  => sub{Mojo::IOLoop->singleton};
 
 has version                 => $Mojo::Webqq::VERSION;
 

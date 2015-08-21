@@ -1,5 +1,7 @@
 package Mojo::Webqq::Message;
 use strict;
+$Mojo::Webqq::Message::LAST_DISPATCH_TIME  = undef;
+$Mojo::Webqq::Message::SEND_INTERVAL  = 3;
 use Encode;
 use Mojo::Webqq::Message::Recv::Message;
 use Mojo::Webqq::Message::Recv::GroupMessage;
@@ -24,7 +26,82 @@ use Mojo::Webqq::Message::Queue;
 use Mojo::Webqq::Message::Face;
 
 sub gen_message_queue{
-    Mojo::Webqq::Message::Queue->new;
+    my $self = shift;
+    Mojo::Webqq::Message::Queue->new(sub{
+        my $msg = shift;
+        return if $self->is_stop; 
+        if($msg->msg_class eq "recv"){
+            if($msg->type eq 'message'){
+                if($self->has_subscribers("receive_friend_pic") or $self->has_subscribers("receive_offpic")){
+                    for(@{$msg->raw_content}){
+                        if($_->{type} eq 'offpic'){
+                            $self->_get_offpic($_->{file_path},$msg->sender);
+                        }   
+                    }
+                }
+                #$self->_detect_new_friend($msg);
+            }
+            elsif($msg->type eq 'group_message'){
+                #$self->_detect_new_group($msg);
+                #$self->_detect_new_group_member($msg);
+            }
+            elsif($msg->type eq 'discuss_message'){
+                #$self->_detect_new_discuss($msg);
+                #$self->_detect_new_discuss_member($msg);
+            }
+            elsif($msg->type eq 'state_message'){
+                my $friend = $self->search_friend(id=>$msg->id);
+                if(defined $friend){
+                    $friend->state($msg->state);
+                    $friend->client_type($msg->client_type);
+                    $self->emit(friend_state_change=>$friend);
+                }
+                return $self;
+            }
+            
+            #接收队列中接收到消息后，调用相关的消息处理回调，如果未设置回调，消息将丢弃
+            $self->emit(receive_message=>$msg);
+        }
+        elsif($msg->msg_class eq "send"){
+            #消息的ttl值减少到0则丢弃消息
+            if($msg->ttl <= 0){
+                $self->debug("消息[ " . $msg->msg_id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
+                my $status = Mojo::Webqq::Message::Send::Status->new(code=>-1,msg=>"发送失败");
+                if(ref $msg->cb eq 'CODE'){
+                    $msg->cb->(
+                        $self,
+                        $msg,
+                        $status,
+                    );
+                }
+                $self->emit(send_message=>
+                    $msg,
+                    $status,
+                );
+                return;
+            }
+            my $ttl = $msg->ttl;
+            $msg->ttl(--$ttl);
+
+            my $delay = 0;
+            my $now = time;
+            if(defined $Mojo::Webqq::Message::LAST_DISPATCH_TIME){
+                $delay = $now<$Mojo::Webqq::Message::LAST_DISPATCH_TIME+$Mojo::Webqq::Message::SEND_INTERVAL?
+                            $Mojo::Webqq::Message::LAST_DISPATCH_TIME+$Mojo::Webqq::Message::SEND_INTERVAL-$now
+                        :   0;
+            }
+            $self->timer($delay,sub{
+                $msg->msg_time(time);
+                    $msg->type eq 'message'           ?   $self->_send_message($msg)
+                :   $msg->type eq 'group_message'     ?   $self->_send_group_message($msg)
+                :   $msg->type eq 'sess_message'      ?   $self->_send_sess_message($msg)
+                :   $msg->type eq 'discuss_message'   ?   $self->_send_discuss_message($msg)
+                :                                           undef
+                ;
+            });
+            $Mojo::Webqq::Message::LAST_DISPATCH_TIME = $now+$delay;
+        }
+    });
 }
 sub gen_message_id {
     my $self             = shift;
