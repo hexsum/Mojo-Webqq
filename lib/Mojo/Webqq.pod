@@ -376,6 +376,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     log_level   #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path    #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     encrypt_method #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
+    ioloop      #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
 
     $client->new(security=>0,ua_debug=>0);
 
@@ -393,7 +394,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->login(qq=>xxxx,pwd=>xxxx);    #pwd必须是原始密码经过md5加密后的32位字符串
 
-注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度
+注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度（Centos可以使用yum -y install perl-Crypt-OpenSSL-RSA perl-Crypt-OpenSSL-Bignum来方便安装）
 
 =head2 relogin()
 
