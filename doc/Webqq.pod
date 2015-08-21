@@ -408,6 +408,42 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->run();
 
+=head2 multi_run()
+
+登录多个qq帐号时使用，详情参加ready()方法介绍
+
+=head2 ready()
+
+当你想要同时运行多个qq帐号或者当你想要自己基于事件驱动的代码（往往也是Mojo的代码）中调用该模块时
+
+$client->run()会阻塞你的代码，导致无法同时使用多个帐号或使你其他的代码无法执行
+
+这种情况下，你应该放弃使用$client->run() 而是使用自己的事件驱动来驱动L<Mojo::Webqq>，你会需要ready()方法
+
+    $other_ioloop = Mojo::IOLoop->new;
+    $webqq_client = Mojo::Webqq->new(ioloop=>$other_ioloop);
+    $webqq_client->ready(); #不是 $webqq_client->run();
+    $other_ioloop->start;   #启动你自己的事件循环
+
+    #同时登录多个qq帐号
+    my $client1 = Mojo::Webqq->new;
+    my $client2 = Mojo::Webqq->new;
+    
+    $client1->login(qq=>xxx,pass=>xxx);
+    $client2->login(qq=>xxx,pass=>xxx);
+    
+    $client1->ready;
+    $client2->ready;
+    
+    Mojo::IOLoop->multi_run(); 
+
+=head2 stop(["auto"|"noexit"])
+
+客户端终止接收和发送消息，其他非接收和发送消息类的功能仍然可以继续执行
+
+    $client->stop(["auto"]) #默认参数是auto，当多个qq帐号客户端中的最后一个stop时，整个程序也会退出(exit)
+    $client->stop("noexit") #即时所有的qq帐号都stop了，整个客户端也不调用exit退出
+
 =head2 add_job($job_name,$time,$callback);
 
 定时执行任务

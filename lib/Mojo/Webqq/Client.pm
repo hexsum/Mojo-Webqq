@@ -25,6 +25,10 @@ sub run{
     $self->emit("run");
     $self->ioloop->start unless $self->ioloop->is_running;
 }
+
+sub multi_run{
+    Mojo::IOLoop->singleton->start unless Mojo::IOLoop->singleton->is_running; 
+}
 sub stop{
     my $self = shift;
     my $mode = shift || "auto";
