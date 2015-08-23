@@ -16,6 +16,7 @@ WriteMakefile(
     dist              => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Mojo-Webqq-* MANIFEST' },
     META_MERGE => {
+        'meta-spec' => { version => 2 },
         resources => {     
             repository=>{
                 type    => 'git',
