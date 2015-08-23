@@ -7,7 +7,6 @@ use Mojo::Webqq::Cache;
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 use Time::HiRes qw(gettimeofday);
 use POSIX;
-use Encode::Locale;
 use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
 
 has security                => 0;

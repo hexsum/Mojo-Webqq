@@ -410,7 +410,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 =head2 multi_run()
 
-登录多个qq帐号时使用，详情参加ready()方法介绍
+登录多个qq帐号时使用，详情参见ready()方法介绍
 
 =head2 ready()
 

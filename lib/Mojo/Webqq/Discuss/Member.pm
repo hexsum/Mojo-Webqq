@@ -31,7 +31,6 @@ sub update{
 
 sub send {
     my $self = shift;
-    my $content = shift;
-    $self->{_client}->send_sess_message($self,$content);
+    $self->{_client}->send_sess_message($self,@_);
 } 
 1;

@@ -92,7 +92,6 @@ sub update{
 
 sub send {
     my $self = shift;
-    my $content = shift;
-    $self->{_client}->send_group_message($self,$content);
+    $self->{_client}->send_group_message($self,@_);
 } 
 1;

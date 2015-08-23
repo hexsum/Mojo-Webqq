@@ -1,7 +1,6 @@
 package Mojo::Webqq::Model;
 use strict;
 use List::Util qw(first);
-use Storable qw(dclone);
 use Mojo::Webqq::User;
 use Mojo::Webqq::Friend;
 use Mojo::Webqq::Group;
@@ -22,7 +21,7 @@ use Mojo::Webqq::Model::Remote::_get_discuss_info;
 use Mojo::Webqq::Model::Remote::_get_discuss_list_info;
 use Mojo::Webqq::Model::Remote::_get_recent_info;
 
-use base qw(Mojo::Webqq::Request Mojo::Webqq::Base);
+use base qw(Mojo::Webqq::Base);
 
 sub update_user {
     my $self = shift;
@@ -138,7 +137,7 @@ sub update_group {
         }
         else{
             $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
-            $self->emit("model_update_fail");
+            #$self->emit("model_update_fail");
         }
         return $self;
     }
@@ -156,10 +155,9 @@ sub update_group {
         $group_info = $self->_get_group_info($g->{gcode});
         unless(defined $group_info){
             $self->warn("更新[ " . $g->{gname} . " ]信息失败\n");
-            $self->emit("model_update_fail");
+            #$self->emit("model_update_fail");
             $group_info = $g;
         }
-        delete $group_info->{member} if $_[0]==1 and $group_info->{gname} eq "IT狂人";
         if(ref $group_info->{member} ne 'ARRAY'){
             $self->debug("更新群 [ " . $group_info->{gname} .  " ]信息成功(未获取到群成员信息)");
         }
@@ -241,7 +239,7 @@ sub update_discuss {
         }
         else{
             $self->warn("更新讨论组 [ " . $discuss->dname .  " ] 信息失败...");
-            $self->emit("model_update_fail");
+            #$self->emit("model_update_fail");
         }
         return $self;
     }
