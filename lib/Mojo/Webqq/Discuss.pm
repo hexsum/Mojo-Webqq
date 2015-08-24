@@ -23,6 +23,16 @@ sub new {
     $self;
 }
 
+sub each_discuss_member{
+    my $self = shift;
+    my $callback = shift;
+    $self->{_client}->die("参数必须是函数引用") if ref $callback ne "CODE";
+    return if ref $self->member ne "ARRAY";
+    for(@{$self->member}){
+        $callback->($self->{_client},$_);
+    }
+}
+
 sub search_discuss_member{
     my $self = shift;
     my %p = @_;

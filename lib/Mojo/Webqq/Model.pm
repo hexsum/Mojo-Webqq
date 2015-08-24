@@ -23,6 +23,50 @@ use Mojo::Webqq::Model::Remote::_get_recent_info;
 
 use base qw(Mojo::Webqq::Base);
 
+sub each_friend{
+    my $self = shift;
+    my $callback = shift;
+    $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    for (@{$self->friend}){
+        $callback->($self,$_);   
+    }
+}
+sub each_group{
+    my $self = shift;
+    my $callback = shift;
+    $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    for (@{$self->group}){
+        $callback->($self,$_);     
+    }
+}
+
+sub each_discuss{
+    my $self = shift;
+    my $callback = shift;
+    $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    for (@{$self->discuss}){
+        $callback->($self,$_);
+    }
+}
+sub each_group_member{
+    my $self = shift;
+    my $callback = shift;
+    $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->group};
+    for (@member){
+        $callback->($self,$_);
+    }
+}
+sub each_discuss_member{
+    my $self = shift;
+    my $callback = shift;
+    $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->discuss};
+    for (@member){
+        $callback->($self,$_);
+    }
+}
+
 sub update_user {
     my $self = shift;
     $self->info("更新个人信息...\n");

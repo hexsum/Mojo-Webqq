@@ -1,5 +1,5 @@
-use 5.010001;;
-use ExtUtils::MakeMaker;
+use 5.010001;
+use ExtUtils::MakeMaker "6.46";
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(

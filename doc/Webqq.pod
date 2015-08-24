@@ -85,6 +85,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     mobile          #手机
     signature       #个性签名
 
+实际想要获取登录帐号信息时，是通过客户端提供的 user 属性来获取
+    
+    $client->user       #返回的是一个Mojo::Webqq::User对象
+    $client->user->nick #获取帐号昵称
+    $client->user->id   #获取帐号id
+    
+
 =head2 Mojo::Webqq::Friend 好友
 
     属性：
@@ -102,13 +109,20 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     方法:
     send            #给好友对象发送消息
 
-代码示例：
+    代码示例：
 
     my $friend = $client->search_friend(id=>xxx);
     print "好友昵称为: " ,$friend->nick,"\n";
     $friend->dump();
 
     $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
+
+    #遍历好友
+    $client->each_friend(sub{
+        my($client,$friend) = @_;
+        ...;
+    });
+    
 
 =head2 Mojo::Webqq::Group 群组
 
@@ -127,7 +141,17 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法：
     search_group_member  #根据群成员属性搜索群，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
+    each_group_member    #在群中遍历所有的群成员
     send                 #给群对象发送消息 $group->send("hello world")
+
+    示例代码：
+    my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
+    $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
+    $group->each_group_member(
+        my($client,$member) = @_;
+        ...;
+    );
+    
 
 =head2 Mojo::Webqq::Group::Member 群成员
 
@@ -174,6 +198,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     方法:
 
     search_discuss_member   #搜索讨论组成员
+    each_discuss_member     #遍历讨论组成员
     send                    #给讨论组对象发送消息
 
 =head2 Mojo::Webqq::Discuss::Member 讨论组成员
@@ -237,6 +262,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     content         #消息内容
     raw_content     #消息原始内容 一个数组引用
 
+    示例代码:
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
     
 =head2  Mojo::Webqq::Message::Send::Message 发送的好友消息
@@ -497,6 +523,52 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 update_recent()
 
 更新最近联系人信息，由于较少使用到，客户端仅在首次登录时调用该方法，更新一次
+
+=head2 each_friend(sub{...})  
+
+遍历所有的好友
+
+    $client->each_friend(sub{
+        my($client,$friend) = @_; #$friend是一个Mojo::Webqq::Friend对象
+        ...;
+    });
+
+=head2 each_group(sub{...})
+
+遍历所有的群
+
+    $client->each_group(sub{
+        my($client,$group) = @_; #$group是一个Mojo::Webqq::Group对象
+        ...;
+    });
+
+=head2 each_group_member(sub{...})
+
+遍历所有群中的所有群成员    
+
+    $client->each_group_member(sub{
+        my($client,$member) = @_; #$member是一个Mojo::Webqq::Group::Member对象
+        ...;
+    });
+
+    注意，想要遍历某个群中的所有群成员可以使用群对象中的遍历方法：
+
+    $group->each_group_member(sub{
+        my($client,$member)=@_;
+        ...;
+    });
+
+=head2 each_discuss(sub{...})  
+
+遍历所有的讨论组，和遍历好友或群类似 不再赘述
+
+=head2 each_discuss_member(sub{...}) 
+
+遍历所有讨论组中的所有讨论组成员，和遍历好友或群类似 不再赘述
+
+=head2 each_recent(sub{...})
+
+遍历最近联系人列表
 
 =head2 send_message($friend,$content,[$callback])
     
