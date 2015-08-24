@@ -904,12 +904,12 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 实现QQ群和IRC的联通，彼此的消息自动同步
 
-欢迎加入irc.freenode.net的#ChinaPerl，该频道已经和[PERL学习交流]群联通
+欢迎加入irc.perfi.wang的#ChinaPerl，该频道已经和[PERL学习交流]群联通
 
-欢迎加入irc.freenode.net的#Mojolicious，该频道已经和[Mojolicious]群联通
+欢迎加入irc.perfi.wang的#Mojolicious，该频道已经和[Mojolicious]群联通
 
     $m->load("MsgSync",data=>{
-        irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",},
+        irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",server=>"irc.perfi.wang"},
         pairs=>[
             ["#ChinaPerl",$m->search_group(gname=>"PERL学习交流")],
             ["#Mojolicious",$m->search_group(gname=>"Mojolicious")],

@@ -24,7 +24,7 @@ sub call{
         $irc->{nick} = $data->{irc}->{nick};
         $irc->{user} = $data->{irc}->{user};
         $irc->{pass} = $data->{irc}->{pass};
-        $irc->{server} = $data->{irc}->{server} || "irc.freenode.net";
+        $irc->{server} = $data->{irc}->{server} || "irc.perfi.wang";
         $irc->{port}   = $data->{irc}->{port} || 6667;
     }
     for my $pair (@{ $data->{pairs} }){
