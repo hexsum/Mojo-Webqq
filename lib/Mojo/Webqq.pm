@@ -41,7 +41,7 @@ has log    => sub{Mojo::Webqq::Log->new(path=>$_[0]->log_path,level=>$_[0]->log_
     #$level .= " " if ($level eq "info" or $level eq "warn");
     @lines = split /\n/,join "",@lines;
     my $return;
-    my $time = POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time));
+    $time = POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time));
     for(@lines){
         $return .=
             $time

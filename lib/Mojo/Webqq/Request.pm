@@ -30,7 +30,7 @@ sub _http_request{
             if(defined $tx and $tx->success){
                 my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
                 if($@){
-                    print $@,"\n";
+                    $self->warn($@);
                     $cb->(undef,$ua,$tx);
                 }
                 else{$cb->($r,$ua,$tx);}
@@ -44,7 +44,7 @@ sub _http_request{
             if(defined $tx and $tx->success){
                 my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
                 if($@){
-                    print $@,"\n";
+                    $self->warn($@);
                     next;
                 }
                 else{

@@ -11,7 +11,7 @@ WriteMakefile(
         "Mojolicious"           => '6.11',
         "IO::Socket::SSL"       => '1.94',
         "Encode::Locale"        => 0,
-        "Webqq::Encryption"     => 0,
+        "Webqq::Encryption"     => '1.4',
     }, # e.g., Module::Name => 1.1
     dist              => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'Mojo-Webqq-* MANIFEST' },

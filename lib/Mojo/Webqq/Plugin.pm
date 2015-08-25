@@ -4,7 +4,7 @@ sub load {
     my @module_name;
     my %opt;
     if(ref $_[0] eq "ARRAY"){
-        @module_name = @{shift};
+        @module_name = @{shift @_};
     }
     else{
         push @module_name,shift;
