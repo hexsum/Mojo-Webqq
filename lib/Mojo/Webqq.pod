@@ -427,6 +427,18 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 重新登录，客户端默认会自动尝试重新登录
 
     $client->relogin()
+
+=head2 timer($seconds,$callback)
+
+指定多少秒之后执行对应的回调函数
+
+    $client->timer(10,sub{ print "hello world\n" }); #10s后打印hello world
+
+=head2 interval($seconds,$callback)
+
+设置每隔多少秒重复执行对应的回调函数
+
+    $client->interval(10,sub{ print "hello world\n" }); #每隔10s后打印hello world
     
 =head2 run()
 
