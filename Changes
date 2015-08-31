@@ -1,3 +1,11 @@
+2015-08-31 Mojo::Webqq v1.4.3
+1）Merge pull request #2 from neilbowers/master 修复MakeFile.PL中meta-spec问题
+2）增加遍历好友、群、群成员、讨论组、讨论组成员的方法
+3）MsgSync插件默认使用的irc服务器从freenode改为自己的irc.perfi.wang
+4）修复make test过程中产生的warning警告
+5）文档中添加timer() interval()方法的说明
+6）客户端增加->spawn()方法，以便于在单独的进程中执行代码或外部命令
+
 2015-08-23 Mojo::Webqq v1.4.2
 1）Mojo::Webqq增加ioloop属性，可以设置客户端使用的事件驱动
 2）修复登录完毕马上调用发送消息的方法会报错的bug
