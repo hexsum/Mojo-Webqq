@@ -357,6 +357,7 @@ sub complete {
                                            $proc->{cmd}
                                 ,
                                 param               => $proc->{param},
+                                is_timeout          => $proc->{is_timeout},
                                 exit_status         => $proc->{exit_status},
                                 exit_signal         => $proc->{exit_signal},
                                 exit_core           => $proc->{exit_core},
@@ -414,6 +415,7 @@ sub _getRunStruct {
                 stdout_cb    => undef,
                 stderr_cb    => undef,
                 exit_cb      => undef,
+                is_timeout   => undef,
                 exec_timeout => 0,
                 buf_stdout   => '',
                 buf_stderr   => '',
@@ -481,6 +483,7 @@ sub _timeout_cb {
                 ." Killing process.");
  
         $proc->{stderr} .= ";Execution timeout.";
+        $proc->{is_timeout} = 1;
          
         # kill the motherfucker!
  

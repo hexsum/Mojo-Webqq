@@ -526,6 +526,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
             #    'time_started'         => '1441011557.30242',  #进程开始时间
             #    'time_duration_total'  => '1.00345897674561',  #进程执行总时间
             #    'time_duration_exec'   => '1.00317192077637',  #进程执行时长
+            #    'is_timeout'           => undef,               #是否是超时退出
             #    'exit_status'          => 1,                   #进程退出返回值
             #    'exit_core'            => 0,                   #是否有core
             #    'exit_signal'          => 0,                   #进程退出信号
