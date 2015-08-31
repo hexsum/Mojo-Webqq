@@ -14,11 +14,10 @@ use Storable qw(thaw nfreeze);
 use POSIX ":sys_wait_h";
 use Mojo::Webqq::Log;
 use Mojo::IOLoop;
-use Data::Dumper;
 use Mojo::Reactor;
 has 'num_forks'  => sub { 0 };
 has 'max_forks'  => sub { 0 };
-has 'log'        => sub { Mojo::Webqq::Log   ->new };
+has 'log'        => sub { Mojo::Webqq::Log->new };
 has 'ioloop'     => sub { Mojo::IOLoop->singleton };
 has [qw/reactor error is_child/];
  
@@ -230,7 +229,9 @@ sub watch {
                         if ($@) {
                                 $self->log->error("[process $proc->{pid}]: (handle: $id) Exception in $io\_cb: $@");
                         }
-                } else {
+                }   
+                #else {
+                {
                         # append to buffer
                         $self->log->debug("[process $proc->{pid}]: (handle: $id) Appending $len bytes to ".uc($io)." buffer.");
                         $proc->{"buf_$io"} .= $chunk;

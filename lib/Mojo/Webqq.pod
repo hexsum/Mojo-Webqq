@@ -489,6 +489,76 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
     #支持的时间格式为 HH:MM:SS
     $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
 
+=head2 spawn(%opt)
+
+在单独的进程中执行代码或命令
+
+客户端采用的是单进程异步事件驱动模式，如果在代码中执行system/exec等来调用其他命令
+
+或者执行某些阻塞的代码，比如sleep等 均会导致客户端主进程被阻塞而影响正常接收和发送消息
+
+这种情况下，可以采用客户端提供的spawn方法，将阻塞的代码放置到单独的进程中执行，捕获进程的标准输出和标准错误
+
+在回调函数中获取到进程执行的结果
+
+该方法实际上参考L<Mojo::Run>模块 并在该模块的基础上做了进一步完善
+
+    #支持的参数：
+    max_forks       #产生的最大进程数
+    cmd             #要执行的命令或代码
+    param           #命令的参数
+    exec_timeout    #命令或代码的执行超时时间
+    stdout_cb       #命令或代码执行过程中 STDOUT 一旦有数据则会触发此回调
+    stderr_cb       #命令或代码执行过程中 STDERR 一旦有数据则会触发此回调
+    exit_cb         #命令或代码执行结束的回调
+
+    代码示例：
+    $client->spawn(
+        cmd => sub {print "hello world";return "ok"},
+        exec_timeout => 3,
+        exit_cb => sub{
+            my($pid,$hash) = @_;
+            #$pid 是执行程序的进程号
+            #$hash是一个执行结果的hash引用，结构如下：
+            #{
+            #    'cmd'                  => 'CODE',              #执行的命令或代码
+            #    'time_stopped'         => '1441011558.30559',  #进程停止时间
+            #    'time_started'         => '1441011557.30242',  #进程开始时间
+            #    'time_duration_total'  => '1.00345897674561',  #进程执行总时间
+            #    'time_duration_exec'   => '1.00317192077637',  #进程执行时长
+            #    'exit_status'          => 1,                   #进程退出返回值
+            #    'exit_core'            => 0,                   #是否有core
+            #    'exit_signal'          => 0,                   #进程退出信号
+            #    'param'                => undef,               #命令或代码执行参数
+            #    'stderr'               => '',                  #进程的标准错误输出结果
+            #    'stdout'               => 'hello world',       #进程的标准输出结果
+            #    'result'               => [                    #代码的返回值
+            #                                   'ok'
+            #                              ]
+            #}
+
+        },
+    );
+
+    $client->spawn(
+        cmd             => "ping www.qq.com", #或者写成 ['ping','www.qq.com']
+        exec_timeout    => 3,
+        stdout_cb       => sub{
+            my($pid,$chunk) = @_;
+            print "从标准输出中实时收到数据:",$chunk,"\n";
+        },
+        stderr_cb       => sub {
+            my($pid,$chunk) = @_;
+            print "从标准错误中实时收到数据:",$chunk,"\n"; 
+        },
+        exit_cb => sub{
+            my($pid,$res) = @_;
+            print "从标准输出中接收的全部数据:",$res->{stdout},"\n";
+            print "从标准错误中接收的全部数据:",$res->{stderr},"\n";
+        } 
+    );
+
+
 =head2 mail(%opt,[$callback]) 非阻塞发送邮件
 
 该方法实际上是L<Mojo::SMTP::Client>的封装，使用该方法之前请确保你已经安装了L<Mojo::SMTP::Client>模块

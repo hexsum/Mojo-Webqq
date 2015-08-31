@@ -261,4 +261,14 @@ sub mail{
     
 }
 
+sub spawn {
+    my $self = shift;
+    my %opt = @_;
+    require Mojo::Webqq::Run;
+    my $run = Mojo::Webqq::Run->new(ioloop=>$self->ioloop,log=>$self->log); 
+    $run->max_forks(delete $opt->{max_forks}) if defined $opt->{max_forks};
+    $run->spawn(%opt);
+    $self;
+}
+
 1;
