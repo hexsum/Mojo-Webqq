@@ -249,7 +249,7 @@ sub mail{
             my ($smtp, $resp) = @_;
             if($resp->error){
                 $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
-                $callback->(0) if ref $callback eq "CODE"; 
+                $callback->(0,$resp->error) if ref $callback eq "CODE"; 
                 return;
             }
             else{
