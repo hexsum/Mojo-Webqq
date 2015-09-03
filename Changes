@@ -1,3 +1,9 @@
+2015-09-03 Mojo::Webqq v1.4.4
+1）spawn方法exit_cb的返回结果中增加 'is_timeout' 的属性用于标识进程是否是超时退出
+2）新增IRCShell插件, Linux上通过irc使用qq 感谢@wxg
+3）修复好友图片下载代码的bug 感谢@wxg
+4）发送邮件方法添加错误信息
+
 2015-08-31 Mojo::Webqq v1.4.3
 1）Merge pull request #2 from neilbowers/master 修复MakeFile.PL中meta-spec问题
 2）增加遍历好友、群、群成员、讨论组、讨论组成员的方法

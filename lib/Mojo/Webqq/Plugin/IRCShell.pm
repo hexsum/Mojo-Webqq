@@ -1,20 +1,20 @@
-package Mojo::Webqq::Plugin::IRCSimulation;
+package Mojo::Webqq::Plugin::IRCShell;
 use strict;
-$Mojo::Webqq::Plugin::IRCSimulation::PRIORITY = 99;
+$Mojo::Webqq::Plugin::IRCShell::PRIORITY = 99;
 use List::Util qw(first);
 BEGIN{
-    $Mojo::Webqq::Plugin::IRCSimulation::has_mojo_irc_server = 0;
+    $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server = 0;
     eval{
         require Mojo::IRC::Server;
     };
-    $Mojo::Webqq::Plugin::IRCSimulation::has_mojo_irc_server = 1 if not $@;
+    $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server = 1 if not $@;
 }
 
 my $ircd;
 sub call{
     my $client = shift;
     my $data = shift;
-    $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCSimulation::has_mojo_irc_server;
+    $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_user = $data->{master_irc_user} || $client->user->qq;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
     $ircd = Mojo::IRC::Server->new(host=>$data->{host}||"0.0.0.0",port=>$data->{port}||6667,log=>$client->log);
@@ -86,6 +86,9 @@ sub call{
         } 
     });
 
+    $client->on(login=>sub{
+        $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
+    });
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         if($msg->type eq "message"){

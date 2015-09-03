@@ -991,13 +991,32 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 欢迎加入irc.perfi.wang的#Mojolicious，该频道已经和[Mojolicious]群联通
 
-    $m->load("MsgSync",data=>{
+    $client->load("MsgSync",data=>{
         irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",server=>"irc.perfi.wang"},
         pairs=>[
             ["#ChinaPerl",$m->search_group(gname=>"PERL学习交流")],
             ["#Mojolicious",$m->search_group(gname=>"Mojolicious")],
         ]
     });    
+
+=head2 Mojo::Webqq::Plugin::IRCShell
+
+将qq协议转换成irc协议，启动一个本地的irc服务器，使用任意irc客户端（irc user设置为qq号）连接后即可以按照irc的方式使用qq
+
+    $client->load("IRCShell",data=>{host=>"127.0.0.1",port=>6667,});#开启本地的irc server
+    #支持的参数包括：
+    host                #默认0.0.0.0
+    port                #默认6667
+    master_irc_user     #和qq匹配的irc user帐号，默认按照和qq号相同的user或者客户端ip是本机地址作为识别规则
+
+qq好友会默认加入到irc的 '#我的好友' 频道中
+
+每个qq群也会在irc上创建对应的频道，比如qq群[PERL学习交流]对应的irc频道为'#PERL学习交流'
+
+使用任意的irc客户端连接到服务器,你便可以在irc上完成和qq好友的聊天，群聊等
+
+本插件更适合想要在Linux环境下使用qq的irc爱好者
+        
 
 =head2 Mojo::Webqq::Plugin::Perldoc
 

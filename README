@@ -1,4 +1,4 @@
-Mojo-Webqq v1.4.3
+Mojo-Webqq v1.4.4
 ========================
 使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本高于5.10
 
@@ -8,6 +8,7 @@ Mojo-Webqq v1.4.3
   ------------------------------------------------------------------------------
   ShowMsg              100      已发布      sjdy521     打印客户端接收和发送的消息
   MsgSync              99       已发布      sjdy521     实现qq群和irc消息同步
+  IRCShell             99       已发布      sjdy521     Linux环境下通过irc客户端使用qq
   Openqq               98       已发布      sjdy521     提供qq发送消息api接口
   Perlcode             97       已发布      sjdy521     通过qq消息查询perl文档
   Perldoc              96       已发布      sjdy521     通过qq消息执行perl代码
