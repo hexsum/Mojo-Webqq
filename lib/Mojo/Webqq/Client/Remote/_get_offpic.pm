@@ -14,7 +14,7 @@ sub Mojo::Webqq::Client::_get_offpic {
     my $callback = sub{
         my ($data,$ua,$tx) = @_;
         return unless defined $data;
-        return unless $tx->res->heades->content_type =~/^image\/(.*)/;
+        return unless $tx->res->headers->content_type =~/^image\/(.*)/;
         my $type =      $1=~/jpe?g/i        ?   ".jpg"
                     :   $1=~/png/i          ?   ".png"
                     :   $1=~/bmp/i          ?   ".bmp"
