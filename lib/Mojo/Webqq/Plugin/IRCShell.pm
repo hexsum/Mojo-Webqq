@@ -63,7 +63,7 @@ sub call{
             my($client,$friend) = @_;
             my $virtual_user = $ircd->new_user(
                 id      => $friend->id,
-                name    => $friend->nick . ":虚拟用户",
+                name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
                 nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
                 user    => $friend->id,
                 virtual => 1,
@@ -93,7 +93,7 @@ sub call{
             if(not defined $user){
                 $user = $ircd->new_user(
                     id      =>$friend->id,
-                    name    =>$friend->nick,
+                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",,
                     user    =>$friend->id,
                     nick    =>defined($friend->markname)?$friend->markname:$friend->nick,
                     virtual => 1,
@@ -101,9 +101,10 @@ sub call{
                 my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
                 $user->join_channel($channel) if defined $channel;
             }
-            for (grep {$_->user eq $master_irc_user or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
+            for (grep { $_->user eq $master_irc_user or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
                 for my $line (split /\r?\n/,$msg->content){
                     $_->send($user->ident,"PRIVMSG",$_->nick,$line);
+                    $user->send($user->ident,"PRIVMSG",$_->nick,$line);
                 }
             }
         }
@@ -116,7 +117,7 @@ sub call{
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>$member->nick,
+                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
                     user    =>$member->id,
                     nick    =>defined($member->card)?$member->card:$member->nick,
                     virtual => 1,
@@ -133,6 +134,7 @@ sub call{
             {
                 for my $line (split /\r?\n/,$msg->content){
                     $_->send($user->ident,"PRIVMSG",$_->nick,$line);
+                    $user->send($user->ident,"PRIVMSG",$_->nick,$line);
                 }
             }
         }
@@ -144,7 +146,7 @@ sub call{
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>$member->nick,
+                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
                     user    =>$member->id,
                     nick    =>defined($member->card)?$member->card:$member->nick,
                     virtual => 1,
@@ -181,7 +183,7 @@ sub call{
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$friend->id,
-                    name    =>$friend->nick,
+                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . "虚拟用户",
                     user    =>$friend->id,
                     nick    =>defined($friend->markname)?$friend->markname:$friend->nick,
                     virtual => 1,
@@ -197,6 +199,7 @@ sub call{
             {
                 for my $line (split /\r?\n/,$msg->content){
                     $_->send($_->ident,"PRIVMSG",$user->nick,$line);
+                    $user->send($_->ident,"PRIVMSG",$user->nick,$line);
                 }
             }
         }
@@ -209,7 +212,7 @@ sub call{
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>$member->nick,
+                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
                     user    =>$member->id,
                     nick    =>defined($member->card)?$member->card:$member->nick,
                     virtual => 1,
@@ -226,6 +229,7 @@ sub call{
             {
                 for my $line (split /\r?\n/,$msg->content){
                     $_->send($_->ident,"PRIVMSG",$user->nick,$line);
+                    $user->send($_->ident,"PRIVMSG",$user->nick,$line);
                 }
             }
         }
