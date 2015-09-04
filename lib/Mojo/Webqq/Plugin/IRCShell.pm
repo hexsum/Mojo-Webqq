@@ -59,7 +59,6 @@ sub call{
         my %delete_channel  = map {$_->id => $_} grep {$_->name ne "#我的好友"}  $ircd->channels;
         $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
         my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
-        $client->timer(30,sub{
         $client->each_friend(sub{
             my($client,$friend) = @_;
             my $user = $ircd->search_user(nick=>(defined($friend->markname)?$friend->markname:$friend->nick),virtual=>0);
@@ -85,7 +84,6 @@ sub call{
                 );
                 $virtual_user->join_channel($friend_channel);
             }
-        });
         });
         $client->each_group(sub{
             my($client,$group) = @_;
