@@ -59,16 +59,33 @@ sub call{
         my %delete_channel  = map {$_->id => $_} grep {$_->name ne "#我的好友"}  $ircd->channels;
         $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
         my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+        $client->timer(30,sub{
         $client->each_friend(sub{
             my($client,$friend) = @_;
-            my $virtual_user = $ircd->new_user(
-                id      => $friend->id,
-                name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
-                nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
-                user    => $friend->id,
-                virtual => 1,
-            );
-            $virtual_user->join_channel($friend_channel);
+            my $user = $ircd->search_user(nick=>(defined($friend->markname)?$friend->markname:$friend->nick),virtual=>0);
+            if(defined $user){
+                $user->on(close=>sub{
+                    my $virtual_user = $ircd->new_user(
+                        id      => $friend->id,
+                        name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
+                        nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
+                        user    => $friend->id,
+                        virtual => 1,
+                    );
+                    $virtual_user->join_channel($friend_channel);
+                });
+            }
+            else{
+                my $virtual_user = $ircd->new_user(
+                    id      => $friend->id,
+                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
+                    nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
+                    user    => $friend->id,
+                    virtual => 1,
+                );
+                $virtual_user->join_channel($friend_channel);
+            }
+        });
         });
         $client->each_group(sub{
             my($client,$group) = @_;
