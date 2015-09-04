@@ -616,6 +616,12 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         ...;
     });
 
+=head2 friends()
+
+返回好友对象数组，数组中的每个元素是一个Mojo::Webqq::Friend对象
+
+    my @friends = $client->friends();
+
 =head2 each_group(sub{...})
 
 遍历所有的群
@@ -624,6 +630,12 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         my($client,$group) = @_; #$group是一个Mojo::Webqq::Group对象
         ...;
     });
+
+=head2 groups()
+
+返回群对象数组，数组中的每个元素是一个Mojo::Webqq::Group对象
+
+    my @groups = $client->groups();
 
 =head2 each_group_member(sub{...})
 
@@ -645,6 +657,12 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 遍历所有的讨论组，和遍历好友或群类似 不再赘述
 
+=head2 discusss() 
+
+返回讨论组对象数组，数组中的每个元素是一个Mojo::Webqq::Discuss对象
+
+    my @discusss = $client->discusss;
+
 =head2 each_discuss_member(sub{...}) 
 
 遍历所有讨论组中的所有讨论组成员，和遍历好友或群类似 不再赘述
@@ -652,6 +670,12 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 each_recent(sub{...})
 
 遍历最近联系人列表
+
+=head2 recents() 
+
+返回最近联系人对象数组，数组中的每个元素是一个Mojo::Webqq::Recent对象
+
+    my @recents = $client->recents();
 
 =head2 send_message($friend,$content,[$callback])
     

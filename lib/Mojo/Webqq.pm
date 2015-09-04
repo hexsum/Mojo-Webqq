@@ -119,4 +119,21 @@ sub on {
     return $self;
 }
 
+sub friends{
+    my $self = shift;
+    return @{$self->friend};
+}
+sub groups{
+    my $self = shift;
+    return @{$self->group};
+}
+sub discusss{
+    my $self = shift;
+    return @{$self->discuss};
+}
+sub recents{
+    my $self = shift;
+    return @{$self->recent};
+}
+
 1;
