@@ -1,6 +1,6 @@
 package Mojo::Webqq::Plugin::IRCShell;
-use strict;
 $Mojo::Webqq::Plugin::IRCShell::PRIORITY = 99;
+use strict;
 use List::Util qw(first);
 BEGIN{
     $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server = 0;
@@ -18,58 +18,27 @@ sub call{
     my $master_irc_user = $data->{master_irc_user} || $client->user->qq;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
     $ircd = Mojo::IRC::Server->new(host=>$data->{host}||"0.0.0.0",port=>$data->{port}||6667,log=>$client->log);
-    my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
-    #$ircd->new_user(id=>$client->user->qq,user=>$client->user->qq,nick=>$client->user->nick,virtual=>1);
-    $client->each_friend(sub{
-        my($client,$friend) = @_;
-        my $virtual_user = $ircd->new_user(
-            id      => $friend->id,
-            name    => $friend->nick,
-            nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
-            user    => $friend->id,
-            virtual => 1,
-        );
-        $virtual_user->join_channel($friend_channel);
-    });
-
-    $client->each_group(sub{
-        my($client,$group) = @_;
-        if(@groups and not first {$group->gname eq $_} @groups){
-            $ircd->new_channel(id=>$group->gid,name=>'#'.$group->gname,mode=>"Pis");
-        }
-        else{$ircd->new_channel(id=>$group->gid,name=>'#'.$group->gname,mode=>"Pi");}
-    });
-
-    #$client->each_group_member(sub{
-    #    my($client,$member) = @_;
-    #    return if @groups and not first {$member->gname eq $_} @groups;    
-    #    return if $member->id eq $client->user->id;
-    #    my $virtual_user = $ircd->new_user(
-    #        id      => $member->id,
-    #        name    => $member->nick,
-    #        nick    =>(defined($member->card)?$member->card:$member->nick), 
-    #        user    => $member->id,
-    #        virtual => 1,
-    #    );
-    #    my $channel = $ircd->search_channel(id=>$member->gid) || $ircd->new_channel(id=>$member->gid,name=>'#'.$member->gname,mode=>"is");
-    #    $virtual_user->join_channel($channel);
-    #});
-
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
-        my $content = $msg->{params}[1];
-        if($user->user ne $master_irc_user and !$user->is_localhost){
-            #$content = "$irc_client->{nick}: " . $content; 
-            $content .= " (来自 ".$user->nick.")"; 
-        }
         if(substr($msg->{params}[0],0,1) eq "#" ){
             my $channel_name = $msg->{params}[0];
+            my $content = $msg->{params}[1];
             my $channel = $ircd->search_channel(name=>$channel_name);
-            my $group = $client->search_group(gid=>$channel->id) if defined $channel;
-            $group->send($content,sub{$_[1]->msg_from("irc")}) if defined $group;
+            return if not defined $channel;
+            my $group = $client->search_group(gid=>$channel->id);
+            return if not defined $group;
+            if($content=~/^([^\s]+?): /){
+                my $at_nick = $1;
+                $content =~s/^([^\s]+?): /\@$at_nick / if  $ircd->search_user(nick=>$at_nick);
+            }
+            if($user->user ne $master_irc_user and !$user->is_localhost){
+                #$content = "$irc_client->{nick}: " . $content; 
+                $content .= " (来自 ".$user->nick.")"; 
+            }
+            $group->send($content,sub{$_[1]->msg_from("irc")});
         }
         elsif($user->user eq $master_irc_user or $user->is_localhost){
-            my $nick = $msg->{params}[0];
+            my $nick =  $msg->{params}[0];
             my $content = $msg->{params}[1];
             my $u = $ircd->search_user(nick=>$nick,virtual=>1);
             return if not defined $u;
@@ -86,9 +55,36 @@ sub call{
         } 
     });
 
-    $client->on(login=>sub{
+    my $callback = sub{
+        my %delete_channel  = map {$_->id => $_} grep {$_->name ne "#我的好友"}  $ircd->channels;
         $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
-    });
+        my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+        $client->each_friend(sub{
+            my($client,$friend) = @_;
+            my $virtual_user = $ircd->new_user(
+                id      => $friend->id,
+                name    => $friend->nick . ":虚拟用户",
+                nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
+                user    => $friend->id,
+                virtual => 1,
+            );
+            $virtual_user->join_channel($friend_channel);
+        });
+        $client->each_group(sub{
+            my($client,$group) = @_;
+            my $mode = "Pi";$mode = "Pis" if(@groups and not first {$group->gname eq $_} @groups);
+            my $channel_name = '#'.$group->gname;$channel_name=~s/\s|,|&//g;
+            my $channel = $ircd->search_channel(name=>$channel_name);
+            if(defined $channel){
+                delete $delete_channel{$channel->id};
+                $channel->id($group->gid);
+                $channel->remove_user($_) for grep {$_->is_virtual} $channel->users;
+            }
+            else{ $ircd->new_channel(id=>$group->gid,name=>'#'.$group->gname,mode=>$mode);}
+        });
+        $ircd->remove_channel($_) for values %delete_channel;
+    };
+    $client->on(ready=>$callback,login=>$callback);
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         if($msg->type eq "message"){
@@ -155,13 +151,21 @@ sub call{
                 );
                 
                 my $channel = $ircd->search_channel(id=>$member->gid) ||
-                    $ircd->new_channel(id=>$member->id,name=>'#'.$member->gname,);
+                    $ircd->new_channel(id=>$member->gid,name=>'#'.$member->gname,);
                 $user->join_channel($channel);
             }
             my $channel = $ircd->search_channel(id=>$member->gid);
             return if not defined $channel;
             for(grep {!$_->is_virtual} $channel->users){
-                for my $line (split /\r?\n/,$msg->content){
+                my @content = split /\r?\n/,$msg->content;
+                if($content[0]=~/^\@([^\s]+?) /){
+                    my $at_nick = $1;
+                    if($ircd->search_user(nick=>$at_nick)){
+                        $content[0] =~s/^\@([^\s]+?) //;
+                        $_ = "$at_nick: " . $_ for @content;
+                    }
+                }
+                for my $line (@content){
                     $_->send($user->ident,"PRIVMSG",$channel->name,$line);
                 }
             }
@@ -235,7 +239,15 @@ sub call{
                 grep {!$_->is_virtual} $ircd->users
             ){
                 for(grep {!$_->{virtual}} $channel->users){
-                    for my $line (split /\r?\n/,$msg->content){
+                    my @content = split /\r?\n/,$msg->content;
+                    if($content[0]=~/^\@([^\s]+?) /){
+                        my $at_nick = $1;
+                        if($ircd->search_user(nick=>$at_nick)){
+                            $content[0] =~s/^\@([^\s]+?) //;
+                            map {$_ = "$at_nick: " . $_} @content;
+                        }
+                    }
+                    for my $line (@content){
                         $_->send($master_irc_client->ident,"PRIVMSG",$channel->name,$line);
                     }
                 }
