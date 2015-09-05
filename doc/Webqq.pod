@@ -77,6 +77,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     country         #国家
     city            #城市
     nick            #昵称    
+    displayname     #当前和昵称完全一样
     shengxiao       #生效
     email           #邮箱
     client_type     #固定值"web"
@@ -101,6 +102,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     categorie       #好友所属的分组
     nick            #好友昵称
     markname        #好友备注名称
+    displayname     #如果设置了markname 就返回markname 否则返回nick
     is_vip          #是否是vip会员
     vip_level       #vip等级
     state           #好友状况 online|away|busy|silent|offline
@@ -137,6 +139,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     glevel          #群等级
     gowner          #群拥有者的id
     gmarkname       #群备注名称
+    displayname     #如果设置了gmarkname 就返回gmarkname 否则返回gname
     member          #群成员，此属性是一个数组引用，数组中每个元素是一个Mojo::Webqq::Group::Member的对象
 
     方法：
@@ -164,6 +167,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     country         #国家
     city            #城市
     card            #群名片
+    displayname     #设置了card就返回card否则返回nick
     state           #状态
     client_type     #客户端类型
     qq              #qq号码
@@ -192,6 +196,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     did         #讨论组id
     dname       #讨论组名称
+    displayname #当然返回的和dname一样
     downer      #讨论组建立者id
     member      #讨论组成员，一个数组引用，每个元素是一个Mojo::Webqq::Discuss::Member对象
 
@@ -212,6 +217,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     state
     client_type
     dname
+    displayname             #当前和dname一样
     did
     downer
 
