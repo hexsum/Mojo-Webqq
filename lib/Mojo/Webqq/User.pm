@@ -30,4 +30,8 @@ has [qw(
     signature
 )];
 
+has displayname => sub{
+    my $self = shift;
+    return $self->nick;
+};
 1;

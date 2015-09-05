@@ -10,7 +10,10 @@ has [qw(
     downer
 )];
 has member => sub{[]};
-
+has displayname => sub{
+    my $self = shift;
+    return $self->dname;
+};
 sub new {
     my $class = shift;
     my $self ;

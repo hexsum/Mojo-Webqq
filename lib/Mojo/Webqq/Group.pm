@@ -17,7 +17,10 @@ has [qw(
     gmarkname    
 )];
 has member => sub{[]};
-
+has displayname => sub{
+    my $self = shift;
+    return defined $self->gmarkname?$self->gmarkname:$self->gname;
+};
 sub new {
     my $class = shift;
     my $self ;

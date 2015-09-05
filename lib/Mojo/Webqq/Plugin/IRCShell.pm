@@ -63,11 +63,11 @@ sub call{
             my($client,$friend) = @_;
             my $user = $ircd->search_user(nick=>(defined($friend->markname)?$friend->markname:$friend->nick),virtual=>0);
             if(defined $user){
-                $user->on(close=>sub{
+                $user->once(close=>sub{
                     my $virtual_user = $ircd->new_user(
                         id      => $friend->id,
-                        name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
-                        nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
+                        name    => $friend->displayname . ":虚拟用户",
+                        nick    => $friend->displayname,
                         user    => $friend->id,
                         virtual => 1,
                     );
@@ -77,8 +77,8 @@ sub call{
             else{
                 my $virtual_user = $ircd->new_user(
                     id      => $friend->id,
-                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",
-                    nick    =>(defined($friend->markname)?$friend->markname:$friend->nick),
+                    name    => $friend->displayname . ":虚拟用户",
+                    nick    => $friend->displayname,
                     user    => $friend->id,
                     virtual => 1,
                 );
@@ -104,13 +104,13 @@ sub call{
         my($client,$msg) = @_;
         if($msg->type eq "message"){
             my $friend = $msg->sender;
-            my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->nick,virtual=>0);
+            my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             if(not defined $user){
                 $user = $ircd->new_user(
                     id      =>$friend->id,
-                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . ":虚拟用户",,
+                    name    =>$friend->displayname . ":虚拟用户",,
                     user    =>$friend->id,
-                    nick    =>defined($friend->markname)?$friend->markname:$friend->nick,
+                    nick    =>$friend->displayname,
                     virtual => 1,
                 );
                 my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
@@ -128,13 +128,13 @@ sub call{
             my $member  = $msg->sender;
             return if @groups and not first {$member->gname eq $_} @groups;
             return if $msg->via ne "group";
-            my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->nick,virtual=>0);
+            my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
+                    name    =>$member->displayname . ":虚拟用户",
                     user    =>$member->id,
-                    nick    =>defined($member->card)?$member->card:$member->nick,
+                    nick    =>$member->displayname,
                     virtual => 1,
                 );
                 my $channel = $ircd->search_channel(id=>$member->gid) ||
@@ -157,13 +157,13 @@ sub call{
         elsif($msg->type eq "group_message"){
             my $member = $msg->sender;
             return if @groups and not first {$member->gname eq $_} @groups;
-            my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->nick,virtual=>0);
+            my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
+                    name    =>$member->displayname . ":虚拟用户",
                     user    =>$member->id,
-                    nick    =>defined($member->card)?$member->card:$member->nick,
+                    nick    =>$member->displayname,
                     virtual => 1,
                 );
                 
@@ -194,13 +194,13 @@ sub call{
         return if $msg->msg_from eq "irc";
         if($msg->type eq "message"){
             my $friend = $msg->receiver;
-            my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->nick,virtual=>0);
+            my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$friend->id,
-                    name    =>(defined($friend->markname)?$friend->markname:$friend->nick) . "虚拟用户",
+                    name    =>$friend->displayname . ":虚拟用户",
                     user    =>$friend->id,
-                    nick    =>defined($friend->markname)?$friend->markname:$friend->nick,
+                    nick    =>$friend->displayname,
                     virtual => 1,
                 );
                 my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
@@ -223,13 +223,13 @@ sub call{
             my $member  = $msg->receiver;
             return if @groups and not first {$member->gname eq $_} @groups;
             return if $msg->via ne "group";
-            my $user = $ircd->search_user(id=>$member->id,virtual=>1)||$ircd->search_user(nick=>$member->nick,virtual=>0);
+            my $user = $ircd->search_user(id=>$member->id,virtual=>1)||$ircd->search_user(nick=>$member->displayname,virtual=>0);
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
-                    name    =>(defined($member->card)?$member->card:$member->nick) . "虚拟用户",
+                    name    =>$member->displayname . ":虚拟用户",
                     user    =>$member->id,
-                    nick    =>defined($member->card)?$member->card:$member->nick,
+                    nick    =>$member->displayname,
                     virtual => 1,
                 );
                 my $channel = $ircd->search_channel(id=>$member->gid) ||
