@@ -17,7 +17,7 @@ sub call{
     $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_user = $data->{master_irc_user} || $client->user->qq;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
-    $ircd = Mojo::IRC::Server->new(host=>$data->{host}||"0.0.0.0",port=>$data->{port}||6667,log=>$client->log);
+    $ircd = Mojo::IRC::Server->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
         if(substr($msg->{params}[0],0,1) eq "#" ){
@@ -32,10 +32,17 @@ sub call{
                 $content =~s/^([^\s]+?): /\@$at_nick / if  $ircd->search_user(nick=>$at_nick);
             }
             if($user->user ne $master_irc_user and !$user->is_localhost){
-                #$content = "$irc_client->{nick}: " . $content; 
-                $content .= " (来自 ".$user->nick.")"; 
+                $content = $user->nick . ": $content"; 
+                #$content .= " (来自 ".$user->nick.")"; 
             }
-            $group->send($content,sub{$_[1]->msg_from("irc")});
+            $group->send($content,sub{
+                $_[1]->msg_from("irc");
+                $_[1]->cb(sub{
+                    my($client,$msg,$status)=@_;
+                    return if $status->is_success;
+                    $user->send($user->ident,"PRIVMSG",$channel_name,$content . "[发送失败]");
+                });
+            });
         }
         elsif($user->user eq $master_irc_user or $user->is_localhost){
             my $nick =  $msg->{params}[0];
@@ -44,12 +51,24 @@ sub call{
             return if not defined $u;
             my $friend = $client->search_friend(id=>$u->id);
             if(defined $friend){
-                $friend->send($content,sub{$_[1]->msg_from("irc")});
+                $friend->send($content,sub{
+                    $_[1]->msg_from("irc");
+                    $_[1]->cb(sub{
+                        my($client,$msg,$status)=@_;
+                        return if $status->is_success;
+                        $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
+                    });
+                });
             }
             else{
                 my $member = $client->search_group_member(id=>$u->id);
                 if(defined $member){
-                    $member->send($content,sub{$_[1]->msg_from("irc")});
+                    $member->send($content,sub{
+                        $_[1]->msg_from("irc");
+                        my($client,$msg,$status)=@_;
+                        return if $status->is_success;
+                        $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
+                    });
                 }
             }
         } 
@@ -61,7 +80,7 @@ sub call{
         my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
         $client->each_friend(sub{
             my($client,$friend) = @_;
-            my $user = $ircd->search_user(nick=>(defined($friend->markname)?$friend->markname:$friend->nick),virtual=>0);
+            my $user = $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             if(defined $user){
                 $user->once(close=>sub{
                     my $virtual_user = $ircd->new_user(
