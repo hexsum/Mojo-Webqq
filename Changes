@@ -1,3 +1,10 @@
+2015-09-08 Mojo::Webqq v1.4.5
+1）修复插件IRCShell存在的bug和功能完善
+2）新增获取好友、群、讨论组、最近联系人对象列表的便捷方法 ->friends() ->groups() ->discusss() ->recents()
+3）对象新增displayname属性
+4）消息队列尝试添加消息延迟pop的特性
+5）更新MakeFile.PL
+
 2015-09-03 Mojo::Webqq v1.4.4
 1）spawn方法exit_cb的返回结果中增加 'is_timeout' 的属性用于标识进程是否是超时退出
 2）新增IRCShell插件, Linux上通过irc使用qq 感谢@wxg
