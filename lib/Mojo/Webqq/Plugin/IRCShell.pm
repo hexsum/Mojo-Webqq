@@ -65,13 +65,14 @@ sub call{
                 if(defined $member){
                     $member->send($content,sub{
                         $_[1]->msg_from("irc");
-                        my($client,$msg,$status)=@_;
-                        return if $status->is_success;
-                        $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
+                        $_[1]->cb(sub{
+                            my($client,$msg,$status)=@_;
+                            return if $status->is_success;
+                            $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
+                        });
                     });
                 }
-            }
-        } 
+            } 
     });
 
     my $callback = sub{
