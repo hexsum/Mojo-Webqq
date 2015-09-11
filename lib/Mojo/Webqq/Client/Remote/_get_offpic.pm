@@ -1,4 +1,5 @@
 use File::Temp qw/:seekable/;
+use Mojo::Util qw/url_escape/;
 sub Mojo::Webqq::Client::_get_offpic {
     my $self = shift;
     my $file_path = shift;
@@ -6,7 +7,7 @@ sub Mojo::Webqq::Client::_get_offpic {
     
     my $api = 'http://w.qq.com/d/channel/get_offpic2';
     my @query_string = (
-        file_path   =>  $file_path,
+        file_path   =>  url_escape($file_path),
         f_uin       =>  $friend->id,
         clientid    =>  $self->clientid,  
         psessionid  =>  $self->psessionid,
@@ -29,7 +30,7 @@ sub Mojo::Webqq::Client::_get_offpic {
                 UNLINK      => 1,
         );
         binmode $tmp;
-        print $tmp $response->content();    
+        print $tmp $tx->res->content();    
         close $tmp;
         eval{
             open(my $fh,"<:raw",$tmp->filename) or die $!;
@@ -39,6 +40,6 @@ sub Mojo::Webqq::Client::_get_offpic {
         };
         $self->error("[Mojo::Webqq::Client::_get_offpic] $@\n") if $@;
     };
-    $self->http_get($self->gen_url($api,@query_string),$callback);
+    $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://w.qq.com/'},$callback);
 };
 1;

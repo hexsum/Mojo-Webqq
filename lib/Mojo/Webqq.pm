@@ -71,6 +71,7 @@ has ua                      => sub {
     local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug;
     require Mojo::UserAgent;
     Mojo::UserAgent->new(
+        max_redirects      => 7,
         request_timeout    => 30,
         inactivity_timeout => 30,
         transactor => Mojo::UserAgent::Transactor->new( 
