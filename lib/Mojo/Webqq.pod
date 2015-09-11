@@ -418,6 +418,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     log_path    #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     encrypt_method #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
     ioloop      #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
+    friend_pic_dir #设置好友图片保留目录，默认是临时目录，只有注册了receive_friend_pic事件 此路径才有意义
 
     $client->new(security=>0,ua_debug=>0);
 

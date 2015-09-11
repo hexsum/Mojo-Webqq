@@ -17,6 +17,7 @@ has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
 has email                   => undef;
 has encrypt_method          => "perl";     #perl|js
+has friend_pic_dir          => undef;
 has ioloop                  => sub{Mojo::IOLoop->singleton};
 
 has version                 => $Mojo::Webqq::VERSION;

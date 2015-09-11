@@ -23,16 +23,21 @@ sub Mojo::Webqq::Client::_get_offpic {
                     :                           undef
         ;
         return unless defined $type; 
-        my $tmp = File::Temp->new(
-                TEMPLATE    => "webqq_offpic_XXXX",    
-                SUFFIX      => $type,
-                TMPDIR      => 1,
-                UNLINK      => 1,
+        if(defined $self->friend_pic_dir and not -d $self->friend_pic_dir){
+            $self->error("无效的 friend_pic_dir: " . $self->friend_pic_dir);
+            return;
+        }
+        my @opt = (
+            TEMPLATE    => "webqq_offpic_XXXX",
+            SUFFIX      => $type,
+            UNLINK      => 0,
         );
-        binmode $tmp;
-        print $tmp $tx->res->content();    
-        close $tmp;
+        defined $self->friend_pic_dir?(push @opt,(DIR=>$self->friend_pic_dir)):(push @opt,(TMPDIR=>1));
         eval{
+            my $tmp = File::Temp->new(@opt);
+            binmode $tmp;
+            print $tmp $tx->res->content();    
+            close $tmp;
             open(my $fh,"<:raw",$tmp->filename) or die $!;
             $self->emit(receive_friend_pic => $fh,$tmp->filename,$friend);
             $self->emit(receive_offpic => $fh,$tmp->filename,$friend);
