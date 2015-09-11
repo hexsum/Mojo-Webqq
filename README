@@ -25,7 +25,7 @@ Mojo-Webqq v1.4.5
    make test
    make install
    
-   推荐使用CPAN安装 Mojo::Webqq
+   推荐使用cpanm安装 Mojo::Webqq
 
 核心依赖模块
 

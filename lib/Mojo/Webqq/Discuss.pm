@@ -26,6 +26,10 @@ sub new {
     $self;
 }
 
+sub members{
+    my $self = shift;
+    return @{$self->member};
+}
 sub each_discuss_member{
     my $self = shift;
     my $callback = shift;

@@ -86,7 +86,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     mobile          #手机
     signature       #个性签名
 
-实际想要获取登录帐号信息时，是通过客户端提供的 user 属性来获取
+实际想要获取该对象信息时，是通过客户端提供的 user 属性来获取
     
     $client->user       #返回的是一个Mojo::Webqq::User对象
     $client->user->nick #获取帐号昵称
@@ -97,8 +97,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     属性：
 
-    qq              #好友的qq号码
-    id              #好友的id，仅在本次登录期间唯一
+    qq              #好友的qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
+    id              #好友的id，仅在本次登录期间唯一，多次登录可能会发生变化
     categorie       #好友所属的分组
     nick            #好友昵称
     markname        #好友备注名称
@@ -125,12 +125,16 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         ...;
     });
     
+    for my $friend ($client->friends){
+        ...;
+    }
+    
 
 =head2 Mojo::Webqq::Group 群组
 
     属性：
 
-    gid             #群的id
+    gid             #群的id，仅在本次登录期间唯一，多次登录可能会发生变化
     gtype           #create|attend|manage 分别表示创建的群|加入的群|管理的群,需要安装Webqq::Qun模块,暂未实现
     gnumber         #群号码 需要安装Webqq::Qun模块,暂未实现
     gname           #群名称
@@ -145,6 +149,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     方法：
     search_group_member  #根据群成员属性搜索群，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
     each_group_member    #在群中遍历所有的群成员
+    members              #返回群成员对象列表  
     send                 #给群对象发送消息 $group->send("hello world")
 
     示例代码：
@@ -154,6 +159,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         my($client,$member) = @_;
         ...;
     );
+    for my $group ($client->groups){
+        ...;
+    }
     
 
 =head2 Mojo::Webqq::Group::Member 群成员
@@ -163,14 +171,14 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     nick            #群成员昵称
     province        #省份
     gender          #性别
-    id              #唯一id
+    id              #唯一id，仅在本次登录期间唯一，多次登录可能会发生变化
     country         #国家
     city            #城市
     card            #群名片
     displayname     #设置了card就返回card否则返回nick
     state           #状态
     client_type     #客户端类型
-    qq              #qq号码
+    qq              #qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
     qage            #q龄 需要安装Webqq::Qun模块,暂未实现
     join_time       #入群时间
     last_speak_time #最后发言时间
@@ -204,6 +212,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     search_discuss_member   #搜索讨论组成员
     each_discuss_member     #遍历讨论组成员
+    members                 #返回讨论组成员对象列表
     send                    #给讨论组对象发送消息
 
 =head2 Mojo::Webqq::Discuss::Member 讨论组成员
@@ -426,7 +435,7 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     $client->login(qq=>xxxx,pwd=>xxxx);    #pwd必须是原始密码经过md5加密后的32位字符串
 
-注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度（Centos可以使用yum -y install perl-Crypt-OpenSSL-RSA perl-Crypt-OpenSSL-Bignum来方便安装）
+注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度（Centos可以使用 yum -y install perl-Crypt-OpenSSL-* 来方便安装）
 
 =head2 relogin()
 
@@ -492,7 +501,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 定时执行任务
     
-    #支持的时间格式为 HH:MM:SS
+    #支持的时间格式为 HH:MM
     $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
 
 =head2 spawn(%opt)
@@ -588,7 +597,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
     data        #设置该选项表示使用MIME::Lite生成的发送数据
 
     $client->mail(smtp=>smtp.163.com,user=>xxx,pass=>xxx,from=>xxx,to=>xxx,subject=>"邮件测试",text=>"hello world",sub{
-        my $send_status = shift;
+        my ($send_status,$err) = @_;
         if($send_status){print "发送成功"} 
         else{print "发送失败"} 
     });

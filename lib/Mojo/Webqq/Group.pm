@@ -42,6 +42,10 @@ sub each_group_member{
         $callback->($self->{_client},$_); 
     }
 }
+sub members {
+    my $self = shift;
+    return @{$self->member};
+}
 sub search_group_member{
     my $self = shift;
     my %p = @_;
