@@ -1048,6 +1048,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
     host                #默认0.0.0.0
     port                #默认6667
     master_irc_user     #和qq匹配的irc user帐号，默认按照和qq号相同的user或者客户端ip是本机地址作为识别规则
+    load_friend         #0|1 默认是1 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
 
 qq好友会默认加入到irc的 '#我的好友' 频道中
 
@@ -1104,13 +1105,51 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 为避免对群内成员产生影响，群内需要使用 @帐号昵称 来触发
 
     $client->load("SmartReply");
-    #由于该插件处理完的消息不应该再由其他插件处理，因此插件优先级应该设置成比一般插件优先级更高，插件默认优先级是0
 
 =head2 Mojo::Webqq::Plugin::Openqq
 
 提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息，以及通过接口发送好友消息、群消息、群临时消息和讨论组临时消息
 
-    $client->load("Openqq",data=>[ {host=>"127.0.0.1",port=>5000}, ]);
+    #兼容老版本，data是一个ARRAY引用,可以设置多个监听的地址和端口
+    $client->load("Openqq",data=>[ {host=>"127.0.0.1",port=>5000}, ]); 
+
+    #新版本，data可以是一个HASH引用
+    $client->load("Openqq",data=>{                                                 
+        listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
+        auth   => sub {my($param,$controller) = @_},    #认证回调函数，用于进行请求鉴权
+    });
+
+    若data中设置了auth函数引用，则表示api接口开启认证
+    认证函数返回值为真，认证通过，函数返回值为假，认证失败，接口返回403
+
+    认证回调函数的第一个参数是一个HASH引用，包含get或post提交的参数信息
+    第二个参数是一个Mojolicious的controller对象，适合对Mojolicious比较熟悉的情况下，利用controller进行高级的认证控制
+
+    auth函数示例：
+
+    #简单的时间戳过期防盗链 
+    #http://127.0.0.1/openqq/send_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
+    sub {
+        my $param = shift;
+        my $secret = 'this is your secret key';
+        return 0 if time() >= $param->{exp}; #参数值的exp为过期时间，超过过期时间链接已失效
+        if($param->{key} eq md5_sum($secret . join "",@param{qw(id gid did content exp)} )){
+            return 1; #secret和相关参数值拼接成一个字符串后计算md5 再和参数key的值进行比较
+        }
+        else{
+            return 0; 
+        }
+    }
+
+    #利用controller允许指定的IP可以访问，更多关于controller的资料，可以参考 Mojolicious::Controller
+    sub{
+        my ($param,$controller) = @_;
+        if($controller->tx->remote_address eq "127.0.0.1"){
+            return 1;
+        }
+        return 0;
+    }
+        
 
 当前支持的API接口（均返回json格式数据）：
 

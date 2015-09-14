@@ -9,6 +9,21 @@ sub call{
     package Mojo::Webqq::Plugin::Openqq::App;
     use Encode;
     use Mojolicious::Lite;
+    under sub {
+        my $c = shift;
+        if(ref $data eq "HASH" and ref $data->{auth} eq "CODE"){
+            my $hash  = $c->req->params->to_hash;
+            $client->reform_hash($hash);
+            my $ret = 0;
+            eval{
+                $ret = $data->{auth}->($hash,$c);
+            };
+            $client->warn("插件[Mojo::Webqq::Plugin::Openqq]认证回调执行错误: $@") if $@;
+            $c->render(text=>"auth failure",status=>403) if not $ret;
+            return $ret;
+        }
+        else{return 1} 
+    };
     get '/openqq/get_user_info'     => sub {$_[0]->render(json=>$client->user->to_hash());};
     get '/openqq/get_friend_info'   => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->friend}]); };
     get '/openqq/get_group_info'    => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->group}]); };
@@ -103,13 +118,18 @@ sub call{
         }
         else{$c->render(json=>{msg_id=>undef,code=>105,status=>"discuss member or group member  not found"});}
     };
-    any '/*whatever'  => sub{whatever=>'',$_[0]->render(text => "request error",status=>403)};
+    any '/*whatever'  => sub{whatever=>'',$_[0]->render(text=>"request error",status=>403)};
     package Mojo::Webqq::Plugin::Openqq;
     $server = Mojo::Webqq::Server->new();   
     $server->app($server->build_app("Mojo::Webqq::Plugin::Openqq::App"));
     $server->app->secrets("hello world");
     $server->app->log($client->log);
-    $server->listen($data) if ref $data eq "ARRAY" ;
+    if(ref $data eq "ARRAY"){#旧版本兼容性
+        $server->listen($data);
+    }
+    elsif(ref $data eq "HASH" and ref $data->{listen} eq "ARRAY"){
+        $server->listen($data->{listen}) ;
+    }
     $server->start;
 }
 1;

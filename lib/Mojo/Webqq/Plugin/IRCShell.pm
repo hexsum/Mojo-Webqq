@@ -16,7 +16,7 @@ sub call{
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_user = $data->{master_irc_user} || $client->user->qq;
-    my $is_load_friend = $data->{load_friend};
+    my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
     $ircd = Mojo::IRC::Server->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{

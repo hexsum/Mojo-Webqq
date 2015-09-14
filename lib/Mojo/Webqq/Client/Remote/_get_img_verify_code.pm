@@ -18,11 +18,21 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
     );    
 
     my $content = $self->http_get($self->gen_url($api_url,@query_string),$headers);
-    return 0 unless defined $content;
-    my ($fh, $filename) = tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",TMPDIR => 1);
-    binmode $fh;
-    print $fh $content;
-    close $fh; 
+    unless(defined $content){
+        $self->error("验证码下载失败");
+        return 0;
+    }
+    my ($fh, $filename) ;
+    eval{
+        ($fh, $filename)= tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",TMPDIR => 1);
+        binmode $fh;
+        print $fh $content;
+        close $fh; 
+    };
+    if($@){
+        $self->error("验证码写入文件失败"); 
+        return 0;
+    }
     if(-t STDIN){
         my $filename_for_console = encode("utf8",decode(locale_fs,$filename));
         my $info = $self->log->format->(time,"info","请输入图片验证码 [ $filename_for_console ]: ");
@@ -43,7 +53,7 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
         else{$self->fatal("无法从回调函数中获取有效的验证码，客户端终止\n");$self->stop();}
     }
     else{
-        $self->fatal("STDIN未连接到tty，无法输入验证码，客户端终止...\n");
+        $self->fatal("未连接到终端，无法获取验证码，客户端终止...\n");
         $self->stop();
     }
     return 0;
