@@ -14,7 +14,10 @@ sub Mojo::Webqq::Client::_get_offpic {
     );
     my $callback = sub{
         my ($data,$ua,$tx) = @_;
-        return unless defined $data;
+        unless(defined $data){
+            $self->warn("好友图片下载失败: " . $tx->error);
+            return;
+        }
         return unless $tx->res->headers->content_type =~/^image\/(.*)/;
         my $type =      $1=~/jpe?g/i        ?   ".jpg"
                     :   $1=~/png/i          ?   ".png"
