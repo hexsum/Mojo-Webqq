@@ -438,7 +438,8 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
     qq     登录的qq帐号    
     pwd    必须是原始密码经过md5加密后的32位字符串
-    delay  0表示不延迟，立即进行登录 1表示在after_load_plugin事件触发后执行，即全部插件加载完毕后再执行登录
+    delay  0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录
+           为了兼容旧版本，delay默认值为0，推荐尽量将delay设置为1
 
     delay选项主要是为了方便配合某些插件的执行, 比如 Mojo::Webqq::Plugin::PostImgVerifycode 插件
 
@@ -821,6 +822,17 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 因此，你可能会发现当群成员加入后，过了10分钟才会触发相关的事件，或者新增群成员一旦发言也会发送触发事件
 
+
+当前核心事件的触发顺序(采用延迟登录)
+
+                                                                                +->before_send_message
+    plugin_load -+                                                              |->receive_message
+                 |->after_load_plugin->input_img_verifycode->login->ready->run->|->send_message
+    plugin_call -+                                                           |  |->new_friend
+                                                                             |  |->receive_friend_pic
+                                                             relogin<-login<-+  |->lose_friend
+                                                                                ...
+
 =head2 reveive_message 
 
 接收到消息事件，传递给回调函数的参数是接收到的消息对象
@@ -846,6 +858,10 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 relogin
 
 重新登录完成时触发事件，无额外的回调参数
+
+=head2 input_img_verifycode
+
+登录需要输入验证码，参数为验证码文件的路径
 
 =head2 ready
 
@@ -1115,8 +1131,10 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到 input_img_verifycode 事件，需要设置为延迟登录
-    $client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
+    #插件需要使用到 input_img_verifycode 事件
+    #需要login中开启delay参数（设置为延迟登录）
+    #$client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
+
     $client->load("PostImgVerifycode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25

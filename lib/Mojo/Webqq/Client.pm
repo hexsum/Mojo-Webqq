@@ -128,7 +128,7 @@ sub relogin{
     $self->recent([]);
     $self->data(+{});
 
-    $self->login(qq=>$self->qq,pwd=>$self->pwd);
+    $self->login(qq=>$self->qq,pwd=>$self->pwd,delay=>0);
     $self->emit("relogin");
 }
 sub login {

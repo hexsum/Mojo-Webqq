@@ -123,7 +123,10 @@ sub call{
         });
         $ircd->remove_channel($_) for values %delete_channel;
     };
-    $client->on(login=>$callback);
+    $client->on(ready=>sub{
+        $callback->();
+        $client->on(login=>$callback);
+    });
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         if($msg->type eq "message"){
