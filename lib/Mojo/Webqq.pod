@@ -16,7 +16,6 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     my $qq = 12345678;
     my $pwd = "your password";
-
     my $pwd_md5 = md5_sum($pwd);#得到原始密码的32位长度md5
 
     #客户端进行登录
@@ -828,9 +827,9 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
                                                                                 +->before_send_message
     plugin_load -+                                                              |->receive_message
                  |->after_load_plugin->input_img_verifycode->login->ready->run->|->send_message
-    plugin_call -+                                                           |  |->new_friend
-                                                                             |  |->receive_friend_pic
-                                                             relogin<-login<-+  |->lose_friend
+    plugin_call -+                                                          |   |->new_friend
+                                                                            |   |->receive_friend_pic
+                                                            relogin<-login<-+   |->lose_friend
                                                                                 ...
 
 =head2 reveive_message 
