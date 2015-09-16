@@ -204,7 +204,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     did         #讨论组id
     dname       #讨论组名称
-    displayname #当然返回的和dname一样
+    displayname #当前返回的和dname一样
     downer      #讨论组建立者id
     member      #讨论组成员，一个数组引用，每个元素是一个Mojo::Webqq::Discuss::Member对象
 
@@ -434,7 +434,14 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
 
 客户端登录
 
-    $client->login(qq=>xxxx,pwd=>xxxx);    #pwd必须是原始密码经过md5加密后的32位字符串
+    $client->login(qq=>xxxx,pwd=>xxxx,[delay=>0|1]);    
+
+    qq     登录的qq帐号    
+    pwd    必须是原始密码经过md5加密后的32位字符串
+    delay  0表示不延迟，立即进行登录 1表示在after_load_plugin事件触发后执行，即全部插件加载完毕后再执行登录
+
+    delay选项主要是为了方便配合某些插件的执行, 比如 Mojo::Webqq::Plugin::PostImgVerifycode 插件
+
 
 注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度（Centos可以使用 yum -y install perl-Crypt-OpenSSL-* 来方便安装）
 
@@ -496,7 +503,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 客户端终止接收和发送消息，其他非接收和发送消息类的功能仍然可以继续执行
 
     $client->stop(["auto"]) #默认参数是auto，当多个qq帐号客户端中的最后一个stop时，整个程序也会退出(exit)
-    $client->stop("noexit") #即时所有的qq帐号都stop了，整个客户端也不调用exit退出
+    $client->stop("noexit") #即使所有的qq帐号都stop了，整个客户端也不调用exit退出
 
 =head2 add_job($job_name,$time,$callback);
 
@@ -856,6 +863,10 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 插件被加载完成时，参数为插件名称
 
+=head2 after_load_plugin
+
+全部插件加载完成后触发的事件
+
 =head2 new_friend
 
 新增好友时触发事件，回调参数为新增的好友对象
@@ -1098,6 +1109,31 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
     $client->load("FuckDaShen");
 
+=head2 Mojo::Webqq::Plugin::PostImgVerifycode
+
+登录过程如果需要验证码，会发邮件到指定的邮箱，通过点击邮件中的链接远程提交验证码，适合配合手机使用
+
+注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
+
+    #插件需要使用到 input_img_verifycode 事件，需要设置为延迟登录
+    $client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
+    $client->load("PostImgVerifycode",data=>{
+        smtp    =>  'xxxx', #邮箱的smtp地址  
+        port    =>  'xxxx', #smtp服务器端口，默认25
+        from    =>  'xxxx', #发件人
+        to      =>  'xxxx', #收件人
+        user    =>  'xxxx', #smtp登录帐号
+        pass    =>  'xxxx', #smtp登录密码
+        post_host => 'xxx.xxx.xxx.xxx' , #本机公网IP地址，需要远程访问
+        post_port => 'xxxx'            , #提交验证码的链接地址中使用的端口，默认1987
+    });
+
+    收到的邮件内容如下：
+
+    主题：QQ帐号 xxxx 登录验证码
+    附件：webqq_img_verfiy_xxxx.jpg
+    正文：请点击以下链接提交验证码：http://xxx.xxx.xxx.xxx:xxxx/check_code
+
 =head2 Mojo::Webqq::Plugin::SmartReply
 
 实现机器人的智能回复，支持好友消息、群消息、群临时消息、讨论组临时消息的自动回复
@@ -1133,7 +1169,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         my $param = shift;
         my $secret = 'this is your secret key';
         return 0 if time() >= $param->{exp}; #参数值的exp为过期时间，超过过期时间链接已失效
-        if($param->{key} eq md5_sum($secret . join "",@param{qw(id gid did content exp)} )){
+        if($param->{key} eq md5_sum($secret . join "",@$param{qw(id gid did content exp)} )){
             return 1; #secret和相关参数值拼接成一个字符串后计算md5 再和参数key的值进行比较
         }
         else{

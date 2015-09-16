@@ -15,7 +15,7 @@ Mojo-Webqq v1.4.6
   StockInfo            95       已发布      shalk       查询股票信息
   KnowledgeBase        2        已发布      sjdy521     通过qq消息自定义问答知识库
   FuckDaShen           1        已发布      sjdy521     对消息中的"大神"关键词进行鄙视
-  PostImgVerifycode    0        未完成      sjdy521     登录验证码发送到邮箱实现远程登录
+  PostImgVerifycode    0        已发布      sjdy521     登录验证码发送到邮箱实现远程登录
   SmartReply           0        已发布      sjdy521     智能聊天回复
 
 安装步骤

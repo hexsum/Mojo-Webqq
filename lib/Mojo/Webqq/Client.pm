@@ -47,6 +47,15 @@ sub exit{
 }
 sub ready{
     my $self = shift;
+    #加载插件
+    my $plugins = $self->plugins;
+    for(
+        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
+        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
+    ){
+        $self->call($_);
+    }
+    $self->emit("after_load_plugin");
     $self->on("model_update_fail"=>sub{
         my $self = shift;
         my $last_model_update_failure_count = $self->model_update_failure_count;
@@ -84,14 +93,6 @@ sub ready{
             $self->update_friend;
         });
     });
-    #加载插件
-    my $plugins = $self->plugins;
-    for(
-        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
-        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
-    ){
-        $self->call($_);
-    }
     #接收消息
     $self->info("开始接收消息...\n");
     $self->_recv_message();
@@ -134,58 +135,64 @@ sub login {
     my $self = shift;
     my %p = @_;
     $self->qq($p{qq})->pwd($p{pwd});
-    if(
-           $self->_prepare_for_login()    
-        && $self->_check_verify_code()     
-        && $self->_get_img_verify_code()
+    my $delay = defined $p{delay}?$p{delay}:0;
+    my $callback = sub{
+        if(
+            $self->_prepare_for_login()    
+            && $self->_check_verify_code()     
+            && $self->_get_img_verify_code()
 
-    ){
-        while(1){
-            my $ret = $self->_login1();
-            if($ret == -1){
-                $self->_get_img_verify_code();
-                next;
-            }
-            elsif($ret == -2){
-                $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
-                $self->encrypt_method("js");
-                $self->relogin();
-                return;
-            }
-            elsif($ret == 1){
-                   $self->_check_sig() 
-                && $self->_get_vfwebqq()
-                && $self->_login2();
-                last;
-            }
-            else{
-                last;
+        ){
+            while(1){
+                my $ret = $self->_login1();
+                if($ret == -1){
+                    $self->_get_img_verify_code();
+                    next;
+                }
+                elsif($ret == -2){
+                    $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
+                    $self->encrypt_method("js");
+                    $self->relogin();
+                    return;
+                }
+                elsif($ret == 1){
+                    $self->_check_sig() 
+                    && $self->_get_vfwebqq()
+                    && $self->_login2();
+                    last;
+                }
+                else{
+                    last;
+                }
             }
         }
-    }
 
-    #登录不成功，客户端退出运行
-    if($self->login_state ne 'success'){
-        $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）\n");
-        $self->stop();
-    }
-    else{
-        $self->info("登录成功\n");
-        $self->update_user;
-        $self->update_friend;
-        $self->update_group;
-        $self->update_discuss;
-        $self->update_recent;
+        #登录不成功，客户端退出运行
+        if($self->login_state ne 'success'){
+            $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）\n");
+            $self->stop();
+        }
+        else{
+            $self->info("登录成功\n");
+            $self->update_user;
+            $self->update_friend;
+            $self->update_group;
+            $self->update_discuss;
+            $self->update_recent;
 
-        $self->emit("login");
-    }
+            $self->emit("login");
+        }
+    };
+    $delay?$self->on(after_load_plugin=>$callback):$callback->();
 }
 
 sub mail{
     my $self  = shift;
     my $callback ;
+    my $is_blocking = 0;
     if(ref $_[-1] eq "CODE"){
-        $callback = pop; 
+        $callback = pop;
+        $is_blocking = 1; 
     }
     my %opt = @_;
     #smtp
@@ -217,6 +224,7 @@ sub mail{
         tls_ca  => $opt{tls_ca}||"",
         tls_cert=> $opt{tls_cert}||"",
         tls_key => $opt{tls_key}||"",
+        autodie => $is_blocking,
     ); 
     unless(defined $smtp){
         $self->error("Mojo::SMTP::Client客户端初始化失败");
@@ -239,25 +247,39 @@ sub mail{
         }
         $data = join "\r\n",@data;
     }
-    $smtp->send(
-        auth    => {login=>$opt{user},password=>$opt{pass}},
-        from    => $opt{from},
-        to      => $opt{to},
-        data    => $data,
-        quit    => 1,
-        sub{
-            my ($smtp, $resp) = @_;
-            if($resp->error){
-                $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
-                $callback->(0,$resp->error) if ref $callback eq "CODE"; 
-                return;
-            }
-            else{
-                $self->debug("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送成功");
-                $callback->(1) if ref $callback eq "CODE";
-            }
-        },
-    );
+    if(defined $callback){#non-blocking send
+        $smtp->send(
+            auth    => {login=>$opt{user},password=>$opt{pass}},
+            from    => $opt{from},
+            to      => $opt{to},
+            data    => $data,
+            quit    => 1,
+            sub{
+                my ($smtp, $resp) = @_;
+                if($resp->error){
+                    $self->error("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送失败: " . $resp->error );
+                    $callback->(0,$resp->error) if ref $callback eq "CODE"; 
+                    return;
+                }
+                else{
+                    $self->debug("邮件[ To: $opt{to}|Subject: $opt{subject} ]发送成功");
+                    $callback->(1) if ref $callback eq "CODE";
+                }
+            },
+        );
+    }
+    else{#blocking send
+        eval{
+            $smtp->send(
+                auth    => {login=>$opt{user},password=>$opt{pass}},
+                from    => $opt{from},
+                to      => $opt{to},
+                data    => $data,
+                quit    => 1,
+            );
+        };
+        return $@?(0,$@):(1,);
+    }
     
 }
 

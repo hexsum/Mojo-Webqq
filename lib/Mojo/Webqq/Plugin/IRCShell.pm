@@ -15,7 +15,7 @@ sub call{
     my $client = shift;
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
-    my $master_irc_user = $data->{master_irc_user} || $client->user->qq;
+    my $master_irc_user = $data->{master_irc_user} || $client->qq;
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
     $ircd = Mojo::IRC::Server->new(listen=>$data->{listen},log=>$client->log);
@@ -123,7 +123,7 @@ sub call{
         });
         $ircd->remove_channel($_) for values %delete_channel;
     };
-    $client->on(ready=>$callback,login=>$callback);
+    $client->on(login=>$callback);
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         if($msg->type eq "message"){
