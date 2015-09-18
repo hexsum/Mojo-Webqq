@@ -1223,7 +1223,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
     接收消息上报接口示例：
     $client->load("Openqq",data=>{
         listen => [{host=>xxx,port=>xxx}],
-        post_api=> 'http://127.0.0.1/post_api',
+        post_api=> 'http://127.0.0.1:3000/post_api',
     });
 
     接收到消息后，插件会通过HTTP POST请求的方式将json格式的消息上报到http://127.0.0.1:3000/post_api
