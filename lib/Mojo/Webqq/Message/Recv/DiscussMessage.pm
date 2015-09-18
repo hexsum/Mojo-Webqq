@@ -9,5 +9,5 @@ has msg_class    => "recv";
 has msg_from     => "none";
 has ttl          => 5;
 has allow_plugin => 1;
-has [qw(msg_id discuss_id sender_id msg_time sender discuss content raw_content)];
+has [qw(msg_id discuss_id sender_id receiver_id msg_time sender receiver discuss content raw_content)];
 1;

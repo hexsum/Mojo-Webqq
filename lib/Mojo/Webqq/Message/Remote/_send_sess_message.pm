@@ -35,7 +35,7 @@ sub Mojo::Webqq::Message::_send_sess_message{
     my %s = (
         to              => $msg->receiver_id ,
         group_sig       => $msg->sess_sig ,
-        face            => $msg->sender->face || 591,
+        face            => $self->user->face || 591,
         content         => decode("utf8",$self->encode_json($content)),
         msg_id          => $msg->msg_id,
         service_type    => $msg->via eq "group"?0:1,

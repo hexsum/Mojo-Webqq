@@ -276,8 +276,14 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     content         #消息内容
     raw_content     #消息原始内容 一个数组引用
 
+    方法：
+    to_json         #将消息转换为json形式的字符串，方便和外部系统交互
+                    #常见的接收和发送消息都支持该方法，下文不再赘述
+
     示例代码:
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
+    $msg->to_json();
+    $msg->dump();
     
 =head2  Mojo::Webqq::Message::Send::Message 发送的好友消息
 
@@ -301,7 +307,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判断消息是发送消息还是接收消息
 
-sender属性是自己（Mojo::Webqq::User对象），receiver是好友
+对于好友消息，sender是自己(Mojo::Webqq::User) receiver是好友(Mojo::Webqq::Friend)
+
+对于群消息，sender是群中的自己(Mojo::Webqq::Group::Member) receiver是群成员(Mojo::Webqq::Group::Member)
+
+对于讨论组消息，sender是讨论组中自己(Mojo::Webqq::Discuss::Member) receiver是讨论组成员(Mojo::Webqq::Discuss::Member)
+
+对于临时消息，sender是讨论组或群中的自己 receiver是讨论组或群中的成员
 
 其他消息类型也都存在类似的情况，不再赘述
 
@@ -318,7 +330,9 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     msg_id          #消息id
     group_id        #群gid
     sender_id       #发送消息的群成员id
+    receiver_id     #接收者id，也就是自己的id
     sender          #发送消息的群成员对象 Mojo::Webqq::Group::Member
+    receiver        #群中的自己 Mojo::Webqq::Group::Member对象
     group           #群对象 Mojo::Webqq::Group
     msg_time        #消息时间
     content         
@@ -338,7 +352,9 @@ sender属性是自己（Mojo::Webqq::User对象），receiver是好友
     msg_id          #消息id
     discuss_id      #讨论组did
     sender_id       #发送消息的讨论组成员id
+    receiver_id     #自己的id
     sender          #发送消息的讨论组成员对象 Mojo::Webqq::Discuss::Member
+    receiver        #讨论组中的自己 Mojo::Webqq::Group::Member对象
     discuss         #群对象 Mojo::Webqq::Discuss
     msg_time        #消息时间
     content         
@@ -1169,7 +1185,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
     #新版本，data可以是一个HASH引用
     $client->load("Openqq",data=>{                                                 
         listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
-        auth   => sub {my($param,$controller) = @_},    #认证回调函数，用于进行请求鉴权
+        auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
+        post_api => 'http://xxxx',                      #可选，设置接收消息的上报接口
     });
 
     若data中设置了auth函数引用，则表示api接口开启认证
@@ -1202,9 +1219,35 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         }
         return 0;
     }
+
+    接收消息上报接口示例：
+    $client->load("Openqq",data=>{
+        listen => [{host=>xxx,port=>xxx}],
+        post_api=> 'http://127.0.0.1/post_api',
+    });
+
+    接收到消息后，插件会通过HTTP POST请求的方式将json格式的消息上报到http://127.0.0.1:3000/post_api
+    
+    connect to 127.0.0.1 port 3000    
+    POST /post_api
+    
+    {   "receiver":"小灰",
+        "msg_time":"1442542632",
+        "content":"测试一下",
+        "msg_class":"recv",
+        "sender_id":"2372835507",
+        "receiver_id":"4072574066",
+        "group":"PERL学习交流",
+        "group_id":"2617047292",
+        "sender":"灰灰",
+        "msg_id":"10856",
+        "type":"group_message"
+    }
+    
+    支持好友消息、群消息、讨论组消息、临时消息的上报
         
 
-当前支持的API接口（均返回json格式数据）：
+当前支持的信息获取和发送消息的API接口（均返回json格式数据）：
 
     #信息获取
     /openqq/get_user_info           #查询用户信息

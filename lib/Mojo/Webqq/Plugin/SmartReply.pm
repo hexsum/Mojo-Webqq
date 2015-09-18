@@ -22,14 +22,9 @@ sub call{
         return if not $msg->allow_plugin;
         return if $msg->type !~ /^message|group_message|sess_message$/;
         return if exists $ban{$msg->sender->id};
-        my $sender_nick;
-        my $user_nick = $client->user->nick;
-        if($msg->type eq "group_message"){
-            my $me = $msg->group->search_group_member(id=>$client->user->id);
-            $user_nick = $me->card || $user_nick if defined $me;
-            return if $msg->content !~/\@\Q$user_nick \E/;
-            $sender_nick = $msg->sender->card || $msg->sender->nick ;
-        }
+        my $sender_nick = $msg->sender->displayname;
+        my $user_nick = $msg->receiver->displayname;
+        return if $msg->content !~/\@\Q$user_nick \E/ if $msg->type eq "group_message";
         else{$sender_nick = $msg->sender->nick}
 
         $msg->allow_plugin(0);

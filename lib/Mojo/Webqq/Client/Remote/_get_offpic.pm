@@ -15,7 +15,7 @@ sub Mojo::Webqq::Client::_get_offpic {
     my $callback = sub{
         my ($data,$ua,$tx) = @_;
         unless(defined $data){
-            $self->warn("好友图片下载失败: " . $tx->error);
+            $self->warn("好友图片下载失败: " . $tx->error->{message});
             return;
         }
         return unless $tx->res->headers->content_type =~/^image\/(.*)/;

@@ -10,6 +10,6 @@ has msg_from     => "none";
 has ttl          => 5;
 has allow_plugin => 1;
 has msg_time     => sub{time};
-has [qw(msg_id group_id sender_id receiver_id sender receiver group content raw_content cb)];
+has [qw(msg_id group_id sender_id sender group content raw_content cb)];
 
 1;

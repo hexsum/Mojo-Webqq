@@ -166,11 +166,12 @@ sub send_group_message{
     }
     my ($group,$content,$cb) = @_;
     if(ref $group eq "Mojo::Webqq::Group" and defined $group->gid){
+        my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
         my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
             msg_id      => $self->gen_message_id,
-            sender_id   => $self->user->id,
+            sender_id   => $sender->id,
             group_id    => $group->gid,
-            sender      => $self->user,
+            sender      => $sender,
             group       => $group,
             content     => $content,
         });
@@ -193,11 +194,12 @@ sub send_discuss_message{
     }
     my ($discuss,$content,$cb) = @_;
     if(ref $discuss eq "Mojo::Webqq::Discuss" and defined $discuss->did){
+        my $sender = $discuss->search_discuss_member(id=>$self->user->id) || $self->user;
         my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
             msg_id      => $self->gen_message_id,
-            sender_id   => $self->user->id,
+            sender_id   => $sender->id,
             discuss_id  => $discuss->did,
-            sender      => $self->user,
+            sender      => $sender,
             discuss     => $discuss,
             content     => $content,
         });
@@ -220,12 +222,15 @@ sub send_sess_message{
     }
     my ($member,$content,$cb) = @_;
     if(ref $member eq "Mojo::Webqq::Group::Member" and defined $member->gid and defined $member->id){
+        my $group = $self->search_group(gid=>$member->gid);
+        return unless defined $group;
+        my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
         my $msg =  Mojo::Webqq::Message::Send::SessMessage->new({
             msg_id      => $self->gen_message_id,
-            sender_id   => $self->user->id,
+            sender_id   => $sender->id,
             receiver_id => $member->id,
             group_id    => $member->gid,
-            sender      => $self->user,
+            sender      => $sender,
             receiver    => $member,
             group       => $self->search_group(gid=>$member->gid),
             content     => $content,
@@ -237,12 +242,15 @@ sub send_sess_message{
         $self->message_queue->put($msg);
     }
     elsif(ref $member eq "Mojo::Webqq::Discuss::Member" and defined $member->did and defined $member->id){
+        my $discuss = $self->search_discuss(did=>$member->did);
+        return unless defined $discuss;
+        my $sender = $discuss->search_discuss_member(id=>$self->user->id) || $self->user;
         my $msg =  Mojo::Webqq::Message::Send::SessMessage->new({
             msg_id      => $self->gen_message_id,
-            sender_id   => $self->user->id,
+            sender_id   => $sender->id,
             receiver_id => $member->id,
             discuss_id  => $member->did,
-            sender      => $self->user,
+            sender      => $sender,
             receiver    => $member,
             discuss     => $self->search_discuss(did=>$member->did),
             content     => $content,
@@ -283,7 +291,7 @@ sub parse_receive_msg {
                     type        => "sess_message",
                     msg_id      => $m->{value}{msg_id},
                     sender_id   => $m->{value}{from_uin},
-                    reveiver_id => $m->{value}{to_uin},
+                    receiver_id => $m->{value}{to_uin},
                     msg_time    => $m->{value}{'time'},
                     content     => $m->{value}{content},
                     #service_type=>  $m->{value}{service_type},
@@ -323,7 +331,7 @@ sub parse_receive_msg {
                     type        => "group_message",
                     msg_id      => $m->{value}{msg_id},
                     group_id    => $m->{value}{from_uin},
-                    #receiver_id      =>  $m->{value}{to_uin},
+                    receiver_id => $m->{value}{to_uin},
                     msg_time    => $m->{value}{'time'},
                     content     => $m->{value}{content},
                     sender_id   => $m->{value}{send_uin},
@@ -339,7 +347,7 @@ sub parse_receive_msg {
                     msg_id    => $m->{value}{msg_id},
                     sender_id => $m->{value}{send_uin},
                     msg_time  => $m->{value}{'time'},
-                    #receiver_id      =>  $m->{value}{'to_uin'},
+                    receiver_id  =>  $m->{value}{'to_uin'},
                     content => $m->{value}{content},
                 };
                 $self->msg_put($msg);
@@ -553,10 +561,12 @@ sub msg_put{
     }
     elsif($msg->{type} eq "group_message"){ 
         my $sender;
+        my $receiver;
         my $group;  
         $group = $self->search_group(gid=>$msg->{group_id});
         if(defined $group){
             $sender = $group->search_group_member(id=>$msg->{sender_id});
+            $receiver = $group->search_group_member(id=>$msg->{receiver_id}) || $self->user;
             unless(defined $sender){
                 $self->update_group($group);
                 $sender = $group->search_group_member(id=>$msg->{sender_id});
@@ -578,6 +588,7 @@ sub msg_put{
             $group = $self->search_group(gid=>$msg->{group_id});
             return unless defined $group;
             $sender = $group->search_group_member(id=>$msg->{sender_id});
+            $receiver = $group->search_group_member(id=>$msg->{receiver_id}) || $self->user;
             unless(defined $sender){
                 $sender = $self->new_group_member(
                     id  =>  $msg->{sender_id},  
@@ -591,17 +602,19 @@ sub msg_put{
             }
         }
         $msg->{sender} = $sender;
+        $msg->{receiver} = $receiver;
         $msg->{group} = $group;
         $msg = Mojo::Webqq::Message::Recv::GroupMessage->new($msg);
     }
     elsif($msg->{type} eq "sess_message"){
         if($msg->{via} eq "group"){
             my $sender;
-            my $receiver = $self->user;
+            my $receiver;
             my $group;
             $group = $self->search_group(gid=>$msg->{group_id});
             if(defined $group){
                 $sender = $group->search_group_member(id=>$msg->{sender_id});
+                $receiver = $group->search_group_member(id=>$msg->{receiver_id}) || $self->user;
                 unless(defined $sender){
                     $self->update_group($group);
                     $sender = $group->search_group_member(id=>$msg->{sender_id});
@@ -623,6 +636,7 @@ sub msg_put{
                 $group = $self->search_group(gid=>$msg->{group_id});
                 return unless defined $group;
                 $sender = $group->search_group_member(id=>$msg->{sender_id});
+                $receiver = $group->search_group_member(id=>$msg->{receiver_id}) || $self->user;
                 unless(defined $sender){
                     $sender = $self->new_group_member(
                         gid=>$msg->{group_id},
@@ -641,11 +655,12 @@ sub msg_put{
         }
         elsif($msg->{via} eq "discuss"){
             my $sender;
-            my $receiver = $self->user;
+            my $receiver;
             my $discuss;
             $discuss = $self->search_discuss(did=>$msg->{discuss_id});
             if(defined $discuss){
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
+                $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
                 unless(defined $sender){
                     $self->update_discuss($discuss);
                     $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
@@ -661,6 +676,7 @@ sub msg_put{
                 $discuss = $self->search_discuss(did=>$msg->{discuss_id});
                 return unless defined $discuss;
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
+                $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
                 $sender = $self->new_discuss_member(
                     did=>$msg->{discuss_id},
                     id=>$msg->{sender_id},
@@ -675,10 +691,12 @@ sub msg_put{
     }
     elsif($msg->{type} eq "discuss_message"){
         my $sender;
+        my $receiver;
         my $discuss;
         $discuss = $self->search_discuss(did=>$msg->{discuss_id});
         if(defined $discuss){
             $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
+            $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
             unless(defined $sender){
                 $self->update_discuss($discuss);
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
@@ -693,9 +711,12 @@ sub msg_put{
             $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
             $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
                 unless defined $sender;
+            $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
+            
         }
         $msg->{sender} = $sender;
         $msg->{discuss} = $discuss;
+        $msg->{receiver} = $receiver;
         $msg = Mojo::Webqq::Message::Recv::DiscussMessage->new($msg);
     }
     elsif($msg->{type} eq "state_message"){ 

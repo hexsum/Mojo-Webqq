@@ -6,6 +6,24 @@ my $server;
 sub call{
     my $client = shift;
     my $data   =  shift;
+    my $post_api = $data->{post_api};
+
+    if(defined $post_api){
+        $client->on(receive_message=>sub{
+            my($client,$msg) = @_;
+            return if $msg->type !~ /^message|group_message|discuss_message|sess_message$/;
+            $client->http_post($post_api,json=>$msg->to_json,sub{
+                my($data,$ua,$tx) = @_;
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->msg_id."]上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]接收消息[".$msg->msg_id."]上报失败: ".$tx->error->{message}); 
+                }
+            });
+        });
+    }
+
     package Mojo::Webqq::Plugin::Openqq::App;
     use Encode;
     use Mojolicious::Lite;

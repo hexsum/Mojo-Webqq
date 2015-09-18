@@ -7,7 +7,7 @@ sub call{
         receive_message=>sub{
             my($client,$msg)=@_; 
             if($msg->type eq 'message'){
-                my $sender_nick = $msg->sender->markname || $msg->sender->nick;
+                my $sender_nick = $msg->sender->displayname;
                 my $sender_categorie = $msg->sender->categorie || "好友";
                 #my $receiver_nick = $msg->receiver->nick;
                 my $receiver_nick = "我";
@@ -16,12 +16,12 @@ sub call{
             }
             elsif($msg->type eq 'group_message'){
                 my $gname = $msg->group->gname;
-                my $sender_nick = $msg->sender->card || $msg->sender->nick;
+                my $sender_nick = $msg->sender->displayname;
                 $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick|$gname :"},$msg->content);
             }
             elsif($msg->type eq 'discuss_message'){
                 my $dname = $msg->discuss->dname;
-                my $sender_nick = $msg->sender->nick;
+                my $sender_nick = $msg->sender->displayname;
                 $client->info({time=>$msg->msg_time,level=>"讨论组消息",title=>"$sender_nick|$dname :"},$msg->content);
             }
             elsif($msg->type eq 'sess_message'){
@@ -30,12 +30,12 @@ sub call{
                 my $gname;
                 my $dname;
                 if($msg->via eq "group"){
-                    $sender_nick = $msg->sender->card||$msg->sender->nick;
+                    $sender_nick = $msg->sender->displayname;
                     $gname = $msg->group->gname;
                     $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick|$gname :"},$msg->content);
                 }
                 elsif($msg->via eq "discuss"){
-                    $sender_nick = $msg->sender->nick;
+                    $sender_nick = $msg->sender->displayname;
                     $dname = $msg->discuss->dname;
                     $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick|$dname :"},$msg->content);
                 }
@@ -46,7 +46,7 @@ sub call{
             my $attach = $status->is_success?"":"[发送失败]";
             if($msg->type eq 'message'){
                 my $sender_nick = "我";
-                my $receiver_nick = $msg->receiver->markname || $msg->receiver->nick;
+                my $receiver_nick = $msg->receiver->displayname;
                 $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick->$receiver_nick :"},$msg->content . $attach);
             }
             elsif($msg->type eq 'group_message'){
@@ -65,12 +65,12 @@ sub call{
                 my $gname;
                 my $dname;
                 if($msg->via eq "group"){
-                    $receiver_nick = $msg->receiver->card||$msg->receiver->nick;
+                    $receiver_nick = $msg->receiver->displayname;
                     $gname = $msg->group->gname;
                     $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick->$receiver_nick|$gname :"},$msg->content . $attach);
                 }
                 elsif($msg->via eq "discuss"){
-                    $receiver_nick = $msg->receiver->nick;
+                    $receiver_nick = $msg->receiver->displayname;
                     $dname = $msg->discuss->dname;
                     $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick->$receiver_nick|$dname :"},$msg->content . $attach);
                 }

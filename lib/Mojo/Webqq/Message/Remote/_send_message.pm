@@ -32,7 +32,7 @@ sub Mojo::Webqq::Message::_send_message{
     my $content = [decode("utf8",$msg->content),"",[]];
     my %s = (
         to      => $msg->receiver_id,
-        face    => $msg->sender->face || 570,
+        face    => $self->user->face || 570,
         content => decode("utf8",$self->encode_json($content)),
         msg_id  =>  $msg->msg_id,
         clientid => $self->clientid,
