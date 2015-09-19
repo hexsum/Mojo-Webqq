@@ -136,8 +136,25 @@ sub login {
     my %p = @_;
     $self->qq($p{qq})->pwd($p{pwd});
     my $delay = defined $p{delay}?$p{delay}:0;
+    if($self->is_first_login == -1){
+        $self->is_first_login(1);
+    }
+    elsif($self->is_first_login == 1){
+        $self->is_first_login(0);
+    }
     my $callback = sub{
-        if(
+        if($self->is_first_login){
+            $self->load_cookie();
+            my $ptwebqq = $self->search_cookie("ptwebqq");
+            my $skey = $self->search_cookie("skey");
+            $self->ptwebqq($ptwebqq) if defined $ptwebqq;
+            $self->skey($skey) if defined $skey;
+        }
+        if(defined $self->ptwebqq and defined $self->skey){
+            $self->info("检测到最近登录活动，尝试直接恢复登录...");
+            $self->relogin() if not $self->_get_vfwebqq() && $self->_login2();
+        } 
+        elsif(
             $self->_prepare_for_login()    
             && $self->_check_verify_code()     
             && $self->_get_img_verify_code()

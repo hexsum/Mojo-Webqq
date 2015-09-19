@@ -5,6 +5,9 @@ sub Mojo::Webqq::Client::logout {
         Mojo::Cookie::Response->new(name=>"ptwebqq",value=>undef,path=>"/",domain=>"qq.com",expires=>-1),
         Mojo::Cookie::Response->new(name=>"skey",value=>undef,path=>"/",domain=>"qq.com",expires=>-1),
     );
+    $self->ptwebqq(undef);
+    $self->skey(undef);
+    $self->save_cookie();
     $self->info("注销完毕\n");
     return 1;
 }

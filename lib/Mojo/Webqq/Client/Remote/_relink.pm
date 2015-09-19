@@ -23,14 +23,21 @@ sub Mojo::Webqq::Client::_relink{
         $self->clientid($data->{result}{clientid}) if $data->{result}{clientid};
         $self->ptwebqq($data->{result}{ptwebqq}) if $data->{result}{ptwebqq};
         $self->skey($data->{result}{skey}) if $data->{result}{skey};
-        $self->ua->cookie_jar->add(
-            Mojo::Cookie::Response->new(
+        my @cookies;
+        push @cookies,Mojo::Cookie::Response->new(
                 name => "ptwebqq",
                 value => $data->{result}{ptwebqq},
                 domain => "qq.com",
                 path  => "/",
-            ),  
-        );
+        ) if defined $data->{result}{ptwebqq};
+        push @cookies,Mojo::Cookie::Response->new(
+                name => "ptwebqq",
+                value => $data->{result}{skey},
+                domain => "qq.com",
+                path  => "/",
+        ) if defined $data->{result}{skey};
+        $self->ua->cookie_jar->add(@cookies) if @cookies;
+        $self->save_cookie();
         $self->_cookie_proxy();
         $self->login_state('success');
         $self->info("重新连接成功");

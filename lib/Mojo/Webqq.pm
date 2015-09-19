@@ -19,6 +19,15 @@ has email                   => undef;
 has encrypt_method          => "perl";     #perl|js
 has friend_pic_dir          => undef;
 has ioloop                  => sub{Mojo::IOLoop->singleton};
+has keep_cookie             => 1;
+has cookie_dir              => sub{
+    if($_[0]->keep_cookie){
+        require File::Spec;
+        my $tmpdir = File::Spec->tmpdir();
+        return $tmpdir;
+    }
+    else{return undef}
+};
 
 has version                 => $Mojo::Webqq::VERSION;
 
@@ -71,6 +80,7 @@ has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
     local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug;
     require Mojo::UserAgent;
+    require Storable if $_[0]->keep_cookie;
     Mojo::UserAgent->new(
         max_redirects      => 7,
         request_timeout    => 30,
@@ -96,6 +106,7 @@ has clientid               => 53999199;
 has psessionid             => undef;
 has vfwebqq                => undef;
 has ptwebqq                => undef;
+has skey                   => undef;
 has passwd_sig             => '';
 has verifycode             => undef;
 has pt_verifysession       => undef,

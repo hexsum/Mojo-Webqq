@@ -15,7 +15,8 @@ sub Mojo::Webqq::Client::_cookie_proxy {
             domain  => "w.qq.com",
             path    => "/",
         ),
-    );
+    ) if defined $p_skey and defined $p_uin;
+    $self->save_cookie();
     return 1;
 };
 1;

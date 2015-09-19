@@ -432,7 +432,10 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     log_level   #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path    #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     encrypt_method #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
+
     ioloop      #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
+    keep_cookie #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
+    cookie_dir  #登录cookie的保存目录，默认为临时目录
     friend_pic_dir #设置好友图片保留目录，默认是临时目录，只有注册了receive_friend_pic事件 此路径才有意义
 
     $client->new(security=>0,ua_debug=>0);
@@ -1067,11 +1070,9 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 =head2 Mojo::Webqq::Plugin::MsgSync
 
-实现QQ群和IRC的联通，彼此的消息自动同步
+实现QQ群和IRC的联通，彼此的消息自动同步，采用的是irc bot转发的形式，需要依赖L<Mojo::IRC>模块
 
-欢迎加入irc.perfi.wang的#ChinaPerl，该频道已经和[PERL学习交流]群联通
-
-欢迎加入irc.perfi.wang的#Mojolicious，该频道已经和[Mojolicious]群联通
+该插件功能不够强大，体验也不够好，完全可以被插件 Mojo::Webqq::Plugin::IRCShell 取代了
 
     $client->load("MsgSync",data=>{
         irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",server=>"irc.perfi.wang"},
@@ -1084,6 +1085,8 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 Mojo::Webqq::Plugin::IRCShell
 
 将qq协议转换成irc协议，启动一个本地的irc服务器，使用任意irc客户端（irc user设置为qq号）连接后即可以按照irc的方式使用qq
+
+需要依赖模块 L<Mojo::IRC::Server>
 
     $client->load("IRCShell",data=>{host=>"127.0.0.1",port=>6667,});#开启本地的irc server
     #支持的参数包括：
@@ -1099,6 +1102,10 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 使用任意的irc客户端连接到服务器,你便可以在irc上完成和qq好友的聊天，群聊等
 
 本插件更适合想要在Linux环境下使用qq的irc爱好者
+
+欢迎加入irc.perfi.wang的#PERL学习交流，该频道已经和QQ群[PERL学习交流]联通
+
+欢迎加入irc.perfi.wang的#Mojolicious，该频道已经和QQ群[Mojolicious]联通
         
 
 =head2 Mojo::Webqq::Plugin::Perldoc
