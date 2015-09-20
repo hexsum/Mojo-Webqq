@@ -1,6 +1,6 @@
 Mojo-Webqq v1.4.7
 ========================
-使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本高于5.10
+使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本5.10.1+
 
 插件列表
   
@@ -42,5 +42,5 @@ COPYRIGHT 和 LICENCE
 Copyright (C) 2014 by sjdy521
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
+it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
