@@ -27,4 +27,9 @@ has [qw(
     cb
 )];
 
+sub text {
+    my $self = shift;
+    return $self->content if ref $self->raw_content ne "ARRAY";
+    return join "",map{$_->{content}} grep {$_->{type} eq "txt"} @{$self->{raw_content}};
+}
 1;

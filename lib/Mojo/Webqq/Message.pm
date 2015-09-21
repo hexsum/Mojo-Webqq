@@ -24,6 +24,7 @@ use Mojo::Webqq::Message::Remote::_send_sess_message;
 
 use Mojo::Webqq::Message::Queue;
 use Mojo::Webqq::Message::Face;
+use Mojo::Webqq::Message::Emoji;
 
 sub gen_message_queue{
     my $self = shift;
@@ -522,12 +523,13 @@ sub msg_put{
             $c=encode("utf8",$c);
             $c=~s/ $//;   
             $c=~s/\r|\n/\n/g;
-            #{"retcode":0,"result":[{"poll_type":"group_message","value":{"msg_id":538,"from_uin":2859929324,"to_uin":3072574066,"msg_id2":545490,"msg_type":43,"reply_ip":182424361,"group_code":2904892801,"send_uin":1951767953,"seq":3024,"time":1418955773,"info_seq":390179723,"content":[["font",{"size":12,"color":"000000","style":[0,0,0],"name":"\u5FAE\u8F6F\u96C5\u9ED1"}],"[\u50BB\u7B11]\u0001 "]}}]}
-            #if($c=~/\[[^\[\]]+?\]\x{01}/)
-            push @{$msg->{raw_content}},{
-                type    =>  'txt',
-                content =>  $c,
-            };
+            my @res = $self->emoji_parse($c);
+            push @{$msg->{raw_content}},@res;
+            $c = join "",map{$_->{content}} @res;
+            #push @{$msg->{raw_content}},{
+            #    type    =>  'txt',
+            #    content =>  $c,
+            #};
         }
         $msg_content .= $c;
     }

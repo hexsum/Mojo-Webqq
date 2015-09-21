@@ -11,6 +11,7 @@ sub call{
     #$client->timer(120,sub{nstore $base,$file});
     my $callback = sub{
         my($client,$msg) = @_;
+        return if $msg->type !~ /^message|group_message|dicsuss_message|sess_message$/;
         if($msg->content =~ /^(?:learn|学习)
                             \s+
                             (?|"([^"]+)"|'([^']+)'|([^\s"']+))
@@ -33,6 +34,7 @@ sub call{
                             (?|"([^"]+)"|'([^']+)'|([^\s"']+))
                             /xs){
             $msg->allow_plugin(0);
+            return if $msg->sender->id ne $client->user->id;
             my($q) = ($1);
             $q=~s/^\s+|\s+$//g;
             return unless defined $q;

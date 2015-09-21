@@ -274,6 +274,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     receiver        #接收者对象，Mojo::Webqq::User
     msg_time        #消息发送时间
     content         #消息内容
+    text            #纯文本消息内容，不包含表情图片等
     raw_content     #消息原始内容 一个数组引用
 
     方法：
@@ -301,6 +302,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     receiver        #接收者对象，Mojo::Webqq::Friend
     msg_time        #消息发送时间
     content         #消息内容
+    text            #纯文本消息内容，不包含表情图片等
     raw_content     #消息原始内容 一个数组引用
 
 和接收的好友消息具有类似的属性，不同之处在于
@@ -335,7 +337,8 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     receiver        #群中的自己 Mojo::Webqq::Group::Member对象
     group           #群对象 Mojo::Webqq::Group
     msg_time        #消息时间
-    content         
+    content         #消息内容
+    text            #纯文本消息内容，不包含表情图片等
     raw_content
 
 =head2 Mojo::Webqq::Message::Send::GroupMessage 发送的群消息
@@ -358,6 +361,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     discuss         #群对象 Mojo::Webqq::Discuss
     msg_time        #消息时间
     content         
+    text            #纯文本消息内容，不包含表情图片等
     raw_content  
 
 =head2 Mojo::Webqq::Message::Send::DiscussMessage 发送的讨论组消息
@@ -382,6 +386,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     receiver        #群成员对象或者讨论组成员对象
     msg_time        #消息时间
     content         
+    text            #纯文本消息内容，不包含表情图片等
     raw_content
     via             #如果是群临时消息 则是"group" 如果是讨论组临时消息则是"discuss"
 
@@ -1196,13 +1201,13 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         post_api => 'http://xxxx',                      #可选，设置接收消息的上报接口
     });
 
-    若data中设置了auth函数引用，则表示api接口开启认证
-    认证函数返回值为真，认证通过，函数返回值为假，认证失败，接口返回403
+    #若data中设置了auth函数引用，则表示api接口开启认证
+    #认证函数返回值为真，认证通过，函数返回值为假，认证失败，接口返回403
 
-    认证回调函数的第一个参数是一个HASH引用，包含get或post提交的参数信息
-    第二个参数是一个Mojolicious的controller对象，适合对Mojolicious比较熟悉的情况下，利用controller进行高级的认证控制
+    #认证回调函数的第一个参数是一个HASH引用，包含get或post提交的参数信息
+    #第二个参数是一个Mojolicious的controller对象，适合对Mojolicious比较熟悉的情况下，利用controller进行高级的认证控制
 
-    auth函数示例：
+    #auth函数示例：
 
     #简单的时间戳过期防盗链 
     #http://127.0.0.1/openqq/send_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
@@ -1227,13 +1232,13 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         return 0;
     }
 
-    接收消息上报接口示例：
+    #接收消息上报接口示例：
     $client->load("Openqq",data=>{
         listen => [{host=>xxx,port=>xxx}],
         post_api=> 'http://127.0.0.1:3000/post_api',
     });
 
-    接收到消息后，插件会通过HTTP POST请求的方式将json格式的消息上报到http://127.0.0.1:3000/post_api
+    #接收到消息后，插件会通过HTTP POST请求的方式将json格式的消息上报到http://127.0.0.1:3000/post_api
     
     connect to 127.0.0.1 port 3000    
     POST /post_api
@@ -1251,7 +1256,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         "type":"group_message"
     }
     
-    支持好友消息、群消息、讨论组消息、临时消息的上报
+    #支持好友消息、群消息、讨论组消息、临时消息的上报
         
 
 当前支持的信息获取和发送消息的API接口（均返回json格式数据）：
@@ -1292,7 +1297,7 @@ sjdy521, E<lt>sjdy521@163.comE<gt>
 Copyright (C) 2014 by sjdy521
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
+it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
 
 =cut
