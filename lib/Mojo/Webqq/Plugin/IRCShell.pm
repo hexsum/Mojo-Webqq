@@ -313,6 +313,20 @@ sub call{
             }
         }
     });
+    $client->on(receive_group_pic=>sub{
+        my($client,$fh,$file_path,$group,$sender) = @_;
+        $client->http_post("http://img.vim-cn.com/",form=>{image=>{file=>$file_path}},sub{
+            my($data,$ua,$tx)=@_;
+            return unless defined $data;
+            return unless $data=~/https?:\/\//;
+            my $channel = $ircd->search_channel(id=>$group->gid);
+            my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
+            return unless defined $user;
+            return unless defined $channel;
+            return unless $user->is_join_channel($channel);
+            $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $data");
+        });  
+    });
     $ircd->ready();
 }
 1;

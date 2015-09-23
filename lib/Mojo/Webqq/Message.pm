@@ -40,15 +40,22 @@ sub gen_message_queue{
                         }   
                     }
                 }
-                #$self->_detect_new_friend($msg);
             }
             elsif($msg->type eq 'group_message'){
-                #$self->_detect_new_group($msg);
-                #$self->_detect_new_group_member($msg);
+                if($self->has_subscribers("receive_group_pic")){
+                    for(@{$msg->raw_content}){
+                        if($_->{type} eq 'cface'){
+                            return unless exists $_->{server};
+                            return unless exists $_->{file_id};
+                            return unless exists $_->{name};
+                            my ($ip,$port) = split /:/,$_->{server};
+                            $port = 80 unless defined $port;
+                            $self->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$msg->group,$msg->sender);
+                        }
+                    }
+                }
             }
             elsif($msg->type eq 'discuss_message'){
-                #$self->_detect_new_discuss($msg);
-                #$self->_detect_new_discuss_member($msg);
             }
             elsif($msg->type eq 'state_message'){
                 my $friend = $self->search_friend(id=>$msg->id);

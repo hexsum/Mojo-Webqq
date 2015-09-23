@@ -17,7 +17,9 @@ has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
 has email                   => undef;
 has encrypt_method          => "perl";     #perl|js
-has friend_pic_dir          => undef;
+has pic_dir                 => undef;
+has friend_pic_dir          => sub{return $_[0]->pic_dir};
+has group_pic_dir           => sub{return $_[0]->pic_dir};
 has ioloop                  => sub{Mojo::IOLoop->singleton};
 has keep_cookie             => 1;
 has cookie_dir              => sub{
@@ -83,8 +85,8 @@ has ua                      => sub {
     require Storable if $_[0]->keep_cookie;
     Mojo::UserAgent->new(
         max_redirects      => 7,
-        request_timeout    => 30,
-        inactivity_timeout => 30,
+        request_timeout    => 60,
+        inactivity_timeout => 60,
         transactor => Mojo::UserAgent::Transactor->new( 
             name =>  'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062'
         ),

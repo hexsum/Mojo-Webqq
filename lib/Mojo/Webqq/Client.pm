@@ -13,6 +13,7 @@ use Mojo::Webqq::Client::Remote::_get_vfwebqq;
 use Mojo::Webqq::Client::Remote::_cookie_proxy;
 use Mojo::Webqq::Client::Remote::change_state;
 use Mojo::Webqq::Client::Remote::_get_offpic;
+use Mojo::Webqq::Client::Remote::_get_group_pic;
 use Mojo::Webqq::Client::Remote::_recv_message;
 use Mojo::Webqq::Client::Remote::_relink;
 use Mojo::Webqq::Client::Remote::logout;
@@ -310,4 +311,9 @@ sub spawn {
     $self;
 }
 
+sub cloud_store{
+    my $self = shift;
+    my %opt = @_;
+    
+}
 1;
