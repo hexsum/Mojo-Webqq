@@ -43,16 +43,15 @@ has data    => sub {+{}};
 has plugins => sub{+{}};
 has log    => sub{Mojo::Webqq::Log->new(path=>$_[0]->log_path,level=>$_[0]->log_level,format=>sub{
     my ($time, $level, @lines) = @_;
-    my $title;
+    my $title = "";
     if(ref $lines[0] eq "HASH"){
         my $opt = shift @lines; 
         $time = $opt->{"time"} if defined $opt->{"time"};
         $title = $opt->{title} . " " if defined $opt->{"title"};
         $level  = $opt->{level} if defined $opt->{"level"};
     }
-    #$level .= " " if ($level eq "info" or $level eq "warn");
     @lines = split /\n/,join "",@lines;
-    my $return;
+    my $return = "";
     $time = POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time));
     for(@lines){
         $return .=

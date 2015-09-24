@@ -17,7 +17,7 @@ sub Mojo::Webqq::Model::_get_group_list_info{
     my $group_list_info = $json->{result}{gnamelist};
     my %gmarklist;
     for(@{ $group_list_info }){
-        $gmarklist{$_->{uin}} = $_->{markname};
+        $gmarklist{$_->{gid}} = $_->{markname};
     }
     for(@{$group_list_info}){
         $_->{gmarkname} = $gmarklist{$_->{gid}};

@@ -4,7 +4,11 @@ sub gen_url{
     my $self = shift;
     my ($url,@query_string) = @_;
     my @query_string_pairs;
-    push @query_string_pairs , shift(@query_string) . "=" . shift(@query_string) while(@query_string);
+    while(@query_string){
+        my $key = shift(@query_string) || "";
+        my $val = shift(@query_string) || "";
+        push @query_string_pairs , $key . "=" . $val;
+    }
     return $url . '?' . join("&",@query_string_pairs);    
 }
 sub http_get{

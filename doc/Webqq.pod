@@ -11,6 +11,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     use Mojo::Webqq;
     use Mojo::Util qw(md5_sum);
 
+    #注意: 源代码请尽量使用UTF8编码进行编写
+
     #初始化一个客户端对象
     my $client=Mojo::Webqq->new(ua_debug=>0);
 
@@ -97,7 +99,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     属性：
 
     qq              #好友的qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
-    id              #好友的id，仅在本次登录期间唯一，多次登录可能会发生变化
+    id              #好友的id，仅在本次登录期间唯一，多次登录可能会发生变化，记住 id不是qq号
     categorie       #好友所属的分组
     nick            #好友昵称
     markname        #好友备注名称
@@ -112,8 +114,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     代码示例：
 
-    my $friend = $client->search_friend(id=>xxx);
-    print "好友昵称为: " ,$friend->nick,"\n";
+    my $friend = $client->search_friend(nick=>xxx);
+    print "好友分组为: " ,$friend->categorie,"\n";
     $friend->dump();
 
     $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
