@@ -1,3 +1,12 @@
+2015-09-24 Mojo::Webqq v1.4.9
+1）增加emoj表情支持
+2）消息对象增加->text属性用于获取不包含表情、图片的纯文本内容
+3）KnowledgeBase插件只有主人自己可以执行del指令
+4）新增获取群图片特性 回调事件receive_group_pic
+5）IRCShell插件自动将qq图片转为分享链接
+6）修复获取好友图片时，图片文件写入数据错误的bug
+7）相关文档更新
+
 2015-09-20 Mojo::Webqq v1.4.8
 1）客户端增加keep_cookie属性，默认保存登录cookie用于快速登录
 2）相关文档完善
