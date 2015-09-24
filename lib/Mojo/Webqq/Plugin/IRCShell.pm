@@ -16,6 +16,7 @@ sub call{
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_user = $data->{master_irc_user} || $client->qq;
+    my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
     $ircd = Mojo::IRC::Server->new(listen=>$data->{listen},log=>$client->log);
@@ -313,20 +314,41 @@ sub call{
             }
         }
     });
-    $client->on(receive_group_pic=>sub{
-        my($client,$fh,$file_path,$group,$sender) = @_;
-        $client->http_post("http://img.vim-cn.com/",form=>{image=>{file=>$file_path}},sub{
-            my($data,$ua,$tx)=@_;
-            return unless defined $data;
-            return unless $data=~/https?:\/\//;
-            my $channel = $ircd->search_channel(id=>$group->gid);
-            my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
-            return unless defined $user;
-            return unless defined $channel;
-            return unless $user->is_join_channel($channel);
-            $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $data");
-        });  
-    });
+    if(defined $image_api){
+        $client->on(receive_group_pic=>sub{
+            my($client,$fh,$file_path,$group,$sender) = @_;
+            $client->http_post($image_api,form=>{image=>{file=>$file_path}},sub{
+                my($data,$ua,$tx)=@_;
+                return unless defined $data;
+                return unless $data=~/https?:\/\//;
+                my $channel = $ircd->search_channel(id=>$group->gid);
+                my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
+                return unless defined $user;
+                return unless defined $channel;
+                return unless $user->is_join_channel($channel);
+                $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $data");
+            });  
+        });
+        
+        $client->on(receive_friend_pic=>sub{
+            my($client,$fh,$file_path,$friend) = @_;
+            $client->http_post($image_api,form=>{image=>{file=>$file_path}},sub{
+                my($data,$ua,$tx)=@_;
+                return unless defined $data;
+                return unless $data=~/https?:\/\//;
+                my $user = $ircd->search_user(id=>$friend->id,virtual=>1)||$ircd->search_user(nick=>$friend->displayname,virtual=>0);
+                return unless defined $user;
+                for(
+                    grep {$_->user eq $master_irc_user or $_->is_localhost}
+                    grep {!$_->is_virtual } $ircd->users
+                ){
+                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
+                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
+                }
+            });
+        });
+
+    }
     $ircd->ready();
 }
 1;
