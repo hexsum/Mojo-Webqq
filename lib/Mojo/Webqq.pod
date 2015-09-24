@@ -11,7 +11,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     use Mojo::Webqq;
     use Mojo::Util qw(md5_sum);
 
-    #注意: 源代码必须使用UTF8编码进行编写
+    #注意: 源代码请使用UTF8编码进行编写
 
     #初始化一个客户端对象
     my $client=Mojo::Webqq->new(ua_debug=>0);
