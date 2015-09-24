@@ -36,12 +36,16 @@ sub _http_request{
                 }
                 else{$cb->($r,$ua,$tx);}
             }
-            else{$cb->(undef,$ua,$tx);}
+            elsif(defined $tx){
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $tx->error->{message});
+                $cb->(undef,$ua,$tx);
+            }
         });
     }
     else{
+        my $tx;
         for(my $i=0;$i<=$opt{retry_times};$i++){
-            my $tx = $self->ua->$method(@_);
+            $tx = $self->ua->$method(@_);
             $self->save_cookie();
             if(defined $tx and $tx->success){
                 my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
@@ -53,7 +57,11 @@ sub _http_request{
                     return wantarray?($r,$self->ua,$tx):$r;
                 }
             }
+            elsif(defined $tx){
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . $tx->error->{message});
+            }
         }
+        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $tx->error->{message}) if defined $tx;
         return wantarray?(undef,$self->ua,$tx):undef;
     }
 }
