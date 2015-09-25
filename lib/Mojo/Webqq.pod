@@ -24,8 +24,6 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $pwd = "your password";
     my $pwd_md5 = md5_sum($pwd);#得到原始密码的32位长度md5
 
-    $client->print("准备登录的QQ号码: ", $qq); #$client->print()能够自动检测终端输出编码，防止乱码
-
     #客户端进行登录
     $client->login(qq=>$qq,pwd=>$pwd_md5);
 
