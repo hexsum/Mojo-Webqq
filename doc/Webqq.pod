@@ -11,7 +11,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     use Mojo::Webqq;
     use Mojo::Util qw(md5_sum);
 
-    #注意: 源代码请使用UTF8编码进行编写
+    #注意: 
+    #程序内部数据全部使用UTF8编码，因此二次开发源代码也请尽量使用UTF8编码进行编写，否则需要自己做编码处理
+    #在终端上执行程序，会自动检查终端的编码进行转换，以防止乱码
+    #如果在某些IDE的控制台中查看执行结果，程序无法自动检测输出编码，可能会出现乱码，可以手动设置输出编码
+    #手动设置输出编码参加文档中关于 log_encoding 的说明
 
     #初始化一个客户端对象
     my $client=Mojo::Webqq->new(ua_debug=>0);
@@ -31,7 +35,6 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         my ($client,$msg)=@_;
         #已以相同内容回复接收到的消息
         $client->reply_message($msg,$msg->content);
-        #你也可以使用$msg->dump() 来打印消息结构
     });
 
     #客户端开始运行
@@ -115,7 +118,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     代码示例：
 
     my $friend = $client->search_friend(nick=>xxx);
-    print "好友分组为: " ,$friend->categorie,"\n";
+    $client->print("好友分组为: ",$friend->categorie,"\n"); #使用$client->print()可以自动检测终端编码，防止乱码
     $friend->dump();
 
     $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
@@ -433,20 +436,29 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
 =head2 new()
 
-    security    #设置该参数，将使得发送和接收消息使用https加密
-    state       #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
-    ua_debug    #设置该参数，打印调试信息
-    log_level   #默认级别为info，可以设置debug|info|warn|error|fatal
-    log_path    #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
-    encrypt_method #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
+    security        #设置该参数，将使得发送和接收消息使用https加密
+    state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
+    ua_debug        #设置该参数，打印调试信息
+    log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
+    log_path        #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
+    log_encoding    #输出日志的编码，默认自动检测，如果出现乱码可以尝试手动设置一下输出编码
+                    #编码必须是 Encode 模块支持的格式，比如utf8 gbk等
+    encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
 
-    ioloop      #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
-    keep_cookie #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
+    ioloop          #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
+    keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
 
-    cookie_dir     #登录cookie的保存目录，默认为临时目录
-    friend_pic_dir #设置好友图片保留目录，默认和pic_dir一致，只有注册了receive_friend_pic事件 此路径才有意义
-    group_pic_dir  #设置群图片保留目录，默认和pic_dir一致，只有注册了receive_group_pic事件 此路径才有意义
-    pic_dir        #图片接收默认地址，默认为空，即不下载保存图片
+    login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"qrlogin"
+                    #目前腾讯可能已经将帐号密码登录的方式禁止了
+    
+    verifycode_path #图片验证码保存路径，默认是临时目录下随机名称
+    qrcode_path     #二维码保存路径，默认是临时目录下随机名称
+        
+    tmpdir          #程序使用的临时目录，主要用于保存一些验证码、二维码等数据，默认为系统临时目录
+    cookie_dir      #登录cookie的保存目录，默认为临时目录
+    friend_pic_dir  #设置好友图片保留目录，默认和pic_dir一致，只有注册了receive_friend_pic事件 此路径才有意义
+    group_pic_dir   #设置群图片保留目录，默认和pic_dir一致，只有注册了receive_group_pic事件 此路径才有意义
+    pic_dir         #图片接收默认地址，默认为空，即不下载保存图片
 
     $client->new(security=>0,ua_debug=>0);
 
@@ -598,16 +610,16 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         exec_timeout    => 3,
         stdout_cb       => sub{
             my($pid,$chunk) = @_;
-            print "从标准输出中实时收到数据:",$chunk,"\n";
+            $client->print("从标准输出中实时收到数据:",$chunk,"\n");
         },
         stderr_cb       => sub {
             my($pid,$chunk) = @_;
-            print "从标准错误中实时收到数据:",$chunk,"\n"; 
+            $client->print("从标准错误中实时收到数据:",$chunk,"\n"); 
         },
         exit_cb => sub{
             my($pid,$res) = @_;
-            print "从标准输出中接收的全部数据:",$res->{stdout},"\n";
-            print "从标准错误中接收的全部数据:",$res->{stderr},"\n";
+            $client->print("从标准输出中接收的全部数据:",$res->{stdout},"\n");
+            $client->print("从标准错误中接收的全部数据:",$res->{stderr},"\n");
         } 
     );
 
@@ -828,6 +840,10 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 http_post http阻塞或非阻塞post请求
 
 和 http_get 方法类似，不再赘述
+
+=head2 print 打印内容，能够自动识别输出终端编码，以防止乱码
+
+    $client->print("妈妈再也不用担心我会乱码了...");
 
 =head1 客户端事件
 

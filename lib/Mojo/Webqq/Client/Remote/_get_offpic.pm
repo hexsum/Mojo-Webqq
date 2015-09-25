@@ -5,7 +5,8 @@ sub Mojo::Webqq::Client::_get_offpic {
     my $file_path = shift;
     my $friend  = shift;
     
-    my $api = 'http://w.qq.com/d/channel/get_offpic2';
+    #my $api = 'http://w.qq.com/d/channel/get_offpic2';
+    my $api = 'http://d.web2.qq.com/channel/get_offpic2';
     my @query_string = (
         file_path   =>  url_escape($file_path),
         f_uin       =>  $friend->id,

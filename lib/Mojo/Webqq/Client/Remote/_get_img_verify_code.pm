@@ -24,7 +24,14 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
     }
     my ($fh, $filename) ;
     eval{
-        ($fh, $filename)= tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",TMPDIR => 1);
+        if(defined $self->verifycode_path){
+            $filename = $self->verifycode_path;
+            unlink $filename;
+            open $fh,">",$filename or die "Can't open $filename: $!";
+        }
+        else{
+            ($fh, $filename)= tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",TMPDIR => 1);
+        }
         binmode $fh;
         print $fh $content;
         close $fh; 
@@ -45,7 +52,6 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
     elsif(-t STDIN){
         my $filename_for_console = encode("utf8",decode(locale_fs,$filename));
         my $info = $self->log->format->(time,"info","请输入图片验证码 [ $filename_for_console ]: ");
-        chomp $info;
         $self->log->append($info);
         my $verifycode = <STDIN>;
         chomp($verifycode);

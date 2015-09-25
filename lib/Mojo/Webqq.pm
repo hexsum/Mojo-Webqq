@@ -7,16 +7,23 @@ use Mojo::Webqq::Cache;
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 use Time::HiRes qw(gettimeofday);
 use POSIX;
+use File::Spec ();
 use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
 
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
 has type                    => 'smartqq';  #smartqq
+has login_type              => 'qrlogin';  #qrlogin|login
 has ua_debug                => 0;
 has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
+has log_encoding            => undef;      #utf8|gbk|...
 has email                   => undef;
 has encrypt_method          => "perl";     #perl|js
+
+has verifycode_path         => undef;
+has qrcode_path             => undef;
+has tmpdir                  => sub {File::Spec->tmpdir();};
 has pic_dir                 => undef;
 has friend_pic_dir          => sub{return $_[0]->pic_dir};
 has group_pic_dir           => sub{return $_[0]->pic_dir};
@@ -41,7 +48,7 @@ has discuss => sub {[]};
 
 has data    => sub {+{}};
 has plugins => sub{+{}};
-has log    => sub{Mojo::Webqq::Log->new(path=>$_[0]->log_path,level=>$_[0]->log_level,format=>sub{
+has log    => sub{Mojo::Webqq::Log->new(encoding=>$_[0]->log_encoding,path=>$_[0]->log_path,level=>$_[0]->log_level,format=>sub{
     my ($time, $level, @lines) = @_;
     my $title = "";
     if(ref $lines[0] eq "HASH"){
@@ -72,7 +79,7 @@ has id_to_qq_cache => sub {Mojo::Webqq::Cache->new};
 has is_stop                 => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
-has login_state             => "init";
+has login_state             => "init";#init|relogin|success|scaning|confirming
 has poll_failure_count      => 0;
 has poll_failure_count_max  => 3;
 has model_update_failure_count      => 0;
@@ -84,8 +91,8 @@ has ua                      => sub {
     require Storable if $_[0]->keep_cookie;
     Mojo::UserAgent->new(
         max_redirects      => 7,
-        request_timeout    => 60,
-        inactivity_timeout => 60,
+        request_timeout    => 120,
+        inactivity_timeout => 120,
         transactor => Mojo::UserAgent::Transactor->new( 
             name =>  'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062'
         ),

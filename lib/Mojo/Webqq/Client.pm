@@ -6,6 +6,7 @@ $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
 use Mojo::Webqq::Client::Remote::_check_verify_code;
 use Mojo::Webqq::Client::Remote::_get_img_verify_code;
+use Mojo::Webqq::Client::Remote::_get_qrlogin_pic;
 use Mojo::Webqq::Client::Remote::_login1;
 use Mojo::Webqq::Client::Remote::_check_sig;
 use Mojo::Webqq::Client::Remote::_login2;
@@ -159,21 +160,34 @@ sub login {
             $self->_prepare_for_login()    
             && $self->_check_verify_code()     
             && $self->_get_img_verify_code()
+            && $self->_get_qrlogin_pic()
 
         ){
             while(1){
                 my $ret = $self->_login1();
-                if($ret == -1){
+                if($ret == -1){#验证码输入错误
                     $self->_get_img_verify_code();
                     next;
                 }
-                elsif($ret == -2){
+                elsif($ret == -2){#帐号或密码错误
                     $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
                     $self->encrypt_method("js");
                     $self->relogin();
                     return;
                 }
-                elsif($ret == 1){
+                elsif($ret == -4 ){#等待二维码扫描
+                    sleep 2;
+                    next;
+                }
+                elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
+                    sleep 2;
+                    next;
+                }
+                elsif($ret == -6){#二维码已经过期，重新下载二维码
+                    $self->_get_qrlogin_pic();
+                    next;
+                }
+                elsif($ret == 1){#登录成功
                     $self->_check_sig() 
                     && $self->_get_vfwebqq()
                     && $self->_login2();

@@ -19,6 +19,7 @@ has handle => sub {
 };
 has history => sub { [] };
 has level => 'debug';
+has encoding => undef;
 has max_history_size => 10;
 has 'path';
  
@@ -30,7 +31,17 @@ sub append {
  
   return unless my $handle = $self->handle;
   flock $handle, LOCK_EX;
-  $handle->print(encode(console_out,decode("utf8",$msg))) or croak "Can't write to log: $!";
+  if(defined $self->encoding){
+    if( $self->encoding =~/^utf-?8$/i){
+        $handle->print($msg) or croak "Can't write to log: $!";
+    }
+    else{
+        $handle->print(encode($self->encoding,decode("utf8",$msg))) or croak "Can't write to log: $!";
+    }
+  }
+  else{
+    $handle->print(encode(console_out,decode("utf8",$msg))) or croak "Can't write to log: $!";
+  }
   flock $handle, LOCK_UN;
 }
  

@@ -156,7 +156,7 @@ sub dump{
             $clone->{$_} = $self->{$_};
         }
     }
-    print Dumper $clone;
+    $self->print(Dumper $clone);
     return $self;
 }
 
@@ -221,6 +221,11 @@ sub fatal{
 sub debug{
     my $self = shift;
     $self->log->debug(@_);
+    $self;
+}
+sub print {
+    my $self = shift;
+    $self->log->info(join $,,@_);
     $self;
 }
 
