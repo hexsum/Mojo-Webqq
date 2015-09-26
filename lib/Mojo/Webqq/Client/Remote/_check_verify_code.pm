@@ -28,7 +28,6 @@ sub Mojo::Webqq::Client::_check_verify_code{
     return 0 unless defined $content;
     my %d = ();
     @d{qw( retcode cap_cd md5_salt ptvfsession isRandSalt)} = $content=~/'(.*?)'/g ;
-    $d{md5_salt} =~ s/\\\\x/\x/g; 
     $self->md5_salt($d{md5_salt})
          ->cap_cd($d{cap_cd})
          ->isRandSalt($d{isRandSalt})

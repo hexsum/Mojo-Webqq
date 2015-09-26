@@ -176,11 +176,11 @@ sub login {
                     return;
                 }
                 elsif($ret == -4 ){#等待二维码扫描
-                    sleep 2;
+                    sleep 3;
                     next;
                 }
                 elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
-                    sleep 2;
+                    sleep 3;
                     next;
                 }
                 elsif($ret == -6){#二维码已经过期，重新下载二维码

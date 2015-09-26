@@ -1,6 +1,6 @@
 package Mojo::Webqq;
 use strict;
-$Mojo::Webqq::VERSION = "1.5.0";
+$Mojo::Webqq::VERSION = "1.4.9";
 use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -13,7 +13,7 @@ use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq:
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
 has type                    => 'smartqq';  #smartqq
-has login_type              => 'qrlogin';  #qrlogin|login
+has login_type              => 'login';    #qrlogin|login
 has ua_debug                => 0;
 has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
@@ -31,9 +31,7 @@ has ioloop                  => sub{Mojo::IOLoop->singleton};
 has keep_cookie             => 1;
 has cookie_dir              => sub{
     if($_[0]->keep_cookie){
-        require File::Spec;
-        my $tmpdir = File::Spec->tmpdir();
-        return $tmpdir;
+        return $_[0]->tmpdir;
     }
     else{return undef}
 };

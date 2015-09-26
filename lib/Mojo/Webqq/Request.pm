@@ -5,8 +5,10 @@ sub gen_url{
     my ($url,@query_string) = @_;
     my @query_string_pairs;
     while(@query_string){
-        my $key = shift(@query_string) || "";
-        my $val = shift(@query_string) || "";
+        my $key = shift(@query_string);
+        my $val = shift(@query_string);
+        $key = "" if not defined $key;
+        $val = "" if not defined $val;
         push @query_string_pairs , $key . "=" . $val;
     }
     return $url . '?' . join("&",@query_string_pairs);    

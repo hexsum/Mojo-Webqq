@@ -443,13 +443,12 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     log_path        #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     log_encoding    #输出日志的编码，默认自动检测，如果出现乱码可以尝试手动设置一下输出编码
                     #编码必须是 Encode 模块支持的格式，比如utf8 gbk等
-    encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
-
+    
     ioloop          #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
     keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
 
-    login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"qrlogin"
-                    #目前腾讯可能已经将帐号密码登录的方式禁止了
+    login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"login"
+    encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
     
     verifycode_path #图片验证码保存路径，默认是临时目录下随机名称
     qrcode_path     #二维码保存路径，默认是临时目录下随机名称
@@ -869,13 +868,13 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 
 当前核心事件的触发顺序(采用延迟登录)
 
-                                                                                +->before_send_message
-    plugin_load -+                                                              |->receive_message
-                 |->after_load_plugin->input_img_verifycode->login->ready->run->|->send_message
-    plugin_call -+                                                          |   |->new_friend
-                                                                            |   |->receive_friend_pic
-                                                            relogin<-login<-+   |->lose_friend
-                                                                                ...
+                                                                                 +->before_send_message
+    plugin_load -+                                                               |->receive_message
+                 |->after_load_plugin-->input_img_verifycode->login->ready->run->|->send_message
+    plugin_call -+                    |                                      |   |->new_friend
+                                      +-input_qrcode                         |   |->receive_friend_pic
+                                                             relogin<-login<-+   |->lose_friend
+                                                                                 ...
 
 =head2 reveive_message 
 
@@ -906,6 +905,10 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
 =head2 input_img_verifycode
 
 登录需要输入验证码，参数为验证码文件的路径
+
+=head2 input_qrcode
+
+登录需要扫描二维码，参数为二维码文件的路径
 
 =head2 ready
 
@@ -1184,6 +1187,32 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 对qq消息中出现的"大神"关键词进行鄙视
 
     $client->load("FuckDaShen");
+
+=head2 Mojo::Webqq::Plugin::PostQRcode
+
+登录过程如果需要手机扫描二维码，会将二维码以邮件附件的形式发送到指定邮箱，再通过手机QQ扫描二维码
+
+注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
+
+    #插件需要使用到 input_qrcode 事件
+    #需要login中开启delay参数（设置为延迟登录）
+    #$client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
+
+    $client->load("PostQRcode",data=>{
+        smtp    =>  'xxxx', #邮箱的smtp地址  
+        port    =>  'xxxx', #smtp服务器端口，默认25
+        from    =>  'xxxx', #发件人
+        to      =>  'xxxx', #收件人
+        user    =>  'xxxx', #smtp登录帐号
+        pass    =>  'xxxx', #smtp登录密码
+    });
+
+    收到的邮件内容如下：
+
+    主题：QQ帐号 xxxx 扫描二维码
+    附件：webqq_qrcode_xxxx.png
+    正文：请使用手机QQ扫描附件中的二维码
+
 
 =head2 Mojo::Webqq::Plugin::PostImgVerifycode
 

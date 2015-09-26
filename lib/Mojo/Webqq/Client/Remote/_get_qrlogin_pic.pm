@@ -4,6 +4,7 @@ use File::Temp qw/tempfile/;
 sub Mojo::Webqq::Client::_get_qrlogin_pic {
     my $self = shift;
     return 1 if $self->login_type ne "qrlogin";
+    $self->info("正在获取登录二维码...");
     my $api = 'https://ssl.ptlogin2.qq.com/ptqrshow';
     my @query_string = (
         appid => $self->g_appid,

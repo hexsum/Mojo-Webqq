@@ -11,7 +11,7 @@ WriteMakefile(
         "Mojolicious"           => '6.11',
         "IO::Socket::SSL"       => '1.94',
         "Encode::Locale"        => 0,
-        #"Webqq::Encryption"     => '1.5',
+        "Webqq::Encryption"     => '1.5',
         "Time::HiRes"           => 0,
         "Time::Piece"           => 0,
         "Time::Seconds"         => 0,

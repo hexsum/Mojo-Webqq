@@ -49,6 +49,9 @@ sub call{
         if(not $is_success){
             $client->error("插件[".__PACKAGE__."]邮件发送失败: $err");
         }   
+        else{
+            $client->info("登录二维码已经发送到邮箱: $data->{to}");
+        }
         $count++;
     });        
 }

@@ -1,4 +1,4 @@
-Mojo-Webqq v1.5.0
+Mojo-Webqq v1.4.9
 ========================
 使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本5.10.1+
 
@@ -16,6 +16,7 @@ Mojo-Webqq v1.5.0
   KnowledgeBase        2        已发布      sjdy521     通过qq消息自定义问答知识库
   FuckDaShen           1        已发布      sjdy521     对消息中的"大神"关键词进行鄙视
   PostImgVerifycode    0        已发布      sjdy521     登录验证码发送到邮箱实现远程登录
+  PostQRcode           0        已发布      sjdy521     登录二维码发送到邮箱实现远程扫码
   SmartReply           0        已发布      sjdy521     智能聊天回复
 
 安装步骤

@@ -17,11 +17,12 @@ sub Mojo::Webqq::Client::_login1{
             return 0;
         }
         my $passwd;
-        #if($self->{type} eq 'webqq'){
-        #    $md5_salt = eval qq{"$self->{qq_param}{md5_salt}"};
-        #    $passwd = pack "H*",$self->{qq_param}{pwd};
-        #    $passwd = uc md5_hex( uc(md5_hex( $passwd . $md5_salt)) . uc( $self->{qq_param}{verifycode}  ) );
-        #
+        #if($self->type eq 'webqq'){
+        #    require Mojo::Util;
+        #    my $md5_salt = $self->md5_salt;
+        #    $md5_salt = eval qq{"$md5_salt"};
+        #    $passwd = pack "H*",$self->pwd;
+        #    $passwd = uc Mojo::Util::md5_sum( uc(Mojo::Util::md5_sum( $passwd . $md5_salt)) . uc( $self->verifycode));
         #}
         eval{
             if($self->encrypt_method eq "perl"){

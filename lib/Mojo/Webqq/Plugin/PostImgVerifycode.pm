@@ -6,7 +6,6 @@ BEGIN{
     eval{require MIME::Lite;};
     $has_mime_lite = 1 if not $@;
 }
-my $server;
 sub call {
     my $client = shift;
     my $data   = shift;
@@ -76,20 +75,25 @@ TEMPLATE
         };
         get "/$img_path" => sub{$_[0]->render(data=>$img_data,format=>'image/jpg')};
         get '/post_code' => sub{
-            my $code=$_[0]->param("code"); $client->verifycode($code) if defined $code;
+            my $code=$_[0]->param("code") || ""; $client->verifycode($code) if defined $code;
             $_[0]->render(text => "您的验证码已经提交: $code");
             $client->debug(encode("utf8","插件[Mojo::Webqq::Plugin::PostImgVerifycode]获取到登录验证码为: $code"));
-            $server->stop;
-            $server->ioloop->stop;
-            undef $server;
         };
         package Mojo::Webqq::Plugin::PostImgVerifycode;
         use Mojo::IOLoop;
         use Mojo::Webqq::Server;
-        $server = Mojo::Webqq::Server->new(ioloop=>Mojo::IOLoop->new);
+        my $server = Mojo::Webqq::Server->new(ioloop=>Mojo::IOLoop->new);
         $server->app($server->build_app("Mojo::Webqq::Plugin::PostImgVerifycode::App"));
         $server->app->secrets("hello world");
         $server->app->log($client->log);
+        $server->app->hook(after_render => sub {
+            my ($c, $output, $format) = @_;
+            if($c->req->url->path eq '/post_code'){
+                $server->stop;
+                $server->ioloop->stop;
+                undef $server;
+            }
+        });
         $server->listen([{host=>$data->{post_host},port=>$data->{post_port}}]);
         $server->run;
     });
