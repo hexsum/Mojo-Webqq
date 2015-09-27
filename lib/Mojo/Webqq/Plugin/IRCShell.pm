@@ -134,6 +134,7 @@ sub call{
             my $friend = $msg->sender;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+            return if not defined $channel;
             if(not defined $user){
                 $user = $ircd->new_user(
                     id      =>$friend->id,
@@ -142,10 +143,10 @@ sub call{
                     nick    =>$friend->displayname,
                     virtual => 1,
                 );
-                $user->join_channel($channel) if defined $channel;
+                $user->join_channel($channel);
             }
             else{
-                $user->join_channel($channel) if not $user->is_join_channel($channel);
+                $user->join_channel($channel) if !$user->is_join_channel($channel) and $user->is_virtual;
             }
             for (grep { $_->user eq $master_irc_user or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
                 for my $line (split /\r?\n/,$msg->content){
@@ -162,6 +163,7 @@ sub call{
             my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
             my $channel = $ircd->search_channel(id=>$member->gid) ||
                     $ircd->new_channel(id=>$member->id,name=>'#'.$member->gname,);
+            return if not defined $channel;
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
@@ -173,7 +175,7 @@ sub call{
                 $user->join_channel($channel);
             } 
             else{
-                $user->join_channel($channel)  if not $user->is_join_channel($channel);
+                $user->join_channel($channel) if not $user->is_join_channel($channel);
             }
 
             for(
@@ -244,7 +246,7 @@ sub call{
                 $user->join($channel);
             }
             else{
-                $user->join_channel($channel)  if not $user->is_join_channel($channel);
+                $user->join_channel($channel)  if $user->is_virtual and !$user->is_join_channel($channel);
             }
             for(
                 grep {$_->user eq $master_irc_user or $_->is_localhost} 
