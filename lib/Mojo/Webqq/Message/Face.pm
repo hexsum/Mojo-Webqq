@@ -105,6 +105,7 @@ my %FACE_MAP = qw(
     133 左太极
     134 右太极
 );
+my %FACEID_MAP = reverse %FACE_MAP;
 sub Mojo::Webqq::Message::face_to_txt{
     my $self = shift;
     my $face = shift;
@@ -116,5 +117,32 @@ sub Mojo::Webqq::Message::face_to_txt{
     else{
         return $face;
     }
+}
+sub Mojo::Webqq::Message::face_parse {
+    my $self = shift;
+    my $data = shift;
+    my @result;
+    my $index = 0;
+    my $last_face_start = undef;
+    my $last_face_end = undef;
+    while($data=~/\[[^\[\]]+\]/g){
+        my $face = substr($&,1,length($&)-2);
+        if(exists $FACEID_MAP{$face}){
+            $last_face_start = $-[0];
+            $last_face_end = $+[0]-1;
+            push @result,{content=>substr($data,$index,$-[0]-$index),type=>"txt"} if $-[0]-$index >0;
+            push @result,{content=>$&,id=>$FACEID_MAP{$face},type=>"face"};
+            $index = $+[0];
+        }
+    }
+    if(defined $last_face_end){
+        push @result,{content=>substr($data,$last_face_end+1),type=>"txt"} if $last_face_end+1 < length($data);
+    }
+    else{
+        push @result,{content=>$data,type=>"txt"};
+    }
+    use Data::Dumper;
+    print Dumper \@result;
+    return @result;
 }
 1;

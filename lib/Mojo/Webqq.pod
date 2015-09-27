@@ -314,7 +314,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
 
     use Mojo::JSON qw(encode_json);
-    my $json_hash = $msg->to_json();    #获取到警告utf8 decode的hash引用
+    my $json_hash = $msg->to_json();    #获取到经过utf8 decode的hash引用
     my $json_text = encode_json($json); #将hash转换为json字符串
 
     $msg->dump();
@@ -1043,7 +1043,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         #$fh       图片文件的只读句柄
         #$filepath 图片文件的绝对路径
         #$group    发送图片的群对象
-        #$sender   发送图片的好友对象
+        #$sender   发送图片的群成员对象
     });
 
 =head2 first_talk

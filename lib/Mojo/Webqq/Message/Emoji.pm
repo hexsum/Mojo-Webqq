@@ -183,7 +183,7 @@ sub Mojo::Webqq::Message::emoji_parse{
             $last_emoji_start = $-[0];
             $last_emoji_end = $+[0]-1;
             push @result,{content=>substr($data,$index,$-[0]-$index),type=>"txt"} if $-[0]-$index >0;
-            push @result,{content=>"[$EMOJI_MAP{$&}]",code=>$&,type=>"emoji"};
+            push @result,{content=>"[$EMOJI_MAP{$&}]",id=>$&,type=>"emoji"};
             $index = $+[0];
         }
     }

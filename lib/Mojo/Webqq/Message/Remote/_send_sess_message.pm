@@ -31,7 +31,21 @@ sub Mojo::Webqq::Message::_send_sess_message{
         json    => 1,
     };
     use Encode;
-    my $content = [decode("utf8",$msg->content),[]];
+    my @content  = map {
+        if($_->{type} eq "txt"){decode "utf8",$_->{content}}
+        elsif($_->{type} eq "face"){["face",0+$_->{id}]}
+    } $self->face_parse($msg->content);
+    for(my $i=0;$i<@content;$i++){
+        if(ref $content[$i] eq "ARRAY"){
+            if(ref $content[$i] eq "ARRAY"){
+                splice @content,$i+1,0," ";
+            }
+            else{
+                $content[$i+1] = " " . $content[$i+1];
+            }
+        }
+    }
+    my $content = [@content,["font",{name=>decode("utf8","宋体"),size=>10,style=>[0,0,0],color=>"000000"}]];
     my %s = (
         to              => $msg->receiver_id ,
         group_sig       => $msg->sess_sig ,

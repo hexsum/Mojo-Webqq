@@ -6,7 +6,7 @@ my $server;
 sub call{
     my $client = shift;
     my $data   =  shift;
-    my $post_api = $data->{post_api};
+    my $post_api = $data->{post_api} if ref $data eq "HASH";
 
     if(defined $post_api){
         $client->on(receive_message=>sub{
