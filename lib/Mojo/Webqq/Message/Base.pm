@@ -47,7 +47,7 @@ sub is_at{
             $displayname = $object->displayname;
         }
     }
-    return $self->content =~/\@\Q$displayname\E ?/; 
+    return $self->content =~/\@\Q$displayname\E /; 
 }
 
 sub to_json{
