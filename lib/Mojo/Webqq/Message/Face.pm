@@ -141,8 +141,6 @@ sub Mojo::Webqq::Message::face_parse {
     else{
         push @result,{content=>$data,type=>"txt"};
     }
-    use Data::Dumper;
-    print Dumper \@result;
     return @result;
 }
 1;
