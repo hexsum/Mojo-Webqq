@@ -24,10 +24,10 @@ sub http_post{
 sub _http_request{
     my $self = shift;
     my $method = shift;
-    my %opt = ();
+    my %opt = (json=>0,retry_times=>$self->ua_retry_times);
     if(ref $_[1] eq "HASH"){#with header or option
-        $opt{json} = delete $_[1]->{json} || 0;
-        $opt{retry_times} = delete $_[1]->{retry_times} || $self->ua_retry_times;
+        $opt{json} = delete $_[1]->{json} if defined $_[1]->{json};
+        $opt{retry_times} = delete $_[1]->{retry_times} if defined $_[1]->{retry_times};
     }
     if(ref $_[-1] eq "CODE"){
         my $cb = pop;
