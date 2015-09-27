@@ -24,8 +24,7 @@ sub call{
         return if exists $ban{$msg->sender->id};
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
-        return if $msg->content !~/\@\Q$user_nick \E/ if $msg->type eq "group_message";
-        else{$sender_nick = $msg->sender->nick}
+        return if $msg->type eq "group_message" and !$msg->is_at;
 
         $msg->allow_plugin(0);
         if($msg->type eq 'group_message'){

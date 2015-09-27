@@ -147,7 +147,8 @@ sub send_message{
     }
     my ($friend,$content,$cb) = @_;
     if(ref $friend eq "Mojo::Webqq::Friend" and defined $friend->id){
-        my $msg =  Mojo::Webqq::Message::Send::Message->new({
+        #my $msg =  Mojo::Webqq::Message::Send::Message->new({
+        my $msg =  $self->new_send_message({
             msg_id      => $self->gen_message_id,
             sender_id   => $self->user->id,
             receiver_id => $friend->id,
@@ -175,7 +176,8 @@ sub send_group_message{
     my ($group,$content,$cb) = @_;
     if(ref $group eq "Mojo::Webqq::Group" and defined $group->gid){
         my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
-        my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
+        #my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
+        my $msg =  $self->new_send_group_message({
             msg_id      => $self->gen_message_id,
             sender_id   => $sender->id,
             group_id    => $group->gid,
@@ -203,7 +205,8 @@ sub send_discuss_message{
     my ($discuss,$content,$cb) = @_;
     if(ref $discuss eq "Mojo::Webqq::Discuss" and defined $discuss->did){
         my $sender = $discuss->search_discuss_member(id=>$self->user->id) || $self->user;
-        my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
+        #my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
+        my $msg =  $self->new_send_discuss_message({
             msg_id      => $self->gen_message_id,
             sender_id   => $sender->id,
             discuss_id  => $discuss->did,
@@ -233,7 +236,8 @@ sub send_sess_message{
         my $group = $self->search_group(gid=>$member->gid);
         return unless defined $group;
         my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
-        my $msg =  Mojo::Webqq::Message::Send::SessMessage->new({
+        #my $msg =  Mojo::Webqq::Message::Send::SessMessage->new({
+        my $msg =  $self->new_send_sess_message({
             msg_id      => $self->gen_message_id,
             sender_id   => $sender->id,
             receiver_id => $member->id,
@@ -566,7 +570,8 @@ sub msg_put{
         }
         $msg->{sender} = $sender;
         $msg->{receiver} = $receiver;
-        $msg = Mojo::Webqq::Message::Recv::Message->new($msg);
+        #$msg = Mojo::Webqq::Message::Recv::Message->new($msg);
+        $msg = $self->new_recv_message($msg);
     }
     elsif($msg->{type} eq "group_message"){ 
         my $sender;
@@ -613,7 +618,8 @@ sub msg_put{
         $msg->{sender} = $sender;
         $msg->{receiver} = $receiver;
         $msg->{group} = $group;
-        $msg = Mojo::Webqq::Message::Recv::GroupMessage->new($msg);
+        #$msg = Mojo::Webqq::Message::Recv::GroupMessage->new($msg);
+        $msg = $self->new_recv_group_message($msg);
     }
     elsif($msg->{type} eq "sess_message"){
         if($msg->{via} eq "group"){
@@ -696,7 +702,8 @@ sub msg_put{
             $msg->{receiver} = $receiver;
             $msg->{discuss} = $discuss;
         } 
-        $msg = Mojo::Webqq::Message::Recv::SessMessage->new($msg);
+        #$msg = Mojo::Webqq::Message::Recv::SessMessage->new($msg);
+        $msg = $self->new_recv_sess_message($msg);
     }
     elsif($msg->{type} eq "discuss_message"){
         my $sender;
@@ -726,7 +733,8 @@ sub msg_put{
         $msg->{sender} = $sender;
         $msg->{discuss} = $discuss;
         $msg->{receiver} = $receiver;
-        $msg = Mojo::Webqq::Message::Recv::DiscussMessage->new($msg);
+        #$msg = Mojo::Webqq::Message::Recv::DiscussMessage->new($msg);
+        $msg = $self->new_recv_discuss_message($msg);
     }
     elsif($msg->{type} eq "state_message"){ 
         $msg = Mojo::Webqq::Message::Recv::StateMessage->new($msg);
@@ -760,4 +768,44 @@ sub format_msg{
         $self->info($lh, $lc,"\n");
     }
 }
+
+sub _new_message_hash{
+    my $self = shift;
+    my $hash = @_ ? @_ > 1 ? {@_} : {%{$_[0]}} : {};
+    $hash->{_client} = $self;
+    return $hash;
+}
+sub new_recv_group_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Recv::GroupMessage->new($self->_new_message_hash(@_));
+}
+sub new_send_group_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Send::GroupMessage->new($self->_new_message_hash(@_));
+}
+sub new_recv_discuss_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Recv::DiscussMessage->new($self->_new_message_hash(@_));
+}
+sub new_send_discuss_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Send::DiscussMessage->new($self->_new_message_hash(@_));
+}
+sub new_recv_sess_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Recv::SessMessage->new($self->_new_message_hash(@_));
+}
+sub new_send_sess_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Send::SessMessage->new($self->_new_message_hash(@_));
+}
+sub new_recv_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Recv::Message->new($self->_new_message_hash(@_));
+}
+sub new_send_message{
+    my $self = shift;
+    Mojo::Webqq::Message::Send::Message->new($self->_new_message_hash(@_));
+}
+
 1;

@@ -35,6 +35,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         my ($client,$msg)=@_;
         #已以相同内容回复接收到的消息
         $client->reply_message($msg,$msg->content);
+        #你也可以使用$msg->dump() 来打印消息结构
     });
 
     #客户端开始运行
@@ -155,6 +156,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     each_group_member    #在群中遍历所有的群成员
     members              #返回群成员对象列表  
     send                 #给群对象发送消息 $group->send("hello world")
+    me                   #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
 
     示例代码：
     my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
@@ -162,10 +164,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $group->each_group_member(
         my($client,$member) = @_;
         ...;
-    );
+    )
+
     for my $group ($client->groups){
         ...;
     }
+
+    $group->me->displayname #获取自己在群中的显示名称
     
 
 =head2 Mojo::Webqq::Group::Member 群成员
@@ -218,6 +223,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     each_discuss_member     #遍历讨论组成员
     members                 #返回讨论组成员对象列表
     send                    #给讨论组对象发送消息
+    me                      #获取自己在讨论组中的对象 (Mojo::Webqq::Discuss::Member)
 
 =head2 Mojo::Webqq::Discuss::Member 讨论组成员
 
@@ -283,13 +289,24 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     raw_content     #消息原始内容 一个数组引用
 
     方法：
-    to_json         #将消息转换为json形式的字符串，方便和外部系统交互
+    dump            #打印消息结构，主要用于调试
+    to_json         #将消息转换为json兼容的hash，方便和外部系统交互
                     #常见的接收和发送消息都支持该方法，下文不再赘述
+    is_at           #消息是否艾特某人，常见的接收和发送消息都支持该方法，下文不再赘述
 
     示例代码:
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
-    $msg->to_json();
+
+    use Mojo::JSON qw(encode_json);
+    my $json_hash = $msg->to_json();    #获取到警告utf8 decode的hash引用
+    my $json_text = encode_json($json); #将hash转换为json字符串
+
     $msg->dump();
+
+    $msg->is_at();          #判断发送或接收的消息中是否有艾特自己
+    $msg->is_at($member);   #判断发送或接收的消息中是否有艾特某个成员
+    $msg->is_at($friend);   #判断发送或接收的消息中是否有艾特某个好友
+    
     
 =head2  Mojo::Webqq::Message::Send::Message 发送的好友消息
 

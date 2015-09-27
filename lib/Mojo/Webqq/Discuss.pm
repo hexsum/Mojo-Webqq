@@ -103,4 +103,8 @@ sub send {
     my $self = shift;
     $self->{_client}->send_discuss_message($self,@_);
 } 
+sub me {
+    my $self = shift;
+    $self->search_discuss_member(id=>$self->{_client}->user->id);
+}
 1;

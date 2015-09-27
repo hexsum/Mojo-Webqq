@@ -142,7 +142,6 @@ sub dump{
     my $self = shift;
     my $clone = {};
     my $obj_name = blessed($self);
-    bless $clone,$obj_name if $obj_name; 
     for(keys %$self){
         next if $_ eq "_client";
         if(my $n=blessed($self->{$_})){
@@ -156,7 +155,9 @@ sub dump{
             $clone->{$_} = $self->{$_};
         }
     }
-    $self->print(Dumper $clone);
+    local $Data::Dumper::Indent = 1;
+    local $Data::Dumper::Terse = 1;
+    $self->{_client}->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
     return $self;
 }
 

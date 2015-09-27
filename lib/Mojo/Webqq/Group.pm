@@ -110,4 +110,8 @@ sub send {
     my $self = shift;
     $self->{_client}->send_group_message($self,@_);
 } 
+sub me {
+    my $self = shift;
+    $self->search_group_member(id=>$self->{_client}->user->id);
+}
 1;
