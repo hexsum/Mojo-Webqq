@@ -193,5 +193,5 @@ sub Mojo::Webqq::Message::emoji_parse{
     else{
         push @result,{content=>$data,type=>"txt"};
     }
-    return @result;
+    return \@result;
 }

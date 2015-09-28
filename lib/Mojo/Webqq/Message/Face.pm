@@ -141,6 +141,6 @@ sub Mojo::Webqq::Message::face_parse {
     else{
         push @result,{content=>$data,type=>"txt"};
     }
-    return @result;
+    return \@result;
 }
 1;

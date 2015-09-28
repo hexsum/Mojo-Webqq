@@ -34,7 +34,7 @@ sub Mojo::Webqq::Message::_send_sess_message{
     my @content  = map {
         if($_->{type} eq "txt"){decode "utf8",$_->{content}}
         elsif($_->{type} eq "face"){["face",0+$_->{id}]}
-    } $self->face_parse($msg->content);
+    } @{$msg->raw_content};
     #for(my $i=0;$i<@content;$i++){
     #    if(ref $content[$i] eq "ARRAY"){
     #        if(ref $content[$i] eq "ARRAY"){

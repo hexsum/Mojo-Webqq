@@ -155,6 +155,7 @@ sub send_message{
             sender      => $self->user,
             receiver    => $friend,
             content     => $content,
+            raw_content => $self->face_parse($content),
         });    
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -184,6 +185,7 @@ sub send_group_message{
             sender      => $sender,
             group       => $group,
             content     => $content,
+            raw_content => $self->face_parse($content),
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -213,6 +215,7 @@ sub send_discuss_message{
             sender      => $sender,
             discuss     => $discuss,
             content     => $content,
+            raw_content => $self->face_parse($content),
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -246,6 +249,7 @@ sub send_sess_message{
             receiver    => $member,
             group       => $self->search_group(gid=>$member->gid),
             content     => $content,
+            raw_content => $self->face_parse($content),
             via         => "group",
             sess_sig    => $self->_get_sess_sig($member->gid,$member->id,0),
         });
@@ -266,6 +270,7 @@ sub send_sess_message{
             receiver    => $member,
             discuss     => $self->search_discuss(did=>$member->did),
             content     => $content,
+            raw_content => $self->face_parse($content),
             via         => "discuss",
             sess_sig    => $self->_get_sess_sig($member->did,$member->id,1),
         });
@@ -534,9 +539,9 @@ sub msg_put{
             $c=encode("utf8",$c);
             $c=~s/ $//;   
             $c=~s/\r|\n/\n/g;
-            my @res = $self->emoji_parse($c);
-            push @{$msg->{raw_content}},@res;
-            $c = join "",map{$_->{content}} @res;
+            my $res = $self->emoji_parse($c);
+            push @{$msg->{raw_content}},@$res;
+            $c = join "",map{$_->{content}} @$res;
             #push @{$msg->{raw_content}},{
             #    type    =>  'txt',
             #    content =>  $c,
