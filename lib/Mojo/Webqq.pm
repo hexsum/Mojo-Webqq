@@ -129,6 +129,12 @@ has g_appid                => 1003903;
 has g_pt_version           => 10092;
 has rc                     => 1;
 
+sub new {
+    my $class = shift;
+    my $self  = $class->SUPER::new(@_);
+    $ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
+    $self;
+}
 sub on {
     my $self = shift;
     while(@_){
