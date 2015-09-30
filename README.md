@@ -50,10 +50,10 @@ Mojo-Webqq v1.5.0
     3. make test
     4. make install
 
-推荐使用cpanm安装 
+推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
     $ cpan -i App::cpanminus #安装cpanm工具
-    $ cpanm -v Mojo::Webqq   #使用cpanm在线安装 Mojo::Webqq 模块
+    $ cpanm -v Mojo::Webqq   #在线安装Mojo::Webqq模块 
 
 ###核心依赖模块
 
