@@ -155,6 +155,11 @@ sub Mojo::Webqq::Client::_login1{
                 $self->stop();
                 return 0;
             }
+            elsif(defined $self->qq and $self->qq ne $id){
+                $self->fatal("实际登录帐号和程序预设帐号不一致");
+                $self->stop();
+                return 0;
+            }
             $self->qq($id);
             $self->api_check_sig($d{api_check_sig})->ptwebqq($self->search_cookie('ptwebqq'));;
             return 1;

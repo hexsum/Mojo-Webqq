@@ -20,6 +20,11 @@ sub Mojo::Webqq::Client::_login2{
     my $data = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)});
     return 0 unless defined $data;
     if($data->{retcode} ==0){
+        if(defined $self->qq and $self->qq ne $data->{result}{uin}){
+            $self->fatal("实际登录帐号和程序预设帐号不一致");
+            $self->stop();
+            return 0;
+        }
         $self->qq($data->{result}{uin})
              ->psessionid($data->{result}{psessionid})
              #->vfwebqq($data->{result}{vfwebqq})
