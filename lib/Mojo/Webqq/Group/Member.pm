@@ -1,7 +1,6 @@
 package Mojo::Webqq::Group::Member;
 use strict;
-use Mojo::Base;
-use base qw(Mojo::Base Mojo::Webqq::Base);
+use base qw(Mojo::Base Mojo::Webqq::Model::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has [qw(
     nick

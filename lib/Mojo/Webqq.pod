@@ -25,25 +25,34 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     #推荐手机安装[QQ安全中心]APP，方便随时掌握自己帐号的情况
 
-    #初始化一个客户端对象
-    my $client=Mojo::Webqq->new(ua_debug=>0);
-
     my $qq = 12345678;
-    my $pwd = "your password";
-    my $pwd_md5 = md5_sum($pwd);#得到原始密码的32位长度md5
+    my $pwd = "your password";   #使用帐号密码方式登录时需要
+    my $pwd_md5 = md5_sum($pwd); #得到原始密码的32位长度md5
+
+    #初始化一个客户端对象，设置登录的qq号
+    my $client=Mojo::Webqq->new(
+        ua_debug    =>  0,         #是否打印详细的debug信息
+        qq          =>  $qq,       #登录的qq帐号
+        pwd         =>  $pwd_md5,  #可选，如果选择帐号密码登录方式，必须指定帐号密码的md5值
+        login_type  =>  "qrlogin", #"qrlogin"表示二维码登录，"login"表示帐号密码登录
+    );
+    #注意: 腾讯可能已经关闭了帐号密码的登录方式，这种情况下只能使用二维码扫描登录
 
     #客户端进行登录
-    $client->login(qq=>$qq,pwd=>$pwd_md5);
+    $client->login();
 
     #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
     $client->load("ShowMsg");
 
-    #设置接收消息事件的回调函数，在回调函数中对消息以相同内容进行回复
-    $client->on(receive_message=>sub{
-        my ($client,$msg)=@_;
-        #已以相同内容回复接收到的消息
-        $client->reply_message($msg,$msg->content);
-        #你也可以使用$msg->dump() 来打印消息结构
+    #ready事件触发时表示客户端一切准备就绪，建议尽量将自己的代码写在ready内
+    $client->on(ready=>sub{
+        #设置接收消息事件的回调函数，在回调函数中对消息以相同内容进行回复
+        $client->on(receive_message=>sub{
+            my ($client,$msg)=@_;
+            #已以相同内容回复接收到的消息
+            $client->reply_message($msg,$msg->content);
+            #你也可以使用$msg->dump() 来打印消息结构
+        });
     });
 
     #客户端开始运行
@@ -71,7 +80,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 数据类型包含 个人、好友、群组、讨论组、最近联系人 几大类型，每种类型都专门设计了类
 
-所有的类都继承Mojo::Webqq::Base具有dump的方法，这些数据类型均由系统自动创建和维护，一般情况下，你只需要对对象进行只读操作
+这些类都继承L<Mojo::Webqq::Model::Base>具有dump的方法，这些数据类型均由系统自动创建和维护
+
+一般情况下，你只需要对对象进行只读操作
 
 =head2 Mojo::Webqq::User 个人
 
@@ -81,6 +92,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     phone           #电话
     occupation      #职业
     college         #大学
+    type            #固定值"user"
     qq              #qq帐号
     id              #本次登录唯一标识，发送消息时需要用到，id和qq号是两个不同的概念
     blood           #血型
@@ -99,6 +111,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     mobile          #手机
     signature       #个性签名
 
+    方法：
+    dump
+    is_me           #判断对象是否是自己
+    
+
 注意基于web的方式没办法批量获取到好友、群成员或讨论组成员的qq号码，只能够使用api实时每次查询单个用户的qq号码
 
 这种情况下，如果程序不注意，会产生较大的http请求，并且获取qq号码的效率也会很低
@@ -112,7 +129,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $client->user       #返回的是一个Mojo::Webqq::User对象
     $client->user->nick #获取帐号昵称
     $client->user->id   #获取帐号id
-    
+    $client->user->dump
 
 =head2 Mojo::Webqq::Friend 好友
 
@@ -120,6 +137,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     qq              #好友的qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
     id              #好友的id，仅在本次登录期间唯一，多次登录可能会发生变化，记住 id不是qq号
+    type            #固定值"friend"
     categorie       #好友所属的分组
     nick            #好友昵称
     markname        #好友备注名称
@@ -131,6 +149,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法:
     send            #给好友对象发送消息
+    is_friend       #判断对象是否是好友
+    dump
 
     代码示例：
 
@@ -157,6 +177,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     gid             #群的id，仅在本次登录期间唯一，多次登录可能会发生变化
     gtype           #create|attend|manage 分别表示创建的群|加入的群|管理的群,需要安装Webqq::Qun模块,暂未实现
+    type            #固定值"group"
     gnumber         #群号码 需要安装Webqq::Qun模块,暂未实现
     gname           #群名称
     gmemo           #群说明
@@ -171,12 +192,15 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     search_group_member  #根据群成员属性搜索群，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
     each_group_member    #在群中遍历所有的群成员
     members              #返回群成员对象列表  
-    send                 #给群对象发送消息 $group->send("hello world")
+    send                 #给群对象发送消息
     me                   #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
+    is_group             #判断对象是否是一个群
+    dump
 
     示例代码：
     my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
     $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
+    $group->send("hello world")
     $group->each_group_member(
         my($client,$member) = @_;
         ...;
@@ -194,6 +218,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     属性：
 
     nick            #群成员昵称
+    type            #固定值"group_member"
     province        #省份
     gender          #性别
     id              #唯一id，仅在本次登录期间唯一，多次登录可能会发生变化
@@ -222,12 +247,16 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法:
     send            #给群成员对象发送消息 $member->send("hello world")
+    dump
+    is_me           #判断对象是否是群中的自己
+    is_group_member #判断是否是一个群对象
 
 =head2 Mojo::Webqq::Discuss 讨论组
 
     属性：
 
     did         #讨论组id
+    type        #固定值"discuss"
     dname       #讨论组名称
     displayname #当前返回的和dname一样
     downer      #讨论组建立者id
@@ -240,12 +269,15 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     members                 #返回讨论组成员对象列表
     send                    #给讨论组对象发送消息
     me                      #获取自己在讨论组中的对象 (Mojo::Webqq::Discuss::Member)
+    dump
+    is_discuss          
 
 =head2 Mojo::Webqq::Discuss::Member 讨论组成员
 
     属性：
 
     nick
+    type                    #固定值"discuss_member"
     id
     qq
     ruin
@@ -258,24 +290,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法：
     send                    #给讨论组成员发送临时消息
-
-=head2 Mojo::Webqq::Recent::Friend 
-
-    属性:
-    id
-    type    #friend
-    
-=head2 Mojo::Webqq::Recent::Group 
-    
-    属性：
-    gid
-    type    #group
-
-=head2 Mojo::Webqq::Recent::Discuss
-    
-    属性：
-    did
-    type    #discuss
+    dump
+    is_me                   #判断是否是讨论组中的自己
+    is_discuss_member
 
 =head1 消息类型
 
@@ -309,6 +326,9 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     to_json         #将消息转换为json兼容的hash，方便和外部系统交互
                     #常见的接收和发送消息都支持该方法，下文不再赘述
     is_at           #消息是否艾特某人，常见的接收和发送消息都支持该方法，下文不再赘述
+    faces           #返回消息中的表情内容
+    images          #获取到消息中图片内容后执行指定回调，适合对具体某个消息进行图片处理
+                    #参考 receive_pic 事件，可以设置全局接收图片的处理回调
 
     示例代码:
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
@@ -322,7 +342,17 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $msg->is_at();          #判断发送或接收的消息中是否有艾特自己
     $msg->is_at($member);   #判断发送或接收的消息中是否有艾特某个成员
     $msg->is_at($friend);   #判断发送或接收的消息中是否有艾特某个好友
+
+    my @faces = $msg->faces(); #("[微笑]","[流泪]","[害羞]")
     
+    $msg->images(sub{
+        my($client,$image_path,$sender) = @_;
+    });
+
+    #全局图片处理事件
+    $client->on(receive_pic=>sub{
+        my($client,$image_path,$sender) = @_;
+    });
     
 =head2  Mojo::Webqq::Message::Send::Message 发送的好友消息
 
@@ -452,23 +482,14 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     $client->log_path   #日志记录路径，默认undef，打印到STDERR
     $client->version    #客户端版本
     $client->qq         #登录帐号
-    $client->pwd        #密码32位md5值
     $client->encrypt_method        #perl|js 登录加密算法，系统会会自动选择
-
-    $client->user;       #获取Mojo::Webqq::User对象
-    $client->group;      #返回客户端存储所有群组的数组引用，一般情况下你不应该直接操作该数据
-    $client->discuss;    #返回客户端存储所有讨论组的数组引用，一般情况下你不应该直接操作该数据
-    $client->recent;     #返回客户端存储最近联系人列表的数组引用，一般情况下你不应该直接操作该数据
-    $client->plugins;    #存储客户端已经加载插件，一般情况下你不应该直接操作该数据
-
-    #获取登录帐号相关信息
-    $client->user->id;   #获取登录用户id
-    $client->user->nick;   #获取登录用户昵称
 
 =head1 客户端方法
 
 =head2 new()
 
+    qq              #登录的qq号，必选
+    pwd             #使用帐号密码登录时，qq号对应密码的32位md5
     security        #设置该参数，将使得发送和接收消息使用https加密
     state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
     ua_debug        #设置该参数，打印调试信息
@@ -476,11 +497,12 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     log_path        #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     log_encoding    #输出日志的编码，默认自动检测，如果出现乱码可以尝试手动设置一下输出编码
                     #编码必须是 Encode 模块支持的格式，比如utf8 gbk等
+    max_recent      #保存的最近联系人个数，默认20
     
     ioloop          #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
     keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
 
-    login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"login"
+    login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"qrlogin"
     encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
     
     verifycode_path #图片验证码保存路径，默认是临时目录下随机名称
@@ -488,11 +510,10 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
         
     tmpdir          #程序使用的临时目录，主要用于保存一些验证码、二维码等数据，默认为系统临时目录
     cookie_dir      #登录cookie的保存目录，默认为临时目录
-    friend_pic_dir  #设置好友图片保留目录，默认和pic_dir一致，只有注册了receive_friend_pic事件 此路径才有意义
-    group_pic_dir   #设置群图片保留目录，默认和pic_dir一致，只有注册了receive_group_pic事件 此路径才有意义
-    pic_dir         #图片接收默认地址，默认为空，即不下载保存图片
+    pic_dir         #图片接收默认地址，默认为 tmpdir
 
-    $client->new(security=>0,ua_debug=>0);
+    $client->new(ua_debug=>0,qq=>xxxxxx,login_type=>"qrlogin");
+    $client->new(ua_debug=>0,qq=>xxxxxx,pwd=>xxxxx,login_type=>"login");
 
 =head2 on()
 
@@ -508,47 +529,49 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
     $client->login(qq=>xxxx,pwd=>xxxx,[delay=>0|1]);    
 
-    qq     登录的qq帐号    
-    pwd    必须是原始密码经过md5加密后的32位字符串
-    delay  0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录
-           为了兼容旧版本，delay默认值为0，推荐尽量将delay设置为1
+    qq     可选，登录的qq帐号，如果在new中已经设置了，这里不需要再设置
+    pwd    可选，原始密码经过md5加密后的32位字符串，如果在new中已经设置了，这里不需要再设置
+    delay  0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录,默认值为1
 
     delay选项主要是为了方便配合某些插件的执行, 比如 Mojo::Webqq::Plugin::PostImgVerifycode 插件
 
+注意：如果使用帐号密码的登录方式，需要依赖L<Webqq::Encryption>模块
 
-注意：推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块，能够极大的提升登录加密算法的计算速度（Centos可以使用 yum -y install perl-Crypt-OpenSSL-* 来方便安装）
+推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块
 
-=head2 relogin()
+能够极大的提升L<Webqq::Encryption>登录加密算法的计算速度（Centos可以使用 yum -y install perl-Crypt-OpenSSL-* 来方便安装）
 
-重新登录，客户端默认会自动尝试重新登录
+=head2 relogin() 重新登录
+
+重新登录前，会先清空登录相关cookie，好友、群等数据，客户端在必要时默认会自动尝试重新登录
 
     $client->relogin()
 
-=head2 timer($seconds,$callback)
+=head2 timer($seconds,$callback) 定时执行
 
 指定多少秒之后执行对应的回调函数
 
     $client->timer(10,sub{ print "hello world\n" }); #10s后打印hello world
 
-=head2 interval($seconds,$callback)
+=head2 interval($seconds,$callback) 间隔执行
 
 设置每隔多少秒重复执行对应的回调函数
 
     $client->interval(10,sub{ print "hello world\n" }); #每隔10s后打印hello world
     
-=head2 run()
+=head2 run() 启动主事件循环
 
 客户端进入事件循环，正式开始运行，一般放在代码的最后，不可或缺
 
     $client->run();
 
-=head2 multi_run()
+=head2 multi_run() 启动主事件循环(多帐号)
 
 登录多个qq帐号时使用，详情参见ready()方法介绍
 
-=head2 ready()
+=head2 ready() 只准备不运行
 
-当你想要同时运行多个qq帐号或者当你想要自己基于事件驱动的代码（往往也是Mojo的代码）中调用该模块时
+当你想要同时运行多个qq帐号或者当你想要自己基于L<Mojo::IOLoop>事件驱动的代码中调用该模块时
 
 $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使你其他的代码无法执行
 
@@ -560,32 +583,32 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
     $other_ioloop->start;   #启动你自己的事件循环
 
     #同时登录多个qq帐号
-    my $client1 = Mojo::Webqq->new;
-    my $client2 = Mojo::Webqq->new;
+    my $client1 = Mojo::Webqq->new(qq=>xxx1);
+    my $client2 = Mojo::Webqq->new(qq=>xxx2);
     
-    $client1->login(qq=>xxx,pass=>xxx);
-    $client2->login(qq=>xxx,pass=>xxx);
+    $client1->login();
+    $client2->login();
     
     $client1->ready;
     $client2->ready;
     
-    Mojo::IOLoop->multi_run(); 
+    Mojo::Webqq->multi_run(); 
 
-=head2 stop(["auto"|"noexit"])
+=head2 stop(["auto"|"noexit"]) 停止收发消息
 
 客户端终止接收和发送消息，其他非接收和发送消息类的功能仍然可以继续执行
 
     $client->stop(["auto"]) #默认参数是auto，当多个qq帐号客户端中的最后一个stop时，整个程序也会退出(exit)
     $client->stop("noexit") #即使所有的qq帐号都stop了，整个客户端也不调用exit退出
 
-=head2 add_job($job_name,$time,$callback);
+=head2 add_job($job_name,$time,$callback); 指定时刻执行
 
 定时执行任务
     
     #支持的时间格式为 HH:MM
     $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
 
-=head2 spawn(%opt)
+=head2 spawn(%opt) 执行外部命令
 
 在单独的进程中执行代码或命令
 
@@ -683,27 +706,30 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         else{print "发送失败"} 
     });
 
-=head2 update_friend()
+    其实也支持阻塞发送
+    my ($send_status,$err) = $client->mail(...);
+
+=head2 update_friend() 更新好友信息
 
 更新全部好友信息，客户端会自动调用该方法，通常你不需要主动使用
 
-=head2 update_group([$group])
+=head2 update_group([$group]) 更新群信息
 
 更新群消息，如果设置了$group(Mojo::Webqq::Group对象) 则更新指定群消息，不设置参数更新全部群信息
 
 客户端会自动调用该方法，通常你不需要主动使用
 
-=head2 update_discuss([$discuss])
+=head2 update_discuss([$discuss]) 更新讨论组信息
 
 更新讨论组消息，如果设置了$discuss(Mojo::Webqq::Disucss对象) 则更新指定讨论组消息，不设置参数更新全部讨论组信息
 
 客户端会自动调用该方法，通常你不需要主动使用
 
-=head2 update_recent()
+=head2 update_recent() 更新最近联系人信息
 
 更新最近联系人信息，由于较少使用到，客户端仅在首次登录时调用该方法，更新一次
 
-=head2 each_friend(sub{...})  
+=head2 each_friend(sub{...})  遍历好友
 
 遍历所有的好友
 
@@ -712,13 +738,13 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         ...;
     });
 
-=head2 friends()
+=head2 friends() 获取好友对象列表
 
 返回好友对象数组，数组中的每个元素是一个Mojo::Webqq::Friend对象
 
     my @friends = $client->friends();
 
-=head2 each_group(sub{...})
+=head2 each_group(sub{...}) 遍历群
 
 遍历所有的群
 
@@ -727,13 +753,13 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         ...;
     });
 
-=head2 groups()
+=head2 groups() 获取群对象列表
 
 返回群对象数组，数组中的每个元素是一个Mojo::Webqq::Group对象
 
     my @groups = $client->groups();
 
-=head2 each_group_member(sub{...})
+=head2 each_group_member(sub{...}) 遍历群成员
 
 遍历所有群中的所有群成员    
 
@@ -749,33 +775,29 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         ...;
     });
 
-=head2 each_discuss(sub{...})  
+=head2 each_discuss(sub{...})  遍历讨论组
 
 遍历所有的讨论组，和遍历好友或群类似 不再赘述
 
-=head2 discusss() 
+=head2 discusss() 获取讨论组列表
 
 返回讨论组对象数组，数组中的每个元素是一个Mojo::Webqq::Discuss对象
 
     my @discusss = $client->discusss;
 
-=head2 each_discuss_member(sub{...}) 
+=head2 each_discuss_member(sub{...}) 遍历讨论组成员
 
 遍历所有讨论组中的所有讨论组成员，和遍历好友或群类似 不再赘述
 
-=head2 each_recent(sub{...})
+=head2 each_recent(sub{...}) 遍历最近联系人
 
-遍历最近联系人列表
+=head2 recents() 获取最近联系人列表
 
-=head2 recents() 
-
-返回最近联系人对象数组，数组中的每个元素是一个Mojo::Webqq::Recent对象
+返回最近联系人对象数组，数组中的每个元素是Mojo::Webqq::Friend/Mojo::Webqq::Group::Member/Mojo::Webqq::Dicuss::Member对象
 
     my @recents = $client->recents();
 
-=head2 send_message($friend,$content,[$callback])
-    
-发送好友消息
+=head2 send_message($friend,$content,[$callback]) 发送好友消息
     
     my $friend = $client->search_friend(id=>xxx);#$friend是一个Mojo::Webqq::Friend的对象
     $client->send_message($friend,"hello world");#发送内容必须是utf8编码
@@ -793,25 +815,19 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         });
     });
 
-=head2 send_group_message($group,$content,[$callback])
+=head2 send_group_message($group,$content,[$callback]) 发送群消息
     
-发送群消息
-
     my $group = $client->search_group(gname=>"PERL学习交流");#$group是一个Mojo::Webqq::Group的对象
     $client->send_group_message($group,"hello world");
 
-=head2 send_discuss_message($discuss,$content,[$callback])
-
-发送讨论组消息
+=head2 send_discuss_message($discuss,$content,[$callback]) 发送讨论组消息
 
     my $discuss = $client->search_discuss(dname=>"讨论组");#$discuss是一个Mojo::Webqq::Discuss的对象
     $client->send_discuss_message($discuss,"hello world");
 
-注意：由于webqq自身限制，当前无法成功发送讨论组消息
+注意：由于腾讯限制，当前无法成功发送讨论组消息
 
-=head2 send_sess_message($group_member|$discuss_member,$content,[$callback])
-    
-发送群临时消息或者讨论组临时消息
+=head2 send_sess_message($group_member|$discuss_member,$content,[$callback]) 发送群或讨论组临时消息
 
     #直接在整个数据库中搜索指定群成员
     my $group_member = $client->search_group_member(gname=>"PERL学习交流",nick=>"小灰");
@@ -828,9 +844,9 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
     $client->send_sess_message($discuss_member,"hello world");
      
 
-=head2 reply_message($msg,$content,[$callback])
+=head2 reply_message($msg,$content,[$callback]) 对收到的消息进行回复
 
-对收到的消息进行回复，send_message()/send_group_message()/send_discuss_message()/send_sess_message()
+send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 这一类方法适合对特定的对象主动发送消息，但很多场景下，我们不需要关心对方是谁
 
@@ -909,15 +925,15 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
                                                              relogin<-login<-+   |->lose_friend
                                                                                  ...
 
-=head2 reveive_message 
+=head2 reveive_message 接收消息事件
 
-接收到消息事件，传递给回调函数的参数是接收到的消息对象
+传递给回调函数的参数是接收到的消息对象
 
     $client->on(receive_message=>sub{my ($client,$msg)=@_;$msg->dump});
 
-=head2 send_message     
+=head2 send_message 发送消息事件
 
-发送消息事件，传递给回调函数的参数是 接收到的消息对象 和 发送状态对象
+传递给回调函数的参数是 接收到的消息对象 和 发送状态对象
 
 发送状态对象是Mojo::Webqq::Message::Send::Status的实例
     
@@ -927,128 +943,126 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         print $msg->msg_id,"发送成功" if $status->is_success  
     });
 
-=head2 login
+=head2 login 登录成功事件
 
 登录完成时触发事件，无额外的回调参数
 
-=head2 relogin
+=head2 relogin 重新登录成功事件
 
 重新登录完成时触发事件，无额外的回调参数
 
-=head2 input_img_verifycode
+=head2 input_img_verifycode 等待输入验证码
 
 登录需要输入验证码，参数为验证码文件的路径
 
-=head2 input_qrcode
+=head2 input_qrcode 等待扫描二维码
 
 登录需要扫描二维码，参数为二维码文件的路径
 
-=head2 ready
+=head2 ready 准备就绪
 
 客户端准备就绪事件
 
-=head2 run 
+=head2 run 即将开始运行
 
 客户端一切准备就绪，开始进入事件循环之前
 
-=head2 plugin_call
+=head2 plugin_call 插件执行
 
 插件被执行时，参数为插件名称
 
-=head2 plugin_load
+=head2 plugin_load 插件加载
 
 插件被加载完成时，参数为插件名称
 
-=head2 after_load_plugin
+=head2 after_load_plugin 所有插件加载完成
 
 全部插件加载完成后触发的事件
 
-=head2 new_friend
+=head2 new_friend 新增好友
 
 新增好友时触发事件，回调参数为新增的好友对象
 
     $client->on(new_friend=>sub{my ($client,$friend)=@_});
 
-=head2 lose_friend
+=head2 lose_friend 丢失好友
 
 失去好友时触发事件，回调参数为失去的好友对象
 
     $client->on(lose_friend=>sub{my ($client,$friend)=@_});
 
-=head2 new_group               
-
-新加入群时触发事件，回调参数为新增群的对象
+=head2 new_group 新增群              
 
     $client->on(new_group=>sub{my ($client,$group)=@_});
 
-=head2 lose_group
-
-退出群事件
+=head2 lose_group 退出群
 
     $client->on(lose_group=>sub{my ($client,$group)=@_});
 
-=head2 new_group_member        
-
-新增群成员事件
+=head2 new_group_member 新增群成员
 
     $client->on(new_group_member=>sub{my ($client,$group_member)=@_});
 
-=head2 lose_group_member       
-
-群成员退群事件
+=head2 lose_group_member 群成员退出
 
     $client->on(lose_group_member=>sub{my ($client,$group_member)=@_});
         
-=head2 new_discuss             
-
-新加入讨论组事件
+=head2 new_discuss 新增讨论组
 
     $client->on(new_discuss=>sub{my ($client,$discuss)=@_});
     
-=head2 lose_discuss            
-
-退出讨论组事件
+=head2 lose_discuss 退出讨论组 
 
     $client->on(lose_discuss=>sub{my ($client,$discuss)=@_});
 
-=head2 new_discuss_member      
-
-讨论组新增成员事件
+=head2 new_discuss_member 新增讨论组成员
 
     $client->on(new_discuss_member=>sub{my ($client,$discuss_member)=@_});
 
-=head2 lose_discuss_member     
-
-讨论组成员退出事件
+=head2 lose_discuss_member 讨论组成员退出
 
     $client->on(lose_discuss_member=>sub{my ($client,$discuss_member)=@_});
 
-=head2 receive_friend_pic
+=head2 receive_pic 接收图片
 
-接收到好友发送的图片，图片默认下载到临时目录下
+    $client->on(receive_pic=>sub{ 
+        my($client,$filepath,$sender)=@_;
+        #$filepath 图片文件的绝对路径
+        #$sender   发送图片的对象，可能是好友、群成员
+        if($sender->is_friend){...;}
+        elsif($sender->is_group_member){...;}
+        elsif($sender->is_discuss_member){...;}
+    });
+
+
+=head2 receive_friend_pic 接收好友图片
 
     $client->on(receive_friend_pic=>sub{ 
-        my($client,$fh,$filepath,$friend)=@_;
-        #$fh       图片文件的只读句柄
+        my($client,$filepath,$friend)=@_;
         #$filepath 图片文件的绝对路径
         #$friend   发送图片的好友对象
     });
 
-=head2 receive_group_pic
+=head2 receive_sess_pic 接收陌生人图片
 
-接收到群图片，图片默认下载到临时目录下
+    $client->on(receive_sess_pic=>sub{ 
+        my($client,$filepath,$sender)=@_;
+        #$filepath 图片文件的绝对路径
+        #$sender   发送图片的群成员或讨论组成员
+    });
+
+=head2 receive_group_pic 接收到群图片
 
     $client->on(receive_group_pic=>sub{ 
-        my($client,$fh,$filepath,$group,$sender)=@_;
+        my($client,$filepath,$sender)=@_;
         #$fh       图片文件的只读句柄
         #$filepath 图片文件的绝对路径
-        #$group    发送图片的群对象
         #$sender   发送图片的群成员对象
     });
 
-=head2 first_talk
+=head2 first_talk 某人第一次消息
 
-第一次接收到某人消息事件，第一次的定义为：收到某个用户在4小时内第一次发送的消息
+第一次的定义为：收到某个用户在4小时内第一次发送的消息
 
     $client->on(first_talk=>sub{
         my($client,$sender,$msg) = @_;
@@ -1057,7 +1071,7 @@ $client->run()会阻塞你的代码，导致无法同时使用多个帐号或使
         $sender->send("怎么这么久才想起我?");
     });
     
-=head2 before_send_message 
+=head2 before_send_message 消息即将发送
 
 消息发送之前的事件，一般用于在即将发送消息前对消息进行预处理
 

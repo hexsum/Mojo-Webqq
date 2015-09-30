@@ -1,7 +1,6 @@
 package Mojo::Webqq::Recent::Group;
 use strict;
-use Mojo::Base;
-@Mojo::Webqq::Recent::Group::ISA= qw(Mojo::Base Mojo::Webqq::Base);
+use base qw(Mojo::Base Mojo::Webqq::Model::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has [qw(
     gid

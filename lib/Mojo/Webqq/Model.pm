@@ -7,9 +7,6 @@ use Mojo::Webqq::Group;
 use Mojo::Webqq::Discuss;
 use Mojo::Webqq::Discuss::Member;
 use Mojo::Webqq::Group::Member;
-use Mojo::Webqq::Recent::Friend;
-use Mojo::Webqq::Recent::Group;
-use Mojo::Webqq::Recent::Discuss;
 use Mojo::Webqq::Model::Remote::_get_user_info;
 use Mojo::Webqq::Model::Remote::get_single_long_nick;
 use Mojo::Webqq::Model::Remote::get_qq_from_id;
@@ -359,7 +356,18 @@ sub search_discuss_member {
 }
 
 sub add_recent {
-
+    my $self = shift;
+    my $object = shift;
+    return if not defined $object;
+    my $o = $self->search_recent(id=>$object->id);
+    if(defined $o){$o->update($object)}
+    else{
+        if(@{$self->recent} >= $self->max_recent){
+            shift @{$self->recent};
+        }
+        push @{$self->recent},$object;
+    }
+    
 }
 
 sub update_recent {
@@ -367,14 +375,11 @@ sub update_recent {
     $self->info("更新最近联系人信息...\n");
     my $recent_info = $self->_get_recent_info();
     if(defined $recent_info){
-        my @recent;
         for(@{$recent_info}){
-            if($_->{type} eq "friend"){$_=Mojo::Webqq::Recent::Friend->new($_);}
-            elsif($_->{type} eq "group"){$_=Mojo::Webqq::Recent::Group->new($_);}
-            elsif($_->{type} eq "discuss"){$_=Mojo::Webqq::Recent::Discuss->new($_);}
-            push @recent,$_;    
+            if($_->{type} eq "friend"){$self->add_recent($self->search_friend(id=>$_->{id}))}
+            #elsif($_->{type} eq "group"){}
+            #elsif($_->{type} eq "discuss"){}
         }
-        $self->recent(\@recent);
     }
     else{
         $self->warn("更新最近联系人信息失败\n");

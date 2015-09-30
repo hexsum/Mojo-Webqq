@@ -73,4 +73,43 @@ sub to_json{
     return $json;
 }
 
+sub text {
+    my $self = shift;
+    return $self->content if ref $self->raw_content ne "ARRAY";
+    return join "",map{$_->{content}} grep {$_->{type} eq "txt"} @{$self->{raw_content}};
+}
+
+sub faces {
+    my $self = shift;
+    return if ref $self->raw_content ne "ARRAY";
+    if(wantarray){
+        return map {$_->{content}} grep {$_->{type} eq "face" or $_->{type} eq "emoji"} @{$self->{raw_content}};
+    } 
+    else{
+        my @tmp = map {$_->{content}} grep {$_->{type} eq "face" or $_->{type} eq "emoji"} @{$self->{raw_content}};
+        return \@tmp;
+    }
+}
+sub images {
+    my $self = shift;
+    my $cb   = shift;
+    $self->{_client}->die("参数必须是一个函数引用") if ref $cb ne "CODE";
+    return if ref $self->raw_content ne "ARRAY";
+    return if $self->msg_class ne "recv";
+    return if $self->type eq "discuss_message";
+    for ( grep {$_->{type} eq "cface" or $_->{type} eq "offpic"} @{$self->raw_content}){
+        if($_->{type} eq "cface"){
+            return unless exists $_->{server};
+            return unless exists $_->{file_id};
+            return unless exists $_->{name};
+            my ($ip,$port) = split /:/,$_->{server};
+            $port = 80 unless defined $port;
+            $self->{_client}->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$self->sender,$cb);
+        }
+        elsif($_->{type} eq "offpic"){
+            $self->{_client}->_get_offpic($_->{file_path},$self->sender,$cb);
+        }
+    }
+}
+
 1;

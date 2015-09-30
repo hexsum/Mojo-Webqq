@@ -49,15 +49,6 @@ sub exit{
 }
 sub ready{
     my $self = shift;
-    #加载插件
-    my $plugins = $self->plugins;
-    for(
-        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
-        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
-    ){
-        $self->call($_);
-    }
-    $self->emit("after_load_plugin");
     $self->on("model_update_fail"=>sub{
         my $self = shift;
         my $last_model_update_failure_count = $self->model_update_failure_count;
@@ -67,10 +58,16 @@ sub ready{
             $self->_relink();
         }
     });
+    $self->on(send_message=>sub{
+        my($self,$msg)=@_;
+        return unless $msg->type =~/^message|sess_message$/;
+        $self->add_recent($msg->receiver);
+    });
     $self->on(receive_message=>sub{
         my($self,$msg)=@_;
         return unless $msg->type =~/^message|sess_message$/;
         my $sender_id = $msg->sender->id;
+        $self->add_recent($msg->sender);
         unless(exists $self->data->{first_talk}{$sender_id}) {
             $self->data->{first_talk}{$sender_id}++;
             $self->emit(first_talk=>$msg->sender,$msg);
@@ -95,6 +92,15 @@ sub ready{
             $self->update_friend;
         });
     });
+    #加载插件
+    my $plugins = $self->plugins;
+    for(
+        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
+        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
+    ){
+        $self->call($_);
+    }
+    $self->emit("after_load_plugin");
     #接收消息
     $self->info("开始接收消息...\n");
     $self->_recv_message();
@@ -130,13 +136,14 @@ sub relogin{
     $self->recent([]);
     $self->data(+{});
 
-    $self->login(qq=>$self->qq,pwd=>$self->pwd,delay=>0);
+    $self->login(delay=>0);
     $self->emit("relogin");
 }
 sub login {
     my $self = shift;
     my %p = @_;
-    $self->qq($p{qq})->pwd($p{pwd});
+    $self->qq($p{qq}) if defined $p{qq};
+    $self->pwd($p{pwd}) if defined $p{pwd};
     my $delay = defined $p{delay}?$p{delay}:0;
     if($self->is_first_login == -1){
         $self->is_first_login(1);

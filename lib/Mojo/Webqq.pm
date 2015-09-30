@@ -13,7 +13,7 @@ use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq:
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
 has type                    => 'smartqq';  #smartqq
-has login_type              => 'login';    #qrlogin|login
+has login_type              => 'qrlogin';    #qrlogin|login
 has ua_debug                => 0;
 has log_level               => 'info';     #debug|info|warn|error|fatal
 has log_path                => undef;
@@ -24,9 +24,7 @@ has encrypt_method          => "perl";     #perl|js
 has verifycode_path         => undef;
 has qrcode_path             => undef;
 has tmpdir                  => sub {File::Spec->tmpdir();};
-has pic_dir                 => undef;
-has friend_pic_dir          => sub{return $_[0]->pic_dir};
-has group_pic_dir           => sub{return $_[0]->pic_dir};
+has pic_dir                 => sub {$_[0]->tmpdir};
 has ioloop                  => sub{Mojo::IOLoop->singleton};
 has keep_cookie             => 1;
 has cookie_dir              => sub{
@@ -35,9 +33,9 @@ has cookie_dir              => sub{
     }
     else{return undef}
 };
+has max_recent => 20;
 
 has version                 => $Mojo::Webqq::VERSION;
-
 has user    => sub {+{}};
 has friend  => sub {[]};
 has recent  => sub {[]};

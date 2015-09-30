@@ -33,7 +33,9 @@ sub gen_message_queue{
         return if $self->is_stop; 
         if($msg->msg_class eq "recv"){
             if($msg->type eq 'message'){
-                if($self->has_subscribers("receive_friend_pic") or $self->has_subscribers("receive_offpic")){
+                if(     $self->has_subscribers("receive_pic") 
+                    or  $self->has_subscribers("receive_friend_pic") 
+                ){
                     for(@{$msg->raw_content}){
                         if($_->{type} eq 'offpic'){
                             $self->_get_offpic($_->{file_path},$msg->sender);
@@ -41,8 +43,19 @@ sub gen_message_queue{
                     }
                 }
             }
+            elsif($msg->type eq 'sess_message'){
+                if(     $self->has_subscribers("receive_pic")
+                    or  $self->has_subscribers("receive_sess_pic")
+                ){
+                    for(@{$msg->raw_content}){
+                        if($_->{type} eq 'offpic'){
+                            $self->_get_offpic($_->{file_path},$msg->sender);
+                        }  
+                    }
+                }
+            }
             elsif($msg->type eq 'group_message'){
-                if($self->has_subscribers("receive_group_pic")){
+                if($self->has_subscribers("receive_pic") or $self->has_subscribers("receive_group_pic")){
                     for(@{$msg->raw_content}){
                         if($_->{type} eq 'cface'){
                             return unless exists $_->{server};
@@ -50,7 +63,7 @@ sub gen_message_queue{
                             return unless exists $_->{name};
                             my ($ip,$port) = split /:/,$_->{server};
                             $port = 80 unless defined $port;
-                            $self->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$msg->group,$msg->sender);
+                            $self->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$msg->sender);
                         }
                     }
                 }
@@ -74,7 +87,7 @@ sub gen_message_queue{
             #消息的ttl值减少到0则丢弃消息
             if($msg->ttl <= 0){
                 $self->debug("消息[ " . $msg->msg_id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
-                my $status = Mojo::Webqq::Message::Send::Status->new(code=>-1,msg=>"发送失败");
+                my $status = $self->new_send_status(code=>-1,msg=>"发送失败");
                 if(ref $msg->cb eq 'CODE'){
                     $msg->cb->(
                         $self,
@@ -287,10 +300,10 @@ sub parse_send_status_msg{
     my $self = shift;
     my $json = shift;
     if(defined $json and $json->{retcode}==0){
-        return Mojo::Webqq::Message::Send::Status->new(code=>$json->{retcode},msg=>"发送成功"); 
+        return $self->new_send_status(code=>$json->{retcode},msg=>"发送成功"); 
     }
     else{
-        return Mojo::Webqq::Message::Send::Status->new(code=>$json->{retcode},msg=>"发送失败"); 
+        return $self->new_send_status(code=>-1,msg=>"发送失败"); 
     }
 }
 
@@ -742,7 +755,7 @@ sub msg_put{
         $msg = $self->new_recv_discuss_message($msg);
     }
     elsif($msg->{type} eq "state_message"){ 
-        $msg = Mojo::Webqq::Message::Recv::StateMessage->new($msg);
+        $msg = $self->new_recv_state($msg);
     }
     elsif($msg->{type} eq "system_message"){
         return;
@@ -812,5 +825,13 @@ sub new_send_message{
     my $self = shift;
     Mojo::Webqq::Message::Send::Message->new($self->_new_message_hash(@_));
 }
+sub new_send_status {
+    my $self = shift;
+    Mojo::Webqq::Message::Send::Status->new($self->_new_message_hash(@_));
+}
 
+sub new_recv_state{
+    my $self = shift;
+    Mojo::Webqq::Message::Recv::StateMessage->new($self->_new_message_hash(@_));
+}
 1;

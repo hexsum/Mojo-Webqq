@@ -6,21 +6,38 @@ sub Mojo::Webqq::Client::_get_group_pic {
     my $pic_name = shift;
     my $rip = shift;
     my $rport = shift;
-    my $group = shift;
     my $sender  = shift;
+    my $cb      = pop;
     
+    return if $sender->is_discuss_member;
     my $api = 'http://web2.qq.com/cgi-bin/get_group_pic';
-    my @query_string = (
-        type    => 0,
-        fid     => $fid,
-        gid     => $group->gcode,
-        pic     => url_escape($pic_name),
-        rip     => $rip,
-        rport   => $rport,
-        uin     => $sender->id,
-        vfwebqq => $self->vfwebqq,
-        t       => time(),
-    );
+    my @query_string ;
+    if($sender->is_group_member){
+        @query_string= (
+            type    => 0,
+            fid     => $fid,
+            gid     => $sender->gcode,
+            pic     => url_escape($pic_name),
+            rip     => $rip,
+            rport   => $rport,
+            uin     => $sender->id,
+            vfwebqq => $self->vfwebqq,
+            t       => rand(),
+        );
+    }
+    elsif($sender->is_discuss_member){
+        @query_string= (
+            type    => 0,
+            fid     => $fid,
+            did     => $sender->did,
+            pic     => url_escape($pic_name),
+            rip     => $rip,
+            rport   => $rport,
+            uin     => $sender->id,
+            vfwebqq => $self->vfwebqq,
+            t       => rand(),
+        );
+    }
     my $callback = sub{
         my ($data,$ua,$tx) = @_;
         unless(defined $data){
@@ -35,26 +52,31 @@ sub Mojo::Webqq::Client::_get_group_pic {
                     :                           undef
         ;
         return unless defined $type; 
-        if(defined $self->group_pic_dir and not -d $self->group_pic_dir){
-            $self->error("无效的 group_pic_dir: " . $self->group_pic_dir);
+        if(defined $self->pic_dir and not -d $self->pic_dir){
+            $self->error("无效的 pic_dir: " . $self->pic_dir);
             return;
         }
         my @opt = (
-            TEMPLATE    => "webqq_gpic_XXXX",
+            TEMPLATE    => "mojo_webqq_cface_XXXX",
             SUFFIX      => $type,
             UNLINK      => 0,
         );
-        defined $self->group_pic_dir?(push @opt,(DIR=>$self->group_pic_dir)):(push @opt,(TMPDIR=>1));
+        defined $self->pic_dir?(push @opt,(DIR=>$self->pic_dir)):(push @opt,(TMPDIR=>1));
         eval{
             my $tmp = File::Temp->new(@opt);
             binmode $tmp;
             print $tmp $tx->res->body();    
             close $tmp;
-            open(my $fh,"<:raw",$tmp->filename) or die $!;
-            $self->emit(receive_group_pic => $fh,$tmp->filename,$group,$sender);
-            close $fh;
+            $self->emit(receive_pic => $tmp->filename,$sender);
+            if($sender->is_group_member){
+                $self->emit(receive_group_pic => $tmp->filename,$sender);
+            }
+            else{
+                $self->emit(receive_disucss_pic => $tmp->filename,$sender);
+            }
+            $cb->($self,$tmp->filename,$sender) if ref $cb eq "CODE";
         };
-        $self->error("[Mojo::Webqq::Client::_get_group_pic] $@\n") if $@;
+        $self->error("[Mojo::Webqq::Client::_get_group_pic] $@") if $@;
     };
     $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://w.qq.com/'},$callback);
 };

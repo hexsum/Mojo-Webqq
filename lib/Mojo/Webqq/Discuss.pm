@@ -1,8 +1,7 @@
 package Mojo::Webqq::Discuss;
 use strict;
-use Mojo::Base;
 use List::Util qw(first);
-use base qw(Mojo::Base Mojo::Webqq::Base);
+use base qw(Mojo::Base Mojo::Webqq::Model::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has [qw(
     did

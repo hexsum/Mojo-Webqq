@@ -1,38 +1,14 @@
 package Mojo::Webqq::Base;
-use Scalar::Util qw(blessed);
 use Carp qw();
-use Mojo::JSON;
+use Mojo::JSON qw();
 use Encode qw(encode_utf8 encode decode);
-use Data::Dumper;
-sub to_hash{
-    my $self = shift;   
-    my $hash = {};
-    for(keys %$self){
-        next if substr($_,0,1) eq "_";
-        next if $_ eq "member";
-        $hash->{$_} = $self->{$_};
-    }
-    $self->reform_hash($hash,1);
-    if(exists $self->{member}){
-        $hash->{member} = [];
-        if(ref $self->{member} eq "ARRAY"){
-            for my $m(@{$self->{member}}){
-                my $member_hash = $m->to_hash();
-                $self->reform_hash($member_hash,1);
-                push @{$hash->{member}},$member_hash;
-            }
-        }
-    }
-
-    return $hash;
-}
 sub decode_json{
     my $self = shift;
     my $r = eval{
         Mojo::JSON::decode_json(@_);
     };
     if($@){
-        print $@,"\n";
+        $self->warn($@);
         return undef;
     }
     else{
@@ -45,7 +21,7 @@ sub encode_json{
         Mojo::JSON::encode_json(@_);
     };
     if($@){
-        print $@,"\n";
+        $self->warn($@);
         return undef;
     }
     else{
@@ -136,29 +112,6 @@ sub reform_hash{
         else{Encode::_utf8_off($hash->{$_}) if Encode::is_utf8($hash->{$_});}
     }
     $self;
-}
-
-sub dump{
-    my $self = shift;
-    my $clone = {};
-    my $obj_name = blessed($self);
-    for(keys %$self){
-        next if $_ eq "_client";
-        if(my $n=blessed($self->{$_})){
-             $clone->{$_} = "Object($n)";
-        }
-        elsif($_ eq "member" and ref($self->{$_}) eq "ARRAY"){
-            my $member_count = @{$self->{$_}};
-            $clone->{$_} = [ "$member_count of Object(${obj_name}::Member)" ];
-        }
-        else{
-            $clone->{$_} = $self->{$_};
-        }
-    }
-    local $Data::Dumper::Indent = 1;
-    local $Data::Dumper::Terse = 1;
-    $self->{_client}->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
-    return $self;
 }
 
 sub array_diff{
