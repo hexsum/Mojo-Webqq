@@ -22,6 +22,7 @@ sub Mojo::Webqq::Client::_prepare_for_login {
     return 0 unless defined $content;
     my %kv = map { url_escape($_) } $content =~ /$regex_pattern/g;
     $self->$_($kv{$_}) for keys %kv;
+    $self->g_login_sig($self->search_cookie("pt_login_sig")) if not $self->g_login_sig ;
     return 1;
 }
 1;
