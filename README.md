@@ -3,7 +3,6 @@ Mojo-Webqq v1.5.0
 使用Perl语言编写的Webqq客户端框架，基于Mojolicious，该项目为pfqq(Webqq::Client)的重构项目，要求Perl版本5.10.1+
 
 ###插件列表
-
 ``` 
   名称                 优先级   当前状态    作者        功能说明
   ------------------------------------------------------------------------------
@@ -42,8 +41,8 @@ Mojo-Webqq v1.5.0
 [15/09/30 14:09:20] [群消息] 小灰|PERL学习交流 : Mojo::Webqq不错哦
 [15/09/30 14:10:20] [群消息] 我->PERL学习交流 : 多谢多谢
 ```
+###通过irc客户端在linux终端上使用QQ
 ![IRCShell](screenshot/IRCShell.png)
-
 ###安装步骤
 
     1. perl Makefile.PL
