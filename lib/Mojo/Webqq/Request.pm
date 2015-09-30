@@ -75,7 +75,10 @@ sub _http_request{
 sub load_cookie{
     my $self = shift;
     return if not $self->keep_cookie;
-    return if not defined $self->qq;
+    if(not defined $self->qq){
+        $self->warn("未设置登录帐号, 无法加载登录cookie"); 
+        return;  
+    }
     my $cookie_jar;
     my $cookie_path = $self->cookie_dir . '/mojo_webqq_cookie_' . $self->qq . '.dat';
     return if not -f $cookie_path;

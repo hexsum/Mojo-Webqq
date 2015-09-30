@@ -3,6 +3,7 @@ use Encode;
 use Encode::Locale;
 sub Mojo::Webqq::Client::_get_img_verify_code{
     my $self = shift;
+    return 1 if $self->login_type ne "login";
     if ($self->is_need_img_verifycode == 0){
         $self->img_verifycode_source('NONE');
         return 1 ;

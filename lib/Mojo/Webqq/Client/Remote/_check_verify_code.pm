@@ -1,6 +1,7 @@
 sub Mojo::Webqq::Client::_check_verify_code{
     my $self = shift;
-    $self->info("检查验证码...\n");
+    return 1 if $self->login_type eq "qrlogin";
+    $self->info("检查验证码...\n") if $self->login_type eq "login";
     my $api_url = 'https://ssl.ptlogin2.qq.com/check';
     my $headers = {Referer=>'https://ui.ptlogin2.qq.com/cgi-bin/login?daid=164&target=self&style=16&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'};
 
@@ -33,11 +34,11 @@ sub Mojo::Webqq::Client::_check_verify_code{
          ->isRandSalt($d{isRandSalt})
          ->pt_verifysession($d{ptvfsession});
     if($d{retcode} ==0){
-        $self->info("检查结果: 很幸运，本次登录不需要验证码\n");
+        $self->info("检查结果: 很幸运，本次登录不需要验证码\n") if $self->login_type eq "login";
         $self->verifycode($d{cap_cd});
     }
     elsif($d{retcode} == 1){
-        $self->info("检查结果: 需要输入图片验证码\n")->is_need_img_verifycode(1);
+        $self->info("检查结果: 需要输入图片验证码\n")->is_need_img_verifycode(1) if $self->login_type eq "login";
     }
     return 1;
 }

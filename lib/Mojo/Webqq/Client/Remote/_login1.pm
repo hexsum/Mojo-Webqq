@@ -10,6 +10,11 @@ sub Mojo::Webqq::Client::_login1{
     my $query_string_ul = 'http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10';
     my $query_string_action = '0-23-19230';
     if($login_type eq "login"){
+        if(not defined $self->qq){
+            $self->fatal("未设置登录帐号, 无法登录");
+            $self->stop();
+            return 0;
+        }
         eval{require Webqq::Encryption;};
         if($@){
             $self->fatal("帐号密码登录模式需要模块 Webqq::Encryption ,请先确保该模块正确安装");
@@ -143,6 +148,14 @@ sub Mojo::Webqq::Client::_login1{
         #
         #}
         elsif($d{retcode} == 0){
+            my $qrlogin_id = $self->search_cookie("uin");
+            my $id = substr($qrlogin_id,1,);
+            if(!defined $id or $id !~/^\d+$/){
+                $self->fatal("无法获取到登录帐号");
+                $self->stop();
+                return 0;
+            }
+            $self->qq($id);
             $self->api_check_sig($d{api_check_sig})->ptwebqq($self->search_cookie('ptwebqq'));;
             return 1;
         }

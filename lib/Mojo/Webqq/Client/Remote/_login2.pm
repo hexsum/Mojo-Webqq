@@ -20,7 +20,8 @@ sub Mojo::Webqq::Client::_login2{
     my $data = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)});
     return 0 unless defined $data;
     if($data->{retcode} ==0){
-        $self->psessionid($data->{result}{psessionid})
+        $self->qq($data->{result}{uin})
+             ->psessionid($data->{result}{psessionid})
              #->vfwebqq($data->{result}{vfwebqq})
              ->login_state('success')
              ->_cookie_proxy();

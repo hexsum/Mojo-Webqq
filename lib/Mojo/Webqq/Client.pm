@@ -144,7 +144,7 @@ sub login {
     my %p = @_;
     $self->qq($p{qq}) if defined $p{qq};
     $self->pwd($p{pwd}) if defined $p{pwd};
-    my $delay = defined $p{delay}?$p{delay}:0;
+    my $delay = defined $p{delay}?$p{delay}:1;
     if($self->is_first_login == -1){
         $self->is_first_login(1);
     }
@@ -212,7 +212,7 @@ sub login {
             $self->stop();
         }
         else{
-            $self->info("登录成功\n");
+            $self->info("帐号(" . $self->qq . ")登录成功\n");
             $self->update_user;
             $self->update_friend;
             $self->update_group;

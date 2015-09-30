@@ -10,6 +10,8 @@ use POSIX;
 use File::Spec ();
 use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
 
+has qq                     => undef;
+has pwd                    => undef;
 has security                => 0;
 has state                   => 'online';   #online|away|busy|silent|hidden|offline,
 has type                    => 'smartqq';  #smartqq
@@ -95,8 +97,6 @@ has ua                      => sub {
     );
 };
 
-has qq                     => undef;
-has pwd                    => undef;
 has is_need_img_verifycode => 0;
 has img_verifycode_source  => 'TTY';             #NONE|TTY|CALLBACK
 has send_msg_id            => sub {
