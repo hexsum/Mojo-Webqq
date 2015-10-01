@@ -31,6 +31,6 @@ WriteMakefile(
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (
        #ABSTRACT_FROM  => 'lib/Webqq/Client.pm', # retrieve abstract from module
-       ABSTRACT       => 'A Webqq Client Framework base on Mojolicious',
+       ABSTRACT       => 'A Smartqq Client Framework base on Mojolicious',
        AUTHOR         => 'sjdy521 <sjdy521@163.com>') : ()),
 );

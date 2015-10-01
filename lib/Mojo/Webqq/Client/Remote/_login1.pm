@@ -15,6 +15,11 @@ sub Mojo::Webqq::Client::_login1{
             $self->stop();
             return 0;
         }
+        if(not defined $self->pwd){
+            $self->fatal("未设置登录密码, 无法登录");
+            $self->stop();
+            return 0;
+        }
         eval{require Webqq::Encryption;};
         if($@){
             $self->fatal("帐号密码登录模式需要模块 Webqq::Encryption ,请先确保该模块正确安装");
