@@ -31,7 +31,7 @@ sub Mojo::Webqq::Client::_relink{
                 path  => "/",
         ) if defined $data->{result}{ptwebqq};
         push @cookies,Mojo::Cookie::Response->new(
-                name => "ptwebqq",
+                name => "skey",
                 value => $data->{result}{skey},
                 domain => "qq.com",
                 path  => "/",

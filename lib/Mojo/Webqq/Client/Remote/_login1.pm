@@ -154,7 +154,7 @@ sub Mojo::Webqq::Client::_login1{
         #}
         elsif($d{retcode} == 0){
             my $qrlogin_id = $self->search_cookie("uin");
-            my $id = substr($qrlogin_id,1,);
+            my $id = substr($qrlogin_id,1,) + 0;
             if(!defined $id or $id !~/^\d+$/){
                 $self->fatal("无法获取到登录帐号");
                 $self->stop();
