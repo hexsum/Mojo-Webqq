@@ -32,6 +32,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     #初始化一个客户端对象，设置登录的qq号
     my $client=Mojo::Webqq->new(
         ua_debug    =>  0,         #是否打印详细的debug信息
+        log_level   =>  "info"     #日志打印级别，debug|info|warn|error|fatal
         qq          =>  $qq,       #必选，登录的qq帐号，用于帐号密码登录或保存登录cookie使用
         pwd         =>  $pwd_md5,  #可选，如果选择帐号密码登录方式，必须指定帐号密码的md5值
         login_type  =>  "qrlogin", #"qrlogin"表示二维码登录，"login"表示帐号密码登录
@@ -44,15 +45,12 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
     $client->load("ShowMsg");
 
-    #ready事件触发时表示客户端一切准备就绪，建议尽量将自己的代码写在ready内
-    $client->on(ready=>sub{
-        #设置接收消息事件的回调函数，在回调函数中对消息以相同内容进行回复
-        $client->on(receive_message=>sub{
-            my ($client,$msg)=@_;
-            #已以相同内容回复接收到的消息
-            $client->reply_message($msg,$msg->content);
-            #你也可以使用$msg->dump() 来打印消息结构
-        });
+    #设置接收消息事件的回调函数，在回调函数中对消息以相同内容进行回复
+    $client->on(receive_message=>sub{
+        my ($client,$msg)=@_;
+        #已以相同内容回复接收到的消息
+        $client->reply_message($msg,$msg->content);
+        #你也可以使用$msg->dump() 来打印消息结构
     });
 
     #客户端开始运行
@@ -528,10 +526,8 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 客户端登录
 
     $client->login([delay=>0|1]);    
-
-    delay  0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录,默认值为1
     
-    delay选项主要是为了方便配合某些插件的执行, 比如 Mojo::Webqq::Plugin::PostImgVerifycode 插件
+    delay  可选,0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录,默认值为0
 
 注意：如果使用帐号密码的登录方式，需要依赖L<Webqq::Encryption>模块
 
@@ -1088,6 +1084,7 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
     priority        #可选，设置插件优先级，默认是0，较高的优先级能够使得插件优先执行
     auto_call       #可选，设置是否加载完成后自动执行，默认为1
+    call_on_load    #可选，加载完插件马上执行，默认为0
     data            #可选，设置加载插件时可以携带的数据，将会在call的时候传递给插件本身
 
     $client->load(["plugin1","plugin2"],data=>[1,2,3,]);
@@ -1110,8 +1107,8 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 编写一个包 Mojo:Webqq::Plugin::HelloWorld
 
     package Mojo:Webqq::Plugin::HelloWorld;
-    $Mojo::Webqq::Plugin::HelloWorld::PRIORITY = 10; #可省略，除了在load中使用priority设置优先级，也可以通过包变量设置
-    $Mojo::Webqq::Plugin::HelloWorld::AUTO_CALL = 1; #可省略，通过包变量设置插件是否默认加载后立刻执行
+    our $PRIORITY = 10; #可省略，除了在load中使用priority设置优先级，也可以通过包变量设置
+    our $AUTO_CALL = 1; #可省略，通过包变量设置插件是否默认加载后立刻执行
     sub call{
         my $client = shift;
         my $data   = shift; #可能包含的data数据
@@ -1125,7 +1122,7 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 客户端加载和执行插件的操作：
 
     #如果你的插件并非Mojo::Webqq::Plugin::相对命名规则，则可以在名称前使用"+"表示插件绝对名称
-    $client->load("HelloWorld",auto_call=>1); 
+    $client->load("HelloWorld"); 
     $client->run();
    
 当客户端运行时，插件将会被加载并自动执行，收到消息时会自动回复hello world 
@@ -1239,10 +1236,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到 input_qrcode 事件
-    #需要login中开启delay参数（设置为延迟登录）
-    #$client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
-
+    #插件需要使用到login()方法执行过程中触发的input_qrcode事件，因此需要在login()执行之前加载并执行插件
     $client->load("PostQRcode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
@@ -1251,6 +1245,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         user    =>  'xxxx', #smtp登录帐号
         pass    =>  'xxxx', #smtp登录密码
     });
+    $client->login();
+    ...;
 
     收到的邮件内容如下：
 
@@ -1265,10 +1261,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到 input_img_verifycode 事件
-    #需要login中开启delay参数（设置为延迟登录）
-    #$client->login(qq=>xxxx,pwd=>xxxx,delay=>1); 
-
+    #插件需要使用到login()方法执行过程中触发的input_img_verifycode事件，因此需要在login()执行之前加载并执行插件
     $client->load("PostImgVerifycode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
@@ -1279,6 +1272,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
         post_host => 'xxx.xxx.xxx.xxx' , #本机公网IP地址，需要远程访问
         post_port => 'xxxx'            , #提交验证码的链接地址中使用的端口，默认1987
     });
+    $client->login();
+    ...;
 
     收到的邮件内容如下：
 

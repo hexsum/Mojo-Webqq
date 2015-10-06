@@ -59,7 +59,6 @@ Mojo-Webqq v1.5.2
 
 * Mojolicious
 * Encode::Locale
-* Webqq::Encryption
 
 ###版本更新记录
 

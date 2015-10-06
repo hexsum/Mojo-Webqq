@@ -55,7 +55,7 @@ sub ready{
         $self->model_update_failure_count(++$last_model_update_failure_count);  
         if($self->model_update_failure_count >= $self->model_update_failure_count_max ){
             $self->model_update_failure_count(0);
-            $self->_relink();
+            $self->_get_vfwebqq() && $self->_login2();
         }
     });
     $self->on(send_message=>sub{
@@ -96,7 +96,7 @@ sub ready{
     my $plugins = $self->plugins;
     for(
         sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
-        grep {$plugins->{$_}{auto_call} == 1} keys %{$plugins}
+        grep {defined $plugins->{$_}{auto_call} and $plugins->{$_}{auto_call} == 1} keys %{$plugins}
     ){
         $self->call($_);
     }
@@ -144,7 +144,7 @@ sub login {
     my %p = @_;
     $self->qq($p{qq}) if defined $p{qq};
     $self->pwd($p{pwd}) if defined $p{pwd};
-    my $delay = defined $p{delay}?$p{delay}:1;
+    my $delay = defined $p{delay}?$p{delay}:0;
     if($self->is_first_login == -1){
         $self->is_first_login(1);
     }
@@ -228,10 +228,10 @@ sub login {
 sub mail{
     my $self  = shift;
     my $callback ;
-    my $is_blocking = 0;
+    my $is_blocking = 1;
     if(ref $_[-1] eq "CODE"){
         $callback = pop;
-        $is_blocking = 1; 
+        $is_blocking = 0;
     }
     my %opt = @_;
     #smtp
@@ -256,13 +256,8 @@ sub mail{
         return;
     }
     my $smtp = Mojo::SMTP::Client->new(
-        ioloop  => $self->ioloop,
         address => $opt{smtp},
         port    => $opt{port} || 25,
-        tls     => $opt{tls}||"",
-        tls_ca  => $opt{tls_ca}||"",
-        tls_cert=> $opt{tls_cert}||"",
-        tls_key => $opt{tls_key}||"",
         autodie => $is_blocking,
     ); 
     unless(defined $smtp){

@@ -1,6 +1,6 @@
 sub Mojo::Webqq::Client::_get_vfwebqq {
     my $self = shift;
-    $self->info("设置登录验证参数...\n");
+    $self->info("获取数据验证参数...\n");
     my $api_url = 'http://s.web2.qq.com/api/getvfwebqq';
     my @query_string = (
         ptwebqq    =>  $self->ptwebqq,
@@ -16,7 +16,7 @@ sub Mojo::Webqq::Client::_get_vfwebqq {
     my $json = $self->http_get($self->gen_url($api_url,@query_string),$headers);
     return undef unless defined $json;
     if($json->{retcode}!=0){
-        $self->error("获取登录验证参数失败...\n");
+        $self->error("获取数据验证参数失败...\n");
         return 0;
     }
     $self->vfwebqq($json->{result}{vfwebqq});

@@ -73,11 +73,11 @@ sub call{
                 exit_cb => sub {
                     my($pid,$res)=@_;
                     my $content;
-                    $stderr_buf =~s/(?<=at )\(eval .+?\)(?= line)/CODE/g;
-                    $stderr_buf.= "(执行超时)" if $res->{stderr}=~/\Q;Execution timeout.\E$/;
+                    $stderr_buf =~s/(?<=at )\(eval .+?\)(?= line)/CODE/g if defined $stderr_buf;
+                    $stderr_buf.= "(执行超时)" if $res->{is_timeout};
                     eval{
-                        $stderr_buf = Term::ANSIColor::colorstrip($stderr_buf);
-                        $stdout_buf = Term::ANSIColor::colorstrip($stdout_buf);
+                        $stderr_buf = Term::ANSIColor::colorstrip($stderr_buf) if defined $stderr_buf;
+                        $stdout_buf = Term::ANSIColor::colorstrip($stdout_buf) if defined $stdout_buf;
                     };  
                     if(defined $stdout_buf and $stderr_buf){
                         if($stdout_buf=~/\n$/){$content = $stdout_buf.$stderr_buf}

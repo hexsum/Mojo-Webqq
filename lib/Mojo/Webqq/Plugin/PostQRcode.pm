@@ -1,5 +1,6 @@
 package Mojo::Webqq::Plugin::PostQRcode;
 our $PRIORITY = 0;
+our $CALL_ON_LOAD = 1;
 use MIME::Base64;
 BEGIN{
     our $has_mime_lite = 0;

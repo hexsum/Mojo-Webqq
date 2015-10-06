@@ -366,6 +366,11 @@ sub parse_receive_msg {
                     content     => $m->{value}{content},
                     sender_id   => $m->{value}{send_uin},
                 };
+                #if(     $msg->{content}=~/\(\d+\) 被管理员禁言\d+(分钟|小时|天)$/ 
+                #    or  $msg->{content}=~/\(\d+\) 被管理员解除禁言$/
+                #){
+                #    $msg->{type} = "system_message";
+                #}
                 $self->msg_put($msg);
             }
 
@@ -443,7 +448,7 @@ sub parse_receive_msg {
                             msg_id      => $m->{value}{msg_id},
                             group_id    => $m->{value}{from_uin},
                             msg_time    => time,
-                            content     => [[],decode("utf8","共享文件 \"$info{file}\"")],
+                            content     => [[],decode("utf8","共享文件 [$info{file}]")],
                             sender_id   => $m->{value}{send_uin},
                             
                         };
@@ -505,72 +510,72 @@ sub parse_receive_msg {
 sub msg_put{   
     my $self = shift;
     my $msg = shift;
-    $msg->{raw_content} = [];
-    my $msg_content;
-    shift @{ $msg->{content} };
-    for my $c (@{ $msg->{content} }){
-        if(ref $c eq 'ARRAY'){
-            if($c->[0] eq 'cface'){
-                push @{$msg->{raw_content}},{
-                    type    =>  'cface',
-                    content =>  '[图片]',
-                    name    =>  $c->[1]{name},
-                    file_id =>  $c->[1]{file_id},
-                    key     =>  $c->[1]{key},
-                    server  =>  $c->[1]{server},
-                };
-                $c="[图片]";
+    if(     $msg->{type} eq "message" 
+        or  $msg->{type} eq "group_message" 
+        or  $msg->{type} eq "sess_message" 
+        or  $msg->{type} eq "discuss_message"
+    ){
+        $msg->{raw_content} = [];
+        my $msg_content;
+        shift @{ $msg->{content} };
+        for my $c (@{ $msg->{content} }){
+            if(ref $c eq 'ARRAY'){
+                if($c->[0] eq 'cface'){
+                    push @{$msg->{raw_content}},{
+                        type    =>  'cface',
+                        content =>  '[图片]',
+                        name    =>  $c->[1]{name},
+                        file_id =>  $c->[1]{file_id},
+                        key     =>  $c->[1]{key},
+                        server  =>  $c->[1]{server},
+                    };
+                    $c="[图片]";
+                }
+                elsif($c->[0] eq 'offpic'){
+                    push @{$msg->{raw_content}},{
+                        type        =>  'offpic',
+                        content     =>  '[图片]',
+                        file_path   =>  $c->[1]{file_path},
+                    };
+                    $c="[图片]";
+                }
+                elsif($c->[0] eq 'face'){
+                    push @{$msg->{raw_content}},{
+                        type    =>  'face',
+                        content =>  $self->face_to_txt($c),
+                        id      =>  $c->[1],
+                    }; 
+                    $c=$self->face_to_txt($c);
+                }
+                else{
+                    push @{$msg->{raw_content}},{
+                        type    =>  'unknown',
+                        content =>  '[未识别内容]',
+                    };
+                    $c = "[未识别内容]";
+                }
             }
-            elsif($c->[0] eq 'offpic'){
-                push @{$msg->{raw_content}},{
-                    type        =>  'offpic',
-                    content     =>  '[图片]',
-                    file_path   =>  $c->[1]{file_path},
-                };
-                $c="[图片]";
-            }
-            elsif($c->[0] eq 'face'){
-                push @{$msg->{raw_content}},{
-                    type    =>  'face',
-                    content =>  $self->face_to_txt($c),
-                    id      =>  $c->[1],
-                }; 
-                $c=$self->face_to_txt($c);
+            elsif($c eq " "){
+                next;
             }
             else{
-                push @{$msg->{raw_content}},{
-                    type    =>  'unknown',
-                    content =>  '[未识别内容]',
-                };
-                $c = "[未识别内容]";
+                $c=encode("utf8",$c);
+                $c=~s/ $//;   
+                $c=~s/\r|\n/\n/g;
+                my $res = $self->emoji_parse($c);
+                push @{$msg->{raw_content}},@$res;
+                $c = join "",map{$_->{content}} @$res;
+                #push @{$msg->{raw_content}},{
+                #    type    =>  'txt',
+                #    content =>  $c,
+                #};
             }
+            $msg_content .= $c;
         }
-        elsif($c eq " "){
-            next;
-        }
-        else{
-            $c=encode("utf8",$c);
-            $c=~s/ $//;   
-            $c=~s/\r|\n/\n/g;
-            my $res = $self->emoji_parse($c);
-            push @{$msg->{raw_content}},@$res;
-            $c = join "",map{$_->{content}} @$res;
-            #push @{$msg->{raw_content}},{
-            #    type    =>  'txt',
-            #    content =>  $c,
-            #};
-        }
-        $msg_content .= $c;
+        $msg->{content} = $msg_content;
+        #$msg->{$_} = encode("utf8",$msg->{$_} ) for grep {$_ ne 'raw_content'}  keys %$msg;
+        #$msg->{content}=~s/\r|\n/\n/g;
     }
-    $msg->{content} = $msg_content;
-    #将整个hash从unicode转为UTF8编码
-    #$msg->{$_} = encode("utf8",$msg->{$_} ) for grep {$_ ne 'raw_content'}  keys %$msg;
-    #$msg->{content}=~s/\r|\n/\n/g;
-    if($msg->{content}=~/\(\d+\) 被管理员禁言\d+(分钟|小时|天)$/ or $msg->{content}=~/\(\d+\) 被管理员解除禁言$/){
-        $msg->{type} = "system_message";
-    }
-
-
     if($msg->{type} eq "message"){
         my $sender = $self->search_friend(id=>$msg->{sender_id});
         my $receiver = $self->user;

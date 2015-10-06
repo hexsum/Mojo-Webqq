@@ -1,5 +1,6 @@
 package Mojo::Webqq::Plugin::PostImgVerifycode;
-$Mojo::Webqq::Plugin::PostImgVerifycode::PRIORITY = 0;
+our $PRIORITY = 0;
+our $CALL_ON_LOAD = 1;
 use MIME::Base64;
 BEGIN{
     our $has_mime_lite = 0;

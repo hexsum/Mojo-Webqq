@@ -29,8 +29,15 @@ sub load {
         $self->plugins->{$module}{name} = $module;
         $self->plugins->{$module}{data} = $opt{data};
         $self->plugins->{$module}{priority} = $opt{priority} || eval "\$${module}::PRIORITY" ||  0;
-        $self->plugins->{$module}{auto_call} = $opt{auto_call} || eval "\$${module}::AUTO_CALL" || 1 ;
-        $self->emit("plugin_load",$module);
+        $self->plugins->{$module}{call_on_load} = $opt{call_on_load} || eval "\$${module}::CALL_ON_LOAD" ||  0;
+        if($self->plugins->{$module}{call_on_load}){
+            $self->emit("plugin_load",$module);
+            $self->call($module);
+        }
+        else{
+            $self->plugins->{$module}{auto_call} = $opt{auto_call} || eval "\$${module}::AUTO_CALL" || 1 ;
+            $self->emit("plugin_load",$module);
+        }
     }
 }
 
