@@ -327,6 +327,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     faces           #返回消息中的表情内容
     images          #获取到消息中图片内容后执行指定回调，适合对具体某个消息进行图片处理
                     #参考 receive_pic 事件，可以设置全局接收图片的处理回调
+    reply           #对消息进行回复
+                    #如果msg_class为recv，相当于发送内容给消息发送者，如果msg_class为send，相当于发送内容给消息的接收者
 
     示例代码:
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
@@ -336,6 +338,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $json_text = encode_json($json); #将hash转换为json字符串
 
     $msg->dump();
+    $msg->reply("hello world");
 
     $msg->is_at();          #判断发送或接收的消息中是否有艾特自己
     $msg->is_at($member);   #判断发送或接收的消息中是否有艾特某个成员

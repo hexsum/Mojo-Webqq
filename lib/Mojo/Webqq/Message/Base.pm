@@ -112,4 +112,9 @@ sub images {
     }
 }
 
+sub reply {
+    my $self = shift;
+    $self->{_client}->reply_message($self,@_);
+}
+
 1;

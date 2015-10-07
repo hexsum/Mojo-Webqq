@@ -36,7 +36,7 @@ $client->load("ShowMsg");
 $client->on(receive_message=>sub{
     my ($client,$msg)=@_;
     #已以相同内容回复接收到的消息
-    $client->reply_message($msg,$msg->content);
+    $msg->reply($msg->content);
     #你也可以使用$msg->dump() 来打印消息结构
 });
 
