@@ -337,7 +337,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $json_text = encode_json($json); #将hash转换为json字符串
 
     $msg->dump();
-    $msg->reply("hello world");
+    $msg->reply("hello world"); #比$client->reply_message($msg,"hello world")更简洁
 
     $msg->is_at();          #判断发送或接收的消息中是否有艾特自己
     $msg->is_at($member);   #判断发送或接收的消息中是否有艾特某个成员

@@ -48,8 +48,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     #设置接收消息事件的回调函数，在回调函数中对消息以相同内容进行回复
     $client->on(receive_message=>sub{
         my ($client,$msg)=@_;
-        #已以相同内容回复接收到的消息
-        $client->reply_message($msg,$msg->content);
+        $msg->reply($msg->content); #已以相同内容回复接收到的消息
         #你也可以使用$msg->dump() 来打印消息结构
     });
 
@@ -338,7 +337,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $json_text = encode_json($json); #将hash转换为json字符串
 
     $msg->dump();
-    $msg->reply("hello world");
+    $msg->reply("hello world"); #比$client->reply_message($msg,"hello world")更简洁
 
     $msg->is_at();          #判断发送或接收的消息中是否有艾特自己
     $msg->is_at($member);   #判断发送或接收的消息中是否有艾特某个成员
