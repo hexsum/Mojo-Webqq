@@ -1,3 +1,14 @@
+2015-10-07 Mojo::Webqq v1.5.3
+1）插件增加call_on_load参数，若设置为1会在load完成之后马上执行call，相当于阻塞加载并执行插件
+2）删除README.md中的Webqq::Encryption依赖
+3）login方法默认变为阻塞执行，即delay参数默认为0，因为这样才是一般人最为习惯的理解，带来不便请谅解
+4）PostQRcodee/PostImgVerifycode插件默认call_on_load=>1
+5）修复接收消息中存在N久的大bug，没有判断消息类型就统一做处理导致消息结构异常
+6）修复代码在开启warning时产生的部分报警信息
+7）尝试在多次无法获取到好友、群、讨论组等数据时进行快速恢复登录，该功能还处于测试中
+8）完善发送邮件方法->mail() 支持的参数
+9）增加$msg->reply()方法，比原先的$client->reply_message()更简洁
+
 2015-10-03 Mojo::Webqq v1.5.2
 1）修复二维码登录报"实际登录帐号和程序预设帐号不一致"的严重bug
 2）修复重新链接成功后设置cookie名称错误的bug
