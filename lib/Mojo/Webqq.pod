@@ -1236,7 +1236,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到login()方法执行过程中触发的input_qrcode事件，因此需要在login()执行之前加载并执行插件
+    #插件需要使用到login()方法执行过程中触发的input_qrcode事件，因此需要在login()执行之前加载
+    #插件自身设置了call_on_load=>1，因此会在加载后马上执行
     $client->load("PostQRcode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
@@ -1261,7 +1262,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到login()方法执行过程中触发的input_img_verifycode事件，因此需要在login()执行之前加载并执行插件
+    #插件需要使用到login()方法执行过程中触发的input_img_verifycode事件，因此需要在login()执行之前加载
+    #插件自身设置了call_on_load=>1，因此会在加载后马上执行
     $client->load("PostImgVerifycode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
