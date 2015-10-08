@@ -7,7 +7,7 @@ sub Mojo::Webqq::Client::_recv_message{
         #分析接收到的消息，并把分析后的消息放到接收消息队列中
         $self->parse_receive_msg($json) if defined $json;
         #重新开始接收消息
-        $self->_recv_message();
+        $self->emit("poll_over");
     };
 
     my %r = (
