@@ -1,3 +1,7 @@
+2015-10-08 Mojo::Webqq v1.5.4
+1）修复$client->spawn 无法继承客户端的日志级别设定的bug 感谢Ljk的反馈
+2）修复Openqq插件无法执行报错的bug 感谢 hzz1989 的反馈
+
 2015-10-07 Mojo::Webqq v1.5.3
 1）插件增加call_on_load参数，若设置为1会在load完成之后马上执行call，相当于阻塞加载并执行插件
 2）删除README.md中的Webqq::Encryption依赖
