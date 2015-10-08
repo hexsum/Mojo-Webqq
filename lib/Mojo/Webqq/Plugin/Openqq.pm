@@ -12,7 +12,7 @@ sub call{
         $client->on(receive_message=>sub{
             my($client,$msg) = @_;
             return if $msg->type !~ /^message|group_message|discuss_message|sess_message$/;
-            $client->http_post($post_api,json=>$msg->to_json,sub{
+            $client->http_post($post_api,json=>$msg->to_json_hash,sub{
                 my($data,$ua,$tx) = @_;
                 if($tx->success){
                     $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->msg_id."]上报成功");
@@ -42,11 +42,11 @@ sub call{
         }
         else{return 1} 
     };
-    get '/openqq/get_user_info'     => sub {$_[0]->render(json=>$client->user->to_hash());};
-    get '/openqq/get_friend_info'   => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->friend}]); };
-    get '/openqq/get_group_info'    => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->group}]); };
-    get '/openqq/get_discuss_info'  => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->discuss}]); };
-    get '/openqq/get_recent_info'   => sub {$_[0]->render(json=>[map {$_->to_hash()} @{$client->recent}]);};
+    get '/openqq/get_user_info'     => sub {$_[0]->render(json=>$client->user->to_json_hash());};
+    get '/openqq/get_friend_info'   => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->friend}]); };
+    get '/openqq/get_group_info'    => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->group}]); };
+    get '/openqq/get_discuss_info'  => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->discuss}]); };
+    get '/openqq/get_recent_info'   => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->recent}]);};
     any [qw(GET POST)] => '/openqq/send_message'         => sub{
         my $c = shift;
         my($id,$qq,$content)=($c->param("id"),$c->param("qq"),$c->param("content"));

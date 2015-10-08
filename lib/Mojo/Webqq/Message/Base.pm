@@ -50,10 +50,11 @@ sub is_at{
     return $self->content =~/\@\Q$displayname\E /; 
 }
 
-sub to_json{
+sub to_json_hash{
     my $self = shift;
     my $json = {};
     for my $key (keys %$self){
+        next if substr($key,0,1) eq "_";
         if($key eq "sender"){
             $json->{sender} = decode_utf8($self->sender->displayname);
         }

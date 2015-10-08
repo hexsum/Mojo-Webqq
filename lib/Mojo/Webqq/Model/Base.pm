@@ -1,21 +1,20 @@
 package Mojo::Webqq::Model::Base;
 use Scalar::Util qw(blessed);
 use Data::Dumper;
-sub to_hash{
+use Encode qw(decode_utf8);
+sub to_json_hash{
     my $self = shift;   
     my $hash = {};
     for(keys %$self){
         next if substr($_,0,1) eq "_";
         next if $_ eq "member";
-        $hash->{$_} = $self->{$_};
+        $hash->{$_} = decode_utf8($self->{$_});
     }
-    $self->reform_hash($hash,1);
     if(exists $self->{member}){
         $hash->{member} = [];
         if(ref $self->{member} eq "ARRAY"){
             for my $m(@{$self->{member}}){
-                my $member_hash = $m->to_hash();
-                $self->reform_hash($member_hash,1);
+                my $member_hash = $m->to_json_hash();
                 push @{$hash->{member}},$member_hash;
             }
         }

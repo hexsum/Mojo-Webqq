@@ -320,7 +320,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     方法：
     dump            #打印消息结构，主要用于调试
-    to_json         #将消息转换为json兼容的hash，方便和外部系统交互
+    to_json_hash    #将消息转换为json兼容的hash，方便和外部系统交互
                     #常见的接收和发送消息都支持该方法，下文不再赘述
     is_at           #消息是否艾特某人，常见的接收和发送消息都支持该方法，下文不再赘述
     faces           #返回消息中的表情内容
@@ -333,8 +333,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $msg->sender->nick; #从接收到的好友消息中 获取好友的昵称 更多好友相关的属性，参考Mojo::Webqq::Friend
 
     use Mojo::JSON qw(encode_json);
-    my $json_hash = $msg->to_json();    #获取到经过utf8 decode的hash引用
-    my $json_text = encode_json($json); #将hash转换为json字符串
+    my $json_hash = $msg->to_json_hash();    #获取到经过utf8 decode的hash引用
+    my $json_text = encode_json($json_hash); #将hash转换为json字符串
 
     $msg->dump();
     $msg->reply("hello world"); #比$client->reply_message($msg,"hello world")更简洁
