@@ -493,14 +493,13 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     security        #设置该参数，将使得发送和接收消息使用https加密
     state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
     ua_debug        #设置该参数，打印调试信息
+    keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
+
     log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path        #默认客户端输出内容打印到STDERR 设置该参数可以将客户端输出重定向到文件
     log_encoding    #输出日志的编码，默认自动检测，如果出现乱码可以尝试手动设置一下输出编码
                     #编码必须是 Encode 模块支持的格式，比如utf8 gbk等
     max_recent      #保存的最近联系人个数，默认20
-    
-    ioloop          #客户端使用的事件驱动，默认是Mojo::IOLoop->singleton 如果你不清楚这是什么可以不用理会
-    keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
 
     login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"qrlogin"
     encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
@@ -567,16 +566,9 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
 =head2 ready() 只准备不运行
 
-当你想要同时运行多个qq帐号或者当你想要自己基于L<Mojo::IOLoop>事件驱动的代码中调用该模块时
+当你想要同时运行多个qq帐号 $client->run()会阻塞你的代码，导致无法同时使用多个帐号
 
-$client->run()会阻塞你的代码，导致无法同时使用多个帐号或使你其他的代码无法执行
-
-这种情况下，你应该放弃使用$client->run() 而是使用自己的事件驱动来驱动L<Mojo::Webqq>，你会需要ready()方法
-
-    $other_ioloop = Mojo::IOLoop->new;
-    $webqq_client = Mojo::Webqq->new(ioloop=>$other_ioloop);
-    $webqq_client->ready(); #不是 $webqq_client->run();
-    $other_ioloop->start;   #启动你自己的事件循环
+这种情况下，你应该放弃使用$client->run() 你会需要ready()方法
 
     #同时登录多个qq帐号
     my $client1 = Mojo::Webqq->new(qq=>xxx1);

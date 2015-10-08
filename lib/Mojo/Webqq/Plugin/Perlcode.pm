@@ -1,19 +1,17 @@
 package Mojo::Webqq::Plugin::Perlcode;
-$Mojo::Webqq::Plugin::Perlcode::PRIORITY = 97;
+our $PRIORITY = 97;
 use File::Temp qw/tempfile/;
 use File::Path qw/mkpath rmtree/;
 use POSIX qw(strftime);
+use Term::ANSIColor;
 BEGIN{
     eval{require BSD::Resource};
-    $Mojo::Webqq::Plugin::Perlcode::is_hold_bsd_resource = 1 unless $@; 
+    our $is_hold_bsd_resource = 1 unless $@; 
 }
-use Mojo::Webqq::Run;
-use Term::ANSIColor;
-my $run = Mojo::Webqq::Run->new;
 sub call{
     my $client = shift;
     $client->die(__PACKAGE__ . "只能运行在linux系统上") if $^O !~ /linux/; 
-    $client->die(__PACKAGE__ . "依赖BSD::Resource模块，请先安装该模块") if !$Mojo::Webqq::Plugin::Perlcode::is_hold_bsd_resource; 
+    $client->die(__PACKAGE__ . "依赖BSD::Resource模块，请先安装该模块") if !$is_hold_bsd_resource; 
     my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
@@ -36,10 +34,8 @@ sub call{
                 $code = $copy;
             }
             $code = q#package Mojo::Webqq::Plugin::Perlcode::Sandbox;use feature qw(say);local $|=1;BEGIN{use File::Path;use BSD::Resource;setrlimit(RLIMIT_NOFILE,100,100);setrlimit(RLIMIT_CPU,8,8);setrlimit(RLIMIT_FSIZE,1024,1024);setrlimit(RLIMIT_NPROC,5,5);setrlimit(RLIMIT_STACK,1024*1024*10,1024*1024*10);setrlimit(RLIMIT_DATA,1024*1024*10,1024*1024*10);*CORE::GLOBAL::fork=sub{};}$|=1;{my($u,$g)=((getpwnam("nobody"))[2],(getgrnam("nobody"))[2]);mkpath('/tmp/webqq/bin/',{owner=>$u,group=>$g,mode=>0555}) unless -e '/tmp/webqq/bin';chdir '/tmp/webqq/bin' or die $!;chroot '/tmp/webqq/bin' or die "chroot fail: $!";chdir "/";($(, $))=($g,"$g $g");($<,$>)=($u,$u);}local %ENV=();# .  $code;
-            #my $run = Mojo::Webqq::Run->new;
-            $run->log($client->log);
             my ($stdout_buf,$stderr_buf,$is_stdout_cut,$is_stderr_cut);
-            $run->spawn(
+            $client->spawn(
                 cmd          =>sub{eval $code;print STDERR $@ if $@;},
                 exec_timeout => 3,
                 stdout_cb => sub {
@@ -64,7 +60,7 @@ sub call{
                         $stderr_buf  = join "\n",(split /\r?\n/,$stderr_buf,11)[0..9];
                         $stderr_buf .= "(已截断)";
                     }
-                    elsif(length($stderr_buf) > 500){
+                    elsif(length($stderr_buf) > 200){
                         $run->kill($pid);
                         $stderr_buf = substr($stderr_buf,0,500);
                         $stderr_buf .= "(已截断)";
@@ -88,7 +84,6 @@ sub call{
                     $client->reply_message($msg,$content);
                 },
             );  
-            #$run->start;
         }    
     }; 
     $client->on(receive_message=>$callback);

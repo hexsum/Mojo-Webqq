@@ -65,6 +65,7 @@ sub _http_request{
             }
             elsif(defined $tx){
                 $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . $tx->error->{message});
+                next;
             }
         }
         $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $tx->error->{message}) if defined $tx;

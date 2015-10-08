@@ -1,8 +1,7 @@
 package Mojo::Webqq::Plugin::Perldoc;
-$Mojo::Webqq::Plugin::Perldoc::PRIORITY = 96;
+our $PRIORITY = 96;
 use Pod::Perldoc;
 use Term::ANSIColor;
-use Mojo::Webqq::Run;
 use Mojo::Webqq::Cache;
 my $metacpan_module_api = 'http://api.metacpan.org/v0/module/';
 my $metacpan_pod_api = 'http://api.metacpan.org/v0/pod/';
@@ -17,9 +16,7 @@ sub call{
             $msg->allow_plugin(0);
             return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my($p,$v) = ("-$1",$2);
-            my $run = Mojo::Webqq::Run->new;
-            $run->log($client->log);
-            $run->spawn(
+            $client->spawn(
                 cmd  =>sub{
                     local @ARGV=($p,$v);
                     require 5;
@@ -43,7 +40,6 @@ sub call{
                     $client->reply_message($msg,$reply) if $reply;
                 },
             );
-            #$run->start;
         }
         elsif($msg->content =~ /perldoc\s+((\w+::)*\w+)/){
             $msg->allow_plugin(0);
@@ -59,7 +55,7 @@ sub call{
                 return unless defined $json;
                 my $doc;
                 my $code;
-                if($json->{code} == 404){
+                if(defined $json->{code} and $json->{code} == 404){
                     $doc = "模块名称: $module ($json->{message})" ;
                     $code = 404; 
                     $metacpan_cache->store($module,{code=>$code,doc=>$doc},604800);

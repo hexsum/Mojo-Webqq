@@ -1,6 +1,5 @@
 package Mojo::Webqq::Run;
 use List::Util qw(first);
-use Mojo::Base;
 use base qw(Mojo::Base);
 sub has { Mojo::Base::attr(__PACKAGE__, @_) }
 
@@ -41,17 +40,18 @@ BEGIN {
         };      
 }
  
-sub new { __PACKAGE__->singleton }
+sub new {my $class = shift; __PACKAGE__->singleton(@_) }
  
 sub singleton {
         return $_obj if defined $_obj;
-        return $_obj = __PACKAGE__->_constructor;
+        my $class = shift;
+        return $_obj = __PACKAGE__->_constructor(@_);
 }
  
 sub _constructor {
         my $proto = shift;
         my $class = ref($proto) || $proto;
-        my $self  = $class->SUPER::new;
+        my $self  = $class->SUPER::new(@_);
  
         bless $self => $class;
          

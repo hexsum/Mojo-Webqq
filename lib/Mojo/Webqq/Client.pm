@@ -330,10 +330,4 @@ sub spawn {
     $run->spawn(%opt);
     $self;
 }
-
-sub cloud_store{
-    my $self = shift;
-    my %opt = @_;
-    
-}
 1;
