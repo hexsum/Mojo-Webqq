@@ -442,7 +442,7 @@ sub parse_receive_msg {
                             }
                         });
                     };
-                    if($info{type} eq 'share-file'){
+                    if(defined $info{type} and $info{type} eq 'share-file'){
                         my $msg = {
                             type        => "group_message",
                             msg_id      => $m->{value}{msg_id},

@@ -11,7 +11,8 @@ sub call{
     my $client = shift;
     my $data   = shift;
     $client->die("插件[". __PACKAGE__ ."]依赖模块 MIME::Lite，请先确认该模块已经正确安装") if not $has_mime_lite;
-    my $max = $data->{max} || 10;
+    $data->{max} =  10 if not defined $data->{max};
+    #$data->{charset} =  "UTF-8" if not defined $data->{charset};
     my $count = 0;
     $client->on(login=>sub{$count = 0});
     $client->on(input_qrcode=>sub{
@@ -21,15 +22,15 @@ sub call{
             $client->stop();
             return 
         }
-        my $subject = $data->{subject} || "QQ帐号 " . $client->qq . " 扫描二维码";
+        $data->{subject} = "QQ帐号 " . $client->qq . " 扫描二维码" if not defined $data->{subject};
         my $mime = MIME::Lite->new(
             Type    => 'multipart/mixed',
             From    => $data->{from},
             To      => $data->{to},
         );
-        $mime->add("Subject"=>"=?UTF-8?B?" . MIME::Base64::encode_base64($subject,"") . "?=");
+        $mime->add("Subject"=>"=?UTF-8?B?" . MIME::Base64::encode_base64($data->{subject},"") . "?=");
         $mime->attach(
-            Type     =>'TEXT',
+            Type     =>"text/plain; charset=UTF-8",
             Data     =>"请使用手机QQ扫描附件中的二维码",
         );
         $mime->attach(
@@ -37,16 +38,8 @@ sub call{
             Disposition => 'attachment',
             Type        => 'image/png',
         );
-        my($is_success,$err) = $client->mail(
-            smtp=>$data->{smtp},
-            port=>$data->{port},
-            user=>$data->{user},
-            pass=>$data->{pass},
-            from=>$data->{from},
-            to  =>$data->{to}, 
-            subject=>$subject,
-            data=>$mime->as_string,
-        );
+        $data->{data} = $mime->as_string if not defined $data->{data};
+        my($is_success,$err) = $client->mail(%$data);
         if(not $is_success){
             $client->error("插件[".__PACKAGE__."]邮件发送失败: $err");
         }   

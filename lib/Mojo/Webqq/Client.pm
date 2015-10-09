@@ -276,8 +276,8 @@ sub mail{
         push @data,("From: $opt{from}","To: $opt{to}");
         push @data,"Cc: $opt{cc}" if defined $opt{cc};
         require MIME::Base64;
-        push @data,"Subject: =?UTF-8?B?" . MIME::Base64::encode_base64($opt{subject},"") . "?=";
         my $charset = defined $opt{charset}?$opt{charset}:"UTF-8";
+        push @data,"Subject: =?$charset?B?" . MIME::Base64::encode_base64($opt{subject},"") . "?=";
         if(defined $opt{text}){
             push @data,("Content-Type: text/plain; charset=$charset",'',$opt{text});
         }
