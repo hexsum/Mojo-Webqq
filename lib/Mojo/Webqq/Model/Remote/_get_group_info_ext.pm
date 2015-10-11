@@ -36,7 +36,7 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
         $member->{join_time} = $_->{join_time};
         $member->{last_speak_time} = $_->{last_speak_time};
         $self->reform_hash($member);
-        push $group->{member},$member;
+        push @{$group->{member}},$member;
     }   
     return $group;
 }
