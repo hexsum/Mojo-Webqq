@@ -1,3 +1,6 @@
+2015-10-11 Mojo::Webqq v1.5.6
+1）修复高版本perl(5.23.x) "Experimental push on scalar is now forbidden" 错误
+
 2015-10-11 Mojo::Webqq v1.5.5
 1）增加poll_over事件，利用事件触发来避免接收消息函数自身嵌套执行可能导致的引用计数递增等内存泄漏问题
 2）PostQRcode现在也支持$client->mail()大部分参数，特别包括tls相关的，修复邮件正文乱码的bug
