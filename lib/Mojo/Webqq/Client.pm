@@ -129,6 +129,8 @@ sub relogin{
     $self->ua->cookie_jar->empty;
     $self->model_update_failure_count(0);
     $self->poll_failure_count(0);
+    $self->csrf_token(undef);
+    $self->model_ext(0);
 
     $self->user(+{});
     $self->friend([]);
@@ -216,7 +218,9 @@ sub login {
             $self->info("帐号(" . $self->qq . ")登录成功\n");
             $self->update_user;
             $self->update_friend;
+            $self->update_friend_ext;
             $self->update_group;
+            $self->update_group_ext;
             $self->update_discuss;
             $self->update_recent;
 

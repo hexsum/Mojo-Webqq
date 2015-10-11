@@ -112,15 +112,6 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     dump
     is_me           #判断对象是否是自己
     
-
-注意基于web的方式没办法批量获取到好友、群成员或讨论组成员的qq号码，只能够使用api实时每次查询单个用户的qq号码
-
-这种情况下，如果程序不注意，会产生较大的http请求，并且获取qq号码的效率也会很低
-
-虽然程序当前对每个用户查询的qq结果会进行缓存，但还是建议避免在程序使用到qq号，尤其是在搜索过程中，比如:
-
-    $client->search_friend(qq=>xxxxx); 会导致遍历好友，使用腾讯的api查询每个好友id对应的qq号
-
 实际想要获取该对象信息时，是通过客户端提供的 user 属性来获取
     
     $client->user       #返回的是一个Mojo::Webqq::User对象
@@ -132,10 +123,10 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     属性：
 
-    qq              #好友的qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
+    qq              #好友的qq号码
     id              #好友的id，仅在本次登录期间唯一，多次登录可能会发生变化，记住 id不是qq号
     type            #固定值"friend"
-    categorie       #好友所属的分组
+    category        #好友所属的分组
     nick            #好友昵称
     markname        #好友备注名称
     displayname     #如果设置了markname 就返回markname 否则返回nick
@@ -173,12 +164,12 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     属性：
 
     gid             #群的id，仅在本次登录期间唯一，多次登录可能会发生变化
-    gtype           #create|attend|manage 分别表示创建的群|加入的群|管理的群,需要安装Webqq::Qun模块,暂未实现
+    gtype           #create|attend|manage 分别表示创建的群|加入的群|管理的群
     type            #固定值"group"
-    gnumber         #群号码 需要安装Webqq::Qun模块,暂未实现
+    gnumber         #群号码
     gname           #群名称
     gmemo           #群说明
-    gcreatetime     #群创建时间 需要安装Webqq::Qun模块,暂未实现
+    gcreatetime     #群创建时间
     glevel          #群等级
     gowner          #群拥有者的id
     gmarkname       #群备注名称
@@ -186,13 +177,18 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     member          #群成员，此属性是一个数组引用，数组中每个元素是一个Mojo::Webqq::Group::Member的对象
 
     方法：
-    search_group_member  #根据群成员属性搜索群，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
-    each_group_member    #在群中遍历所有的群成员
-    members              #返回群成员对象列表  
-    send                 #给群对象发送消息
-    me                   #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
-    is_group             #判断对象是否是一个群
-    dump
+    search_group_member     #根据群成员属性搜索，标量上下文返回第一个群成员对象，列表上下文返回全部，搜索失败返回undef
+    each_group_member       #在群中遍历所有的群成员
+    invite_friend           #邀请好友入群
+    kick_group_member       #踢出群成员
+    set_group_admin         #设置群成员为管理员
+    remove_group_admin      #取消群成员的管理员身份
+    set_group_member_card   #设置群名片
+    members                 #返回群成员对象列表  
+    send                    #给群对象发送消息
+    me                      #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
+    is_group                #判断对象是否是一个群
+    dump                    #打印群对象结构，方便调试
 
     示例代码：
     my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
@@ -207,8 +203,30 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         ...;
     }
 
-    $group->me->displayname #获取自己在群中的显示名称
-    
+    #获取自己在群中的显示名称
+    $group->me->displayname 
+
+    #邀请好友加入群，
+    $group->invite_friend( $friend1 [,$friend2,...] ); 
+
+    #踢出群成员，需要管理员权限
+    $group->kick_group_member($member1 [,$member2,...]);
+
+    #设置指定成员为管理员，需要群主身份
+    $group->set_group_admin($member1 [,$member2,...]);
+
+    #取消指定成员的管理员身份，需要群主身份
+    $group->remove_group_admin($member1 [,$member2,...]);
+
+    #设置自己的群名片
+    $group->set_group_member_card($group->me, $card);
+    $group->me->set_card($card);
+
+    #取消群名片
+    $group->me->set_card(undef);
+
+    #设置群成员的群名片，需要管理员权限
+    $group->set_group_member_card($member,$card); 
 
 =head2 Mojo::Webqq::Group::Member 群成员
 
@@ -226,15 +244,15 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     state           #状态
     client_type     #客户端类型
     qq              #qq号码，当前获取qq号第一次都需要实时调用api获取，效率较低，应避免使用
-    qage            #q龄 需要安装Webqq::Qun模块,暂未实现
+    qage            #q龄
     join_time       #入群时间
     last_speak_time #最后发言时间
-    level           ##等级 灌水|传说|潜水 等, 需要安装Webqq::Qun模块,暂未实现
-    role            #角色 admin|owner|member, 需要安装Webqq::Qun模块,暂未实现
-    bad_record      #是否包含不良记录 0|1,需要安装Webqq::Qun模块,暂未实现
+    level           #等级 灌水|传说|潜水 等
+    role            #角色 admin|owner|member
+    bad_record      #是否包含不良记录 0|1
     gid             #所在群的id
-    gtype           #所在群的类型,  需要安装Webqq::Qun模块,暂未实现
-    gnumber         #所在群的群号码, 需要安装Webqq::Qun模块,暂未实现
+    gtype           #所在群的类型
+    gnumber         #所在群的群号码
     gname           #所在群的名称
     gmemo           #所在群的说明
     gcreatetime     #所在群的创建时间
@@ -247,6 +265,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     dump
     is_me           #判断对象是否是群中的自己
     is_group_member #判断是否是一个群对象
+    set_card        #设置群名片，设置其他群成员需要管理员权限
+    group           #获取成员所属的群对象
 
 =head2 Mojo::Webqq::Discuss 讨论组
 
@@ -290,6 +310,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     dump
     is_me                   #判断是否是讨论组中的自己
     is_discuss_member
+    discuss                 #获取成员所属的讨论组对象
 
 =head1 消息类型
 
@@ -1368,16 +1389,17 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
     /openqq/get_recent_info         #查询最近联系人列表信息
     
     #消息发送，均支持GET和POST
-    /openqq/send_message            #发送好友消息 参数id=xxx&content=xxx 
-    /openqq/send_group_message      #发送群消息   参数gid=xxx&content=xxx
+    /openqq/send_message            #发送好友消息 参数id=xxx&content=xxx 或 qq=xxx&content=xxx
+    /openqq/send_group_message      #发送群消息   参数gid=xxx&content=xxx 或 gnumber=xxx&content=xxx
     /openqq/send_discuss_message    #发送讨论组消息 参数did=xxx&content=xxx （由于腾讯限制，当前无法成功发送）
-    /openqq/send_sess_message       #发送群临时消息  参数 gid=xxx&id=xxx&content=xxx
-    /openqq/send_sess_message       #发送讨论组临时消息 参数 did=xxx&id=xxx&content=xxx
+    /openqq/send_sess_message       #发送群临时消息  参数 gid=xxx&id=xxx&content=xxx 或 gnumber=xxx&qq=xxx&content=xxx
+    /openqq/send_sess_message       #发送讨论组临时消息 参数 did=xxx&id=xxx&content=xxx 或 did=xxx&qq=xxx&content=xxx
 
 调用示例
 
     http://127.0.0.1:5000/openqq/get_user_info
-    http://127.0.0.1:5000/openqq/send_message?id=xxx&content=hello (中文需要utf8编码，且需要做urlencode)
+    http://127.0.0.1:5000/openqq/send_message?id=xxx&content=hello 
+    http://127.0.0.1:5000/openqq/send_message?id=xxx&content=%e4%bd%a0%e5%a5%bd (中文需要utf8编码并进行urlencode)
 
 =head1 SEE ALSO
 

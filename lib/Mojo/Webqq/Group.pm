@@ -113,4 +113,30 @@ sub me {
     my $self = shift;
     $self->search_group_member(id=>$self->{_client}->user->id);
 }
+sub invite_friend{
+    my $self = shift;
+    my @friends = @_;
+    return $self->{_client}->invite_friend($self,@friends);
+}
+sub kick_group_member{
+    my $self = shift;
+    my @members = @_;
+    return $self->{_client}->kick_group_member($self,@members);
+}
+sub set_group_admin{
+    my $self = shift;
+    my @members = @_;
+    return $self->{_client}->set_group_admin($self,@members);
+}
+sub remove_group_admin{
+    my $self = shift;
+    my @members = @_;
+    return $self->{_client}->remove_group_admin($self,@members);
+}
+sub set_group_member_card{
+    my $self = shift;
+    my $member = shift;
+    my $card = shift;
+    return $self->{_client}->set_group_member_card($self,$member,$card);
+}
 1;

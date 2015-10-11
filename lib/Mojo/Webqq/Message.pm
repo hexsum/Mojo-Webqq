@@ -586,7 +586,7 @@ sub msg_put{
                 $sender = $self->new_friend(
                     id          =>  $msg->{sender_id},
                     nick        =>  "昵称未知",
-                    categorie   =>  "陌生人",
+                    category    =>  "陌生人",
                 );
                 $self->add_friend($sender,1);
             }

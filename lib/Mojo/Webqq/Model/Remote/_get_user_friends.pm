@@ -44,7 +44,7 @@ sub Mojo::Webqq::Model::_get_user_friends{
             $_->{state} = 'offline';
             $_->{client_type} = 'unknown';
         }
-        $_->{categorie} = $categories{$_->{categories}}{name};
+        $_->{category} = $categories{$_->{categories}}{name};
         $_->{nick}  = $info{$uin}{nick};
         $_->{face} = $info{$uin}{face};
         $_->{markname} = $marknames{$uin}{markname};

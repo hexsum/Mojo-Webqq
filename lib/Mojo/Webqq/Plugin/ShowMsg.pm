@@ -8,10 +8,10 @@ sub call{
             my($client,$msg)=@_; 
             if($msg->type eq 'message'){
                 my $sender_nick = $msg->sender->displayname;
-                my $sender_categorie = $msg->sender->categorie || "好友";
+                my $sender_category = $msg->sender->category || "好友";
                 #my $receiver_nick = $msg->receiver->nick;
                 my $receiver_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick|$sender_categorie :"},$msg->content);
+                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick|$sender_category :"},$msg->content);
                 
             }
             elsif($msg->type eq 'group_message'){

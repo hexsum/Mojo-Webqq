@@ -28,36 +28,6 @@ sub encode_json{
         return $r;
     }
 }
-sub hash {
-    my $self = shift;
-    my $ptwebqq = shift;
-    my $uin = shift;
-
-    $uin .= "";
-    my @N;
-    for(my $T =0;$T<length($ptwebqq);$T++){
-        $N[$T % 4] ^= ord(substr($ptwebqq,$T,1));
-    }
-    my @U = ("EC", "OK");
-    my @V;
-    $V[0] =  $uin >> 24 & 255 ^ ord(substr($U[0],0,1));
-    $V[1] =  $uin >> 16 & 255 ^ ord(substr($U[0],1,1));
-    $V[2] =  $uin >> 8  & 255 ^ ord(substr($U[1],0,1));
-    $V[3] =  $uin       & 255 ^ ord(substr($U[1],1,1));
-    @U = ();
-    for(my $T=0;$T<8;$T++){
-        $U[$T] = $T%2==0?$N[$T>>1]:$V[$T>>1]; 
-    }
-    @N = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F");
-    my $V = "";
-    for($T=0;$T<@U;$T++){
-        $V .= $N[$U[$T] >> 4 & 15];
-        $V .= $N[$U[$T] & 15];
-    }
-
-    return $V;
-            
-}
 
 sub truncate {
     my $self = shift;
@@ -147,6 +117,26 @@ sub array_diff{
     return $added,$deleted,[values %$same]; 
 }
 
+sub array_unique {
+    my $self = shift;
+    my $diff = pop;
+    my $array = shift;
+    my @result;
+    my %info;
+    my %tmp;
+    for(@$array){
+        my $id = $diff->($_);
+        $tmp{$id}++;
+    }
+    for(@$array){
+        my $id = $diff->($_);
+        next if not exists $tmp{$id} ;
+        next if $tmp{$id}>1;
+        push @result,$_;
+        $info{$id} = $_ if wantarray;
+    }
+    return wantarray?(\@result,\%info):\@result;
+}
 sub die{
     my $self = shift; 
     local $SIG{__DIE__} = sub{$self->log->fatal(@_);exit -1};

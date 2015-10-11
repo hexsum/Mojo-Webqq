@@ -126,6 +126,8 @@ has g_daid                 => 164;
 has g_appid                => 1003903;
 has g_pt_version           => 10092;
 has rc                     => 1;
+has csrf_token             => undef;
+has model_ext              => 0;
 
 sub new {
     my $class = shift;

@@ -5,7 +5,8 @@ sub has { Mojo::Base::attr(__PACKAGE__, @_) }
 has [qw(
     flag
     id
-    categorie
+    qq
+    category
     nick
     face
     markname    
@@ -21,6 +22,7 @@ has displayname => sub{
 };
 has qq => sub{
     my $self = shift;
+    return $self->{qq} if defined $self->{qq};
     return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
 };
 sub update{

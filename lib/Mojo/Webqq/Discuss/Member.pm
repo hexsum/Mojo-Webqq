@@ -37,4 +37,10 @@ sub send {
     my $self = shift;
     $self->{_client}->send_sess_message($self,@_);
 } 
+
+sub discuss {
+    my $self = shift;
+    return scalar $self->{_client}->search_discuss(did=>$self->did);
+}
+
 1;

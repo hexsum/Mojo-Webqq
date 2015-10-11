@@ -52,5 +52,14 @@ sub send {
     my $self = shift;
     $self->{_client}->send_sess_message($self,@_);
 } 
+sub set_card {
+    my $self = shift;
+    my $card = shift;
+    $self->group->set_group_member_card($self,$card);
+}
+sub group {
+    my $self = shift;
+    return scalar $self->{_client}->search_group(gid=>$self->gid);
+}
 1;
 
