@@ -135,7 +135,7 @@ sub update_user {
     my $user_info = $self->_get_user_info();
     unless ( defined $user_info ) {
         $self->warn("更新个人信息失败\n");
-        $self->emit("model_update_fail");
+        $self->emit("model_update_fail_once");
         return;
     }       
     $self->user($self->new_user($user_info));
@@ -190,7 +190,7 @@ sub update_friend {
         $self->info("更新好友 [ " . $friend->nick .  " ] 信息...\n");
         my $friend_info = $self->_get_friend_info($friend->id);  
         if(defined $friend_info){$friend->update($friend_info);}
-        else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");$self->emit("model_update_fail");}
+        else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");$self->emit("model_update_fail_once");}
         return $self;
     }
     my @friends;
@@ -209,7 +209,7 @@ sub update_friend {
             $self->friend(\@friends);
         }
     }
-    else{$self->warn("更新好友信息失败\n");$self->emit("model_update_fail");}
+    else{$self->warn("更新好友信息失败\n");$self->emit("model_update_fail_once");}
 }
 sub search_friend {
     my $self = shift;
@@ -303,7 +303,7 @@ sub update_group {
         }
         else{
             $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
-            #$self->emit("model_update_fail");
+            #$self->emit("model_update_fail_once");
         }
         return $self;
     }
@@ -312,7 +312,7 @@ sub update_group {
     my $group_list = $self->_get_group_list_info(); 
     unless(defined $group_list){
         $self->warn("更新群列表信息失败\n");
-        $self->emit("model_update_fail");
+        $self->emit("model_update_fail_once");
         return $self;
     }
     for my $g (@{$group_list}){
@@ -321,7 +321,7 @@ sub update_group {
         $group_info = $self->_get_group_info($g->{gcode});
         unless(defined $group_info){
             $self->warn("更新[ " . $g->{gname} . " ]信息失败\n");
-            #$self->emit("model_update_fail");
+            #$self->emit("model_update_fail_once");
             $group_info = $g;
         }
         if(ref $group_info->{member} ne 'ARRAY'){
@@ -417,7 +417,7 @@ sub update_discuss {
         }
         else{
             $self->warn("更新讨论组 [ " . $discuss->dname .  " ] 信息失败...");
-            #$self->emit("model_update_fail");
+            #$self->emit("model_update_fail_once");
         }
         return $self;
     }
@@ -426,7 +426,7 @@ sub update_discuss {
     my $discuss_list = $self->_get_discuss_list_info(); 
     unless(defined $discuss_list){
         $self->warn("更新讨论组列表信息失败\n");
-        $self->emit("model_update_fail");
+        $self->emit("model_update_fail_once");
         return $self;
     }
     for my $d (@{$discuss_list}){
@@ -520,7 +520,7 @@ sub update_recent {
     }
     else{
         $self->warn("更新最近联系人信息失败\n");
-        $self->emit("model_update_fail");
+        $self->emit("model_update_fail_once");
     }
 }
 

@@ -49,15 +49,15 @@ sub exit{
 }
 sub ready{
     my $self = shift;
-    #$self->on("model_update_fail"=>sub{
-    #    my $self = shift;
-    #    my $last_model_update_failure_count = $self->model_update_failure_count;
-    #    $self->model_update_failure_count(++$last_model_update_failure_count);  
-    #    if($self->model_update_failure_count >= $self->model_update_failure_count_max ){
-    #        $self->model_update_failure_count(0);
-    #        ...;
-    #    }
-    #});
+    $self->on("model_update_fail_once"=>sub{
+        my $self = shift;
+        my $last_model_update_failure_count = $self->model_update_failure_count;
+        $self->model_update_failure_count(++$last_model_update_failure_count);  
+        if($self->model_update_failure_count >= $self->model_update_failure_count_max ){
+            $self->model_update_failure_count(0);
+            $self->emit("model_update_fail");
+        }
+    });
     $self->on(send_message=>sub{
         my($self,$msg)=@_;
         return unless $msg->type =~/^message|sess_message$/;
