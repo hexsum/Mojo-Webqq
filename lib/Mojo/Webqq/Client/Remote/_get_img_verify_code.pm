@@ -31,7 +31,7 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
             open $fh,">",$filename or die "Can't open $filename: $!";
         }
         else{
-            ($fh, $filename)= tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",TMPDIR => 1);
+            ($fh, $filename)= tempfile("webqq_img_verfiy_XXXX",SUFFIX =>".jpg",DIR => $self->tmpdir);
         }
         binmode $fh;
         print $fh $content;

@@ -133,6 +133,8 @@ sub new {
     my $class = shift;
     my $self  = $class->SUPER::new(@_);
     $ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
+    unlink glob File::Spec->catfile($self->tmpdir,'webqq_img_verfiy_*.jpg');
+    unlink glob File::Spec->catfile($self->tmpdir,'webqq_qrcode_*.png');
     $self;
 }
 sub on {
