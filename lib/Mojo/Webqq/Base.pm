@@ -169,7 +169,7 @@ sub debug{
 }
 sub print {
     my $self = shift;
-    $self->log->info(join $,,@_);
+    $self->log->info(join (defined $,?$,:''),@_);
     $self;
 }
 

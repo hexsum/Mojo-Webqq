@@ -159,6 +159,10 @@ sub send_message{
         return $self;
     }
     my ($friend,$content,$cb) = @_;
+    if(!defined $content or $content eq ""){
+        $self->warn("发送好友消息，内容不能为空");
+        return;
+    }
     if(ref $friend eq "Mojo::Webqq::Friend" and defined $friend->id){
         #my $msg =  Mojo::Webqq::Message::Send::Message->new({
         my $msg =  $self->new_send_message({
@@ -188,6 +192,10 @@ sub send_group_message{
         return $self;
     }
     my ($group,$content,$cb) = @_;
+    if(!defined $content or $content eq ""){
+        $self->warn("发送群消息，内容不能为空");
+        return;
+    }
     if(ref $group eq "Mojo::Webqq::Group" and defined $group->gid){
         my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
         #my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
@@ -218,6 +226,10 @@ sub send_discuss_message{
         return $self;
     }
     my ($discuss,$content,$cb) = @_;
+    if(!defined $content or $content eq ""){
+        $self->warn("发送讨论组消息，内容不能为空");
+        return;
+    }
     if(ref $discuss eq "Mojo::Webqq::Discuss" and defined $discuss->did){
         my $sender = $discuss->search_discuss_member(id=>$self->user->id) || $self->user;
         #my $msg =  Mojo::Webqq::Message::Send::DiscussMessage->new({
@@ -248,6 +260,10 @@ sub send_sess_message{
         return $self;
     }
     my ($member,$content,$cb) = @_;
+    if(!defined $content or $content eq ""){
+        $self->warn("发送临时消息，内容不能为空");
+        return;
+    }
     if(ref $member eq "Mojo::Webqq::Group::Member" and defined $member->gid and defined $member->id){
         my $group = $self->search_group(gid=>$member->gid);
         return unless defined $group;
