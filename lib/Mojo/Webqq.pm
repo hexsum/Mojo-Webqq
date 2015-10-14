@@ -10,34 +10,29 @@ use POSIX;
 use File::Spec ();
 use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
 
-has qq                     => undef;
-has pwd                    => undef;
-has security                => 0;
-has state                   => 'online';   #online|away|busy|silent|hidden|offline,
-has type                    => 'smartqq';  #smartqq
-has login_type              => 'qrlogin';    #qrlogin|login
-has ua_debug                => 0;
-has log_level               => 'info';     #debug|info|warn|error|fatal
-has log_path                => undef;
-has log_encoding            => undef;      #utf8|gbk|...
-has email                   => undef;
-has encrypt_method          => "perl";     #perl|js
+has qq                  => undef;
+has pwd                 => undef;
+has security            => 0;
+has state               => 'online';   #online|away|busy|silent|hidden|offline,
+has type                => 'smartqq';  #smartqq
+has login_type          => 'qrlogin';    #qrlogin|login
+has ua_debug            => 0;
+has log_level           => 'info';     #debug|info|warn|error|fatal
+has log_path            => undef;
+has log_encoding        => undef;      #utf8|gbk|...
+has email               => undef;
+has encrypt_method      => "perl";     #perl|js
 
-has verifycode_path         => undef;
-has qrcode_path             => undef;
-has tmpdir                  => sub {File::Spec->tmpdir();};
-has pic_dir                 => sub {$_[0]->tmpdir};
-has ioloop                  => sub{Mojo::IOLoop->singleton};
-has keep_cookie             => 1;
-has cookie_dir              => sub{
-    if($_[0]->keep_cookie){
-        return $_[0]->tmpdir;
-    }
-    else{return undef}
-};
-has max_recent => 20;
+has tmpdir              => sub {File::Spec->tmpdir();};
+has pic_dir             => sub {$_[0]->tmpdir};
+has cookie_dir          => sub{return $_[0]->tmpdir;};
+has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->qq,'.jpg'))};
+has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->qq,'.png'))};
+has ioloop              => sub {Mojo::IOLoop->singleton};
+has keep_cookie         => 1;
+has max_recent          => 20;
 
-has version                 => $Mojo::Webqq::VERSION;
+has version => $Mojo::Webqq::VERSION;
 has user    => sub {+{}};
 has friend  => sub {[]};
 has recent  => sub {[]};
@@ -80,8 +75,6 @@ has is_first_login          => -1;
 has login_state             => "init";#init|relogin|success|scaning|confirming
 has poll_failure_count      => 0;
 has poll_failure_count_max  => 3;
-has model_update_failure_count      => 0;
-has model_update_failure_count_max  => 3;
 has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
     local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug;
@@ -98,7 +91,6 @@ has ua                      => sub {
 };
 
 has is_need_img_verifycode => 0;
-has img_verifycode_source  => 'TTY';             #NONE|TTY|CALLBACK
 has send_msg_id            => sub {
     my ( $second, $microsecond ) = gettimeofday;
     my $send_msg_id = $second * 1000 + $microsecond;
@@ -128,15 +120,9 @@ has g_pt_version           => 10092;
 has rc                     => 1;
 has csrf_token             => undef;
 has model_ext              => 0;
+#{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0,recent=>0}
+has model_status           => sub {+{}}; 
 
-sub new {
-    my $class = shift;
-    my $self  = $class->SUPER::new(@_);
-    $ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
-    unlink glob File::Spec->catfile($self->tmpdir,'webqq_img_verfiy_*.jpg');
-    unlink glob File::Spec->catfile($self->tmpdir,'webqq_qrcode_*.png');
-    $self;
-}
 sub on {
     my $self = shift;
     while(@_){
@@ -144,6 +130,22 @@ sub on {
         $self->SUPER::on($event,$callback);
     }
     return $self;
+}
+
+sub new {
+    my $class = shift;
+    my $self  = $class->SUPER::new(@_);
+    $ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
+    if(not defined $self->{qq}){
+        $self->fatal("客户端初始化缺少qq参数");
+        $self->exit();
+    }
+    $self->on(model_update=>sub{
+        my($self,$type,$status)=@_;
+        $self->model_status->{$type} = $status;
+        $self->emit("model_update_fail") if $self->get_model_status == 0;
+    });
+    $self;
 }
 
 sub friends{

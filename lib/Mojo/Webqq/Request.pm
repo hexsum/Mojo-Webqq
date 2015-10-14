@@ -1,5 +1,6 @@
 package Mojo::Webqq::Request;
 use List::Util qw(first);
+use File::Spec ();
 sub gen_url{
     my $self = shift;
     my ($url,@query_string) = @_;
@@ -81,7 +82,7 @@ sub load_cookie{
         return;  
     }
     my $cookie_jar;
-    my $cookie_path = $self->cookie_dir . '/mojo_webqq_cookie_' . $self->qq . '.dat';
+    my $cookie_path = File::Spec->catfile($self->cookie_dir , 'mojo_webqq_cookie_' . $self->qq . '.dat');
     return if not -f $cookie_path;
     eval{require Storable;$cookie_jar = Storable::retrieve($cookie_path)};
     if($@){
@@ -95,7 +96,7 @@ sub save_cookie{
     my $self = shift;
     return if not $self->keep_cookie;
     return if not defined $self->qq;
-    my $cookie_path = $self->cookie_dir . '/mojo_webqq_cookie_' . $self->qq . '.dat';
+    my $cookie_path = File::Spec->catfile($self->cookie_dir ,'mojo_webqq_cookie_' .$self->qq . '.dat');
     eval{Storable::nstore($self->ua->cookie_jar,$cookie_path);};
     $self->warn("客户端保存cookie失败: $@") if $@;
 }

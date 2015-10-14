@@ -49,15 +49,7 @@ sub exit{
 }
 sub ready{
     my $self = shift;
-    $self->on("model_update_fail_once"=>sub{
-        my $self = shift;
-        my $last_model_update_failure_count = $self->model_update_failure_count;
-        $self->model_update_failure_count(++$last_model_update_failure_count);  
-        if($self->model_update_failure_count >= $self->model_update_failure_count_max ){
-            $self->model_update_failure_count(0);
-            $self->emit("model_update_fail");
-        }
-    });
+    $self->relogin() if $self->get_model_status() == 0;
     $self->on(send_message=>sub{
         my($self,$msg)=@_;
         return unless $msg->type =~/^message|sess_message$/;
@@ -127,7 +119,6 @@ sub relogin{
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
     $self->ua->cookie_jar->empty;
-    $self->model_update_failure_count(0);
     $self->poll_failure_count(0);
     $self->csrf_token(undef);
     $self->model_ext(0);
@@ -138,6 +129,7 @@ sub relogin{
     $self->discuss([]);
     $self->recent([]);
     $self->data(+{});
+    $self->model_status(+{});
 
     $self->login(delay=>0);
     $self->emit("relogin");
@@ -211,11 +203,11 @@ sub login {
 
         #登录不成功，客户端退出运行
         if($self->login_state ne 'success'){
-            $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）\n");
+            $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）");
             $self->stop();
         }
         else{
-            $self->info("帐号(" . $self->qq . ")登录成功\n");
+            $self->info("帐号(" . $self->qq . ")登录成功");
             $self->update_user;
             $self->update_friend;
             $self->update_friend_ext;
@@ -223,7 +215,6 @@ sub login {
             $self->update_group_ext;
             $self->update_discuss;
             $self->update_recent;
-
             $self->emit("login");
         }
     };
@@ -334,5 +325,19 @@ sub spawn {
     $run->max_forks(delete $opt{max_forks}) if defined $opt{max_forks};
     $run->spawn(%opt);
     $self;
+}
+sub clean_qrcode{
+    my $self = shift;
+    return if not defined $self->qrcode_path;
+    return if not -f $self->qrcode_path;
+    $self->info("清除残留的历史二维码图片");
+    unlink $self->qrcode_path or $self->warn("删除二维码图片[ " . $self->qrcode_path . " ]失败: $!");
+}
+sub clean_verifycode{
+    my $self = shift;
+    return if not defined $self->verifycode_path;
+    return if not -f $self->verifycode_path;
+    $self->info("清除残留的历史验证码图片");
+    unlink $self->verifycode_path or $self->warn("删除验证码图片[ ". $self->verifycode_path . " ]失败: $!");
 }
 1;

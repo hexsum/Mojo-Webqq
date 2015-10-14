@@ -1,6 +1,5 @@
 use Encode;
 use Encode::Locale;
-use File::Temp qw/tempfile/;
 sub Mojo::Webqq::Client::_get_qrlogin_pic {
     my $self = shift;
     return 1 if $self->login_type ne "qrlogin";
@@ -20,30 +19,23 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
         $self->error("登录二维码下载失败");
         return 0;
     }
-    my ($fh, $filename);
+    $self->clean_qrcode();
     eval{
-        if(defined $self->qrcode_path){
-            $filename = $self->qrcode_path;
-            unlink $filename;
-            open $fh,">",$filename or die "Can't open $filename: $!";
-        }
-        else{ 
-            ($fh, $filename) = tempfile("webqq_qrcode_XXXX",SUFFIX =>".png",DIR => $self->tmpdir);
-        }
+        die "未设置二维码保存路径\n" if not defined $self->qrcode_path;
+        open(my $fh,">",$self->qrcode_path) or die "$!\n";
         binmode $fh;
         print $fh $data;
         close $fh;
     };
     
     if($@){
-        $self->error("验证码写入文件失败");
+        $self->error("验证码写入文件失败: $@");
         return 0;
     }
 
-    my $filename_for_log = encode("utf8",decode(locale_fs,$filename));
-    my $info = $self->log->format->(time,"info","二维码已下载到本地[ $filename_for_log ]");
-    $self->log->append($info);
-    $self->emit(input_qrcode=>$filename);
-    return $filename;
+    my $filename_for_log = encode("utf8",decode(locale_fs,$self->qrcode_path));
+    $self->info("二维码已下载到本地[ $filename_for_log ]");
+    $self->emit(input_qrcode=>$self->qrcode_path);
+    return 1;
 }
 1;
