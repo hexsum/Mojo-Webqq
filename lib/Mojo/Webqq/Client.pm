@@ -210,9 +210,7 @@ sub login {
             $self->info("帐号(" . $self->qq . ")登录成功");
             $self->update_user;
             $self->update_friend;
-            $self->update_friend_ext;
             $self->update_group;
-            $self->update_group_ext;
             $self->update_discuss;
             $self->update_recent;
             $self->emit("login");

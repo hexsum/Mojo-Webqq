@@ -159,6 +159,18 @@ sub update_user {
     $self->emit("model_update"=>"user",1);
 }
 
+sub remove_friend {
+    my $self = shift;
+    my $friend = shift;
+    $self->die("不支持的数据类型\n") if ref $friend ne "Mojo::Webqq::Friend";
+    for(my $i=0;@{$self->friend};$i++){
+        if($friend->id eq $self->friend->[$i]->id){
+            splice @{$self->friend},$i,1;
+            return 1; 
+        }
+    }
+    return 0;
+}
 sub add_friend {
     my $self = shift;
     my $friend = shift;
@@ -219,15 +231,24 @@ sub update_friend {
     if(defined $friends_info){
         push @friends,$self->new_friend($_) for @{$friends_info};
         if(ref $self->friend eq "ARRAY" and @{$self->friend}  == 0){
-            #@{$self->friend} = @{$friends_info}; 
             $self->friend(\@friends);
         }
         else{
-            my($new_friends,$lost_friends) = $self->array_diff($self->friend,\@friends,sub{$_[0]->id});
-            $self->emit(new_friend=>$_) for @{$new_friends};
-            $self->emit(lose_friend=>$_) for @{$lost_friends};
-            $self->friend(\@friends);
+            my($new_friends,$lost_friends,$sames) = $self->array_diff($self->friend,\@friends,sub{$_[0]->id});
+            for(@{$new_friends}){
+                $self->add_friend($_);
+                $self->emit(new_friend=>$_);
+            }
+            for(@{$lost_friends}){
+                $self->remove_friend($_);
+                $self->emit(lose_friend=>$_);
+            }
+            for(@{$sames}){
+                my($old,$new) = @$_;
+                $old->update($new);
+            }
         }
+        $self->update_friend_ext();
         $self->emit("model_update","friend",1);
     }
     else{$self->warn("更新好友信息失败\n");$self->emit("model_update","friend",0);}
@@ -267,10 +288,22 @@ sub add_group{
     return $self;
 }
 
+sub remove_group{
+    my $self = shift;
+    my $group = shift;
+    $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group";
+    for(my $i=0;@{$self->group};$i++){
+        if($group->gid eq $self->group->[$i]->gid){
+            splice @{$self->group},$i,1;
+            return 1;
+        }
+    }
+    return 0;
+}
 sub update_group_ext {
     my $self = shift;
     return if not $self->is_support_model_ext;
-    $self->info("更新群扩展信息...\n");
+    $self->info("更新群扩展信息...");
     my $group_list_ext = $self->_get_group_list_info_ext();
     if(defined $group_list_ext and ref $group_list_ext eq "ARRAY"){
         for my $g(@$group_list_ext){
@@ -354,26 +387,37 @@ sub update_group {
     }
     else{
         my($new_groups,$lost_groups,$sames) = $self->array_diff($self->group,\@groups,sub{$_[0]->gid});  
-        $self->emit(new_group=>$_) for @{$new_groups};
-        $self->emit(lose_group=>$_) for @{$lost_groups};
-        for (
-            grep { ref($_->[0]->member) eq "ARRAY"
-                and ref($_->[1]->member) eq "ARRAY"
-                and @{$_->[0]->member}!=0 
-            } @{$sames}
-        ){
-            if(@{$_->[1]->member}!=0){
-                my($old_group,$new_group) = ($_->[0],$_->[1]);
-                my($new_members,$lose_members) = $self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
-                $self->emit(new_group_member=>$_) for @{$new_members};
-                $self->emit(lose_group_member=>$_) for @{$lose_members};
-            }
-            else{
-                $_->[1]->member($_->[0]->member);
-            }
+        for(@{$new_groups}){
+            $self->add_group($_);
+            $self->emit(new_group=>$_) ;
         }
-        $self->group(\@groups);
+        for(@{$lost_groups}){
+            $self->remove_group($_);
+            $self->emit(lose_group=>$_) ;
+        }
+        for(@{$sames}){
+            my($old_group,$new_group) = ($_->[0],$_->[1]);
+            $old_group->update($new_group); 
+        }
+        #for (
+        #    grep { ref($_->[0]->member) eq "ARRAY"
+        #        and ref($_->[1]->member) eq "ARRAY"
+        #        and @{$_->[0]->member}!=0 
+        #    } @{$sames}
+        #){
+        #    if(@{$_->[1]->member}!=0){
+        #        my($old_group,$new_group) = ($_->[0],$_->[1]);
+        #        my($new_members,$lose_members)=$self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
+        #        $self->emit(new_group_member=>$_) for @{$new_members};
+        #        $self->emit(lose_group_member=>$_) for @{$lose_members};
+        #    }
+        #    else{
+        #        $_->[1]->member($_->[0]->member);
+        #    }
+        #}
+        #$self->group(\@groups);
     }
+    $self->update_group_ext();
     $self->emit("model_update","group",1);
 }
 
@@ -391,18 +435,6 @@ sub search_group {
     }
 }
 
-sub remove_group_member{
-    my $self = shift;
-    my $member = shift;
-    $self->die("不支持的数据类型") if not $member->is_group_member;
-    for(my $i=0;$i<@{$member->group->member};$i++){
-        if($member->group->member->[$i]->id eq $member->id){
-            splice @{$member->group->member},$i,1;
-            return 1;
-        }
-    }
-    return;
-}
 sub search_group_member {
     my $self = shift;
     my %p = @_;
@@ -467,21 +499,31 @@ sub update_discuss {
     }
     else{
         my($new_discusss,$lost_discusss,$sames) = $self->array_diff($self->discuss,\@discusss,sub{$_[0]->did});  
-        $self->emit(new_discuss=>$_) for @{$new_discusss};
-        $self->emit(lose_discuss=>$_) for @{$lost_discusss};
-        for (
-            grep { ref($_->[0]->member) eq "ARRAY"
-                and ref($_->[1]->member) eq "ARRAY"
-                and @{$_->[0]->member}!=0 
-                and @{$_->[1]->member}!=0
-            } @{$sames}
-        ){
-            my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
-            my($new_members,$lose_members) = $self->array_diff($old_discuss->member,$new_discuss->member,sub{$_[0]->id});
-            $self->emit(new_discuss_member=>$_) for @{$new_members};
-            $self->emit(lose_discuss_member=>$_) for @{$lose_members};
+        for(@{$new_discusss}){
+            $self->add_discuss_member($_);
+            $self->emit(new_discuss=>$_);   
         }
-        $self->discuss(\@discusss);
+        for(@{$lost_discusss}){
+            $self->remove_discuss_member($_);
+            $self->emit(lose_discuss=>$_);
+        }
+        for(@{$sames}){
+            my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
+            $old_discuss->update($new_discuss);
+        }
+        #for (
+        #    grep { ref($_->[0]->member) eq "ARRAY"
+        #        and ref($_->[1]->member) eq "ARRAY"
+        #        and @{$_->[0]->member}!=0 
+        #        and @{$_->[1]->member}!=0
+        #    } @{$sames}
+        #){
+        #    my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
+        #    my($new_members,$lose_members)= $self->array_diff($old_discuss->member,$new_discuss->member,sub{$_[0]->id});
+        #    $self->emit(new_discuss_member=>$_) for @{$new_members};
+        #    $self->emit(lose_discuss_member=>$_) for @{$lose_members};
+        #}
+        #$self->discuss(\@discusss);
     }
     $self->emit("model_update","discuss",1);
 }

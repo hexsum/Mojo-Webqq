@@ -30,14 +30,14 @@ has [qw(
     gmarkname
 )];
 
-has displayname => sub{
-    my $self = shift;
-    return defined $self->card?$self->card:$self->nick;
-};
 has qq  => sub{
     my $self = shift;
     return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
 };
+sub displayname {
+    my $self = shift;
+    return defined $self->card?$self->card:$self->nick;
+}
 
 sub update{
     my $self = shift;

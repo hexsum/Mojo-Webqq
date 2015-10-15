@@ -16,15 +16,15 @@ has [qw(
     client_type 
 )];
 
-has displayname => sub{
-    my $self = shift;
-    return defined $self->markname?$self->markname:$self->nick;
-};
 has qq => sub{
     my $self = shift;
     return $self->{qq} if defined $self->{qq};
     return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
 };
+sub displayname {
+    my $self = shift;
+    return defined $self->markname?$self->markname:$self->nick;
+}
 sub update{
     my $self = shift;
     my $hash = shift;

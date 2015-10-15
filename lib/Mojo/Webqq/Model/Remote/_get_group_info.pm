@@ -46,7 +46,7 @@ sub Mojo::Webqq::Model::_get_group_info {
             $state{$_->{uin}}{state} = $self->code2state($_->{'stat'});
         }
         for my $m(@{ $json->{result}{minfo} }){
-            $m->{card} = $cards{$m->{uin}} if exists $cards{$m->{uin}} ; 
+            $m->{card} = exists $cards{$m->{uin}}?$cards{$m->{uin}} : undef; 
             if(exists $state{$m->{uin}}){
                 $m->{state} = $state{$m->{uin}}{state};
                 $m->{client_type} = $state{$m->{uin}}{client_type};

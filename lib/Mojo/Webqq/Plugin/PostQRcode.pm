@@ -17,7 +17,7 @@ sub call{
     $client->on(login=>sub{$count = 0});
     $client->on(input_qrcode=>sub{
         my($client,$filename) = @_;
-        if($count > $max){
+        if($count > $data->{max}){
             $client->fatal("等待扫描二维码超时");
             $client->stop();
             return 

@@ -14,16 +14,15 @@ has [qw(
     _client
 )];
 
-has displayname => sub{
-    my $self = shift;
-    return $self->nick;
-};
-
 has qq => sub{
     my $self = shift;
     return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
 };
 
+sub displayname {
+    my $self = shift;
+    return $self->nick;
+}
 sub update{
     my $self = shift;
     my $hash = shift;

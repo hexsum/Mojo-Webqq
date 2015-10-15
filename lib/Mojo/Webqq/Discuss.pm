@@ -9,10 +9,10 @@ has [qw(
     downer
 )];
 has member => sub{[]};
-has displayname => sub{
+sub displayname {
     my $self = shift;
     return $self->dname;
-};
+}
 sub new {
     my $class = shift;
     my $self ;
@@ -55,7 +55,7 @@ sub add_discuss_member{
     my $self = shift;   
     my $member = shift;
     my $nocheck = shift;
-    $self->die("不支持的数据类型") if ref $member ne "Mojo::Webqq::Discuss::Member";
+    $self->{_client}->die("不支持的数据类型") if ref $member ne "Mojo::Webqq::Discuss::Member";
     if($nocheck){
         push @{$self->member},$member;
         return $self;
@@ -69,10 +69,22 @@ sub add_discuss_member{
     }
     return $self;
 }
+sub remove_discuss_member{
+    my $self = shift;
+    my $member = shift;
+    $self->{_client}->die("不支持的数据类型") if ref $member ne "Mojo::Webqq::Discuss::Member";
+    for(my $i=0;$i<@{$self->member};$i++){
+        if($self->member->[$i]->id eq $member->id){
+            splice @{$self->member},$i,1;
+            return 1;
+        }
+    }
+    return;
+}
 
 sub is_empty{
     my $self = shift;
-    return !(ref($self->member eq "ARRAY")?0+@{$self->member}:0);
+    return !(ref($self->member) eq "ARRAY"?0+@{$self->member}:0);
 }
 
 sub update{
@@ -81,15 +93,24 @@ sub update{
     for(keys %$self){
         if($_ eq "member" and exists $hash->{member} and ref $hash->{member} eq "ARRAY"){
             next if not @{$hash->{member}};
-            my @member = map { $self->{_client}->new_discuss_member($_) } @{$hash->{member}};
+            my @member = map {ref($_ eq "Mojo::Webqq::Discuss::Member")?$_:$self->{_client}->new_discuss_member->new($_)} @{$hash->{member}};
             if( $self->is_empty() ){
                 $self->member(\@member);
             }
             else{
-                my($new_members,$lost_members)=$self->array_diff($self->member, \@member,sub{$_[0]->id});
-                $self->{_client}->emit(new_discuss_member=>$_) for @{$new_members};
-                $self->{_client}->emit(lose_discuss_member=>$_) for @{$lost_members};
-                $self->member(\@member);
+                my($new_members,$lost_members,$sames)=$self->{_client}->array_diff($self->member, \@member,sub{$_[0]->id});
+                for(@{$new_members}){
+                    $self->add_discuss_member($_);
+                    $self->{_client}->emit(new_discuss_member=>$_);
+                }
+                for(@{$lost_members}){
+                    $self->remove_discuss_member($_);
+                    $self->{_client}->emit(lose_discuss_member=>$_);
+                }
+                for(@{$sames}){
+                    my($old,$new) = ($_->[0],$_->[1]);
+                    $old->update($new);
+                }
             }
         }
         else{
