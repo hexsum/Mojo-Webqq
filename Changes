@@ -1,3 +1,12 @@
+2015-10-11 Mojo::Webqq v1.5.7
+1）程序自动删除之前残留的二维码和验证码临时文件
+2）修复使用perl -w 执行程序时导致Perlcode插件执行代码产生意外warning的bug
+3）增加消息发送内容为空的提醒
+4）增加model_update_fail事件，详情请参见文档说明
+5）完善生成的cookie文件路径跨平台兼容性，二维码使用固定路径，不再使用随机文件名
+6）修复客户端定时更新好友、群组数据导致扩展信息丢失（gnumber、qq）等，Openqq插件无法正常工作的问题
+7）修复首次启动可能出现无法更新好友、群组等信息的bug
+
 2015-10-11 Mojo::Webqq v1.5.6
 1）修复高版本perl(5.23.x) "Experimental push on scalar is now forbidden" 错误
 
