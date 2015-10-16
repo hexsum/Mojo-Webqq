@@ -49,7 +49,18 @@ sub exit{
 }
 sub ready{
     my $self = shift;
+    #加载插件
+    my $plugins = $self->plugins;
+    for(
+        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
+        grep {defined $plugins->{$_}{auto_call} and $plugins->{$_}{auto_call} == 1} keys %{$plugins}
+    ){
+        $self->call($_);
+    }
+    $self->emit("after_load_plugin");
+
     $self->relogin() if $self->get_model_status() == 0;
+
     $self->on(send_message=>sub{
         my($self,$msg)=@_;
         return unless $msg->type =~/^message|sess_message$/;
@@ -84,15 +95,6 @@ sub ready{
             $self->update_friend;
         });
     });
-    #加载插件
-    my $plugins = $self->plugins;
-    for(
-        sort {$plugins->{$b}{priority} <=> $plugins->{$a}{priority} } 
-        grep {defined $plugins->{$_}{auto_call} and $plugins->{$_}{auto_call} == 1} keys %{$plugins}
-    ){
-        $self->call($_);
-    }
-    $self->emit("after_load_plugin");
     #接收消息
     $self->on(poll_over=>sub{$_[0]->_recv_message();});
     $self->info("开始接收消息...\n");
