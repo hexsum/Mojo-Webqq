@@ -34,7 +34,7 @@ sub call{
                             (?|"([^"]+)"|'([^']+)'|([^\s"']+))
                             /xs){
             $msg->allow_plugin(0);
-            return if $msg->sender->id ne $client->user->id;
+            #return if $msg->sender->id ne $client->user->id;
             my($q) = ($1);
             $q=~s/^\s+|\s+$//g;
             return unless defined $q;
