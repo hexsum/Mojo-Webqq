@@ -64,6 +64,11 @@ Mojo-Webqq v1.5.7
 
 请参见 Changes 文件
 
+###官方交流
+
+* [QQ群](http://jq.qq.com/?_wv=1027&k=kjVJzo)
+* [IRC](http://irc.perfi.wang/)
+
 ###COPYRIGHT 和 LICENCE
 
 Copyright (C) 2014 by sjdy521

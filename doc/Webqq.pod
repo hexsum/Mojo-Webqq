@@ -143,7 +143,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     代码示例：
 
     my $friend = $client->search_friend(nick=>xxx);
-    $client->print("好友分组为: ",$friend->categorie,"\n"); #使用$client->print()可以自动检测终端编码，防止乱码
+    $client->print("好友分组为: ",$friend->category,"\n"); #使用$client->print()可以自动检测终端编码，防止乱码
     $friend->dump();
 
     $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
@@ -1333,7 +1333,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
     $client->load("Openqq",data=>{                                                 
         listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
         auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
-        post_api => 'http://xxxx',                      #可选，设置接收消息的上报接口
+        post_api => 'http://xxxx',                      #可选，你自定义的接收消息上报接口
     });
 
     #若data中设置了auth函数引用，则表示api接口开启认证
@@ -1418,11 +1418,9 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
 =head1 SEE ALSO
 
-L<Webqq::Client>
-
-L<Webqq::Qun>
-
 L<Weixin::Client>
+
+L<https://github.com/sjdy521/Mojo-Webqq>
 
 =head1 AUTHOR
 
