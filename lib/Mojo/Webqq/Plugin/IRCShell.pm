@@ -146,7 +146,7 @@ sub call{
                 $user->join_channel($channel);
             }
             else{
-                $user->join_channel($channel) if !$user->is_join_channel($channel) and $user->is_virtual;
+                $user->join_channel($channel) if $user->is_virtual and !$user->is_join_channel($channel);
             }
             for (grep { $_->user eq $master_irc_user or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
                 for my $line (split /\r?\n/,$msg->content){
@@ -175,7 +175,7 @@ sub call{
                 $user->join_channel($channel);
             } 
             else{
-                $user->join_channel($channel) if not $user->is_join_channel($channel);
+                $user->join_channel($channel) if $user->is_virtual and !$user->is_join_channel($channel);
             }
 
             for(
@@ -208,9 +208,10 @@ sub call{
                 
                 $user->join_channel($channel);
             }
-            else{
+            elsif($user->is_virtual){
                 $user->join_channel($channel)  if not $user->is_join_channel($channel);
             }
+            else{return if not $user->is_join_channel($channel);}
             for(grep {!$_->is_virtual} $channel->users){
                 my @content = split /\r?\n/,$msg->content;
                 if($content[0]=~/^\@([^\s]+?) /){
@@ -245,8 +246,8 @@ sub call{
 
                 $user->join($channel);
             }
-            else{
-                $user->join_channel($channel)  if $user->is_virtual and !$user->is_join_channel($channel);
+            elsif($user->is_virtual){
+                $user->join_channel($channel)  if not $user->is_join_channel($channel);
             }
             for(
                 grep {$_->user eq $master_irc_user or $_->is_localhost} 
@@ -278,7 +279,7 @@ sub call{
                 $user->join_channel($channel);
             } 
             else{
-                $user->join_channel($channel) if not $user->is_join_channel($channel);
+                $user->join_channel($channel) if $user->is_virtual and !$user->is_join_channel($channel);
             }
             for(
                 grep {$_->user eq $master_irc_user or $_->is_localhost}
