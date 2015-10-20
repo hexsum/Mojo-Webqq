@@ -83,7 +83,7 @@ sub get_model_status{
     }
 }
 sub get_csrf_token {
-    use bigint;
+    use integer;
     my $self = shift;
     if(not $self->is_support_model_ext){
         $self->error("当前不支持获取扩展信息，无法获取CSRF Token");

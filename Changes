@@ -1,3 +1,9 @@
+2015-10-20 Mojo::Webqq v1.5.8
+1）KnowledgeBase插件不再限制只识别自己发送的del指令
+2）修复IRCShell插件irc帐号没有加入频道的情况下也收到频道消息的bug 感谢wxg的反馈
+3）修复32位系统计算扩展信息的CSRF token时大整数计算错误的问题 感谢hzz的反馈
+4）Perlcode插件完善
+
 2015-10-11 Mojo::Webqq v1.5.7
 1）程序自动删除之前残留的二维码和验证码临时文件
 2）修复使用perl -w 执行程序时导致Perlcode插件执行代码产生意外warning的bug

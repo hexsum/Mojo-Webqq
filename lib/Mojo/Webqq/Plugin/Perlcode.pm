@@ -80,7 +80,8 @@ sub call{
                         else{$content = $stdout_buf."\n".$stderr_buf}
                     }
                     elsif(defined $stdout_buf){$content=$stdout_buf}
-                    else{$content=$stderr_buf}
+                    elsif(defined $stderr_buf){$content=$stderr_buf}
+                    $content = "代码没有输出任何内容" if ( !defined $content or $content eq "");
                     $client->reply_message($msg,$content);
                 },
             );  
