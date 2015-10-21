@@ -42,7 +42,9 @@ Mojo-Webqq v1.5.8
 [15/09/30 14:10:20] [群消息] 我->PERL学习交流 : 多谢多谢
 ```
 ###通过irc客户端在linux终端上使用QQ
+
 ![IRCShell](screenshot/IRCShell.png)
+
 ###安装步骤
 
     1. perl Makefile.PL
@@ -60,9 +62,10 @@ Mojo-Webqq v1.5.8
 * Mojolicious
 * Encode::Locale
 
-###版本更新记录
+###相关文档
 
-请参见 Changes 文件
+* [更新日志](https://github.com/sjdy521/Mojo-Webqq/blob/master/Changes)
+* [开发文档](https://github.com/sjdy521/Mojo-Webqq/blob/master/doc/Webqq.pod)
 
 ###官方交流
 
