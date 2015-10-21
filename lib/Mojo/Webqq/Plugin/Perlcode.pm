@@ -69,7 +69,10 @@ sub call{
                 exit_cb => sub {
                     my($pid,$res)=@_;
                     my $content;
-                    $stderr_buf =~s/(?<=at )\(eval .+?\)(?= line)/CODE/g if defined $stderr_buf;
+                    if(defined $stderr_buf){
+                        $stderr_buf =~s/(?<=at )\(eval .+?\)(?= line)/CODE/g;
+                        $stderr_buf =~s/Mojo::Webqq::Plugin::Perlcode::Sandbox:://g;
+                    }
                     $stderr_buf.= "(执行超时)" if $res->{is_timeout};
                     eval{
                         $stderr_buf = Term::ANSIColor::colorstrip($stderr_buf) if defined $stderr_buf;

@@ -5,7 +5,7 @@ use List::Util qw(first);
 BEGIN{
     $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server = 0;
     eval{
-        require Mojo::IRC::Server;
+        require Mojo::IRC::Server::Chinese;
     };
     $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server = 1 if not $@;
 }
@@ -14,12 +14,12 @@ my $ircd;
 sub call{
     my $client = shift;
     my $data = shift;
-    $client->die("请先安装模块 Mojo::IRC::Server") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
+    $client->die("请先安装模块 Mojo::IRC::Server::Chinese") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_user = $data->{master_irc_user} || $client->qq;
     my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
-    $ircd = Mojo::IRC::Server->new(listen=>$data->{listen},log=>$client->log);
+    $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
         if(substr($msg->{params}[0],0,1) eq "#" ){
