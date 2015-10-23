@@ -1,3 +1,8 @@
+2015-10-23 Mojo::Webqq v1.5.9
+1）IRCShell插件的IRC Server依赖模块改为Mojo::IRC::Server::Chinese
+2）Perlcode插件隐藏错误信息中的Sandbox命名空间
+3）修改g_appid/g_daid/g_pt_version/g_style等默认登录参数
+
 2015-10-20 Mojo::Webqq v1.5.8
 1）KnowledgeBase插件不再限制只识别自己发送的del指令
 2）修复IRCShell插件irc帐号没有加入频道的情况下也收到频道消息的bug 感谢wxg的反馈
