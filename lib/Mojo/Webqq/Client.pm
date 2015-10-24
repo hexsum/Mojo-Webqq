@@ -136,6 +136,17 @@ sub relogin{
     $self->login(delay=>0);
     $self->emit("relogin");
 }
+sub relink {
+    my $self = shift;
+    $self->info("尝试进行重新连接(1)...");
+    if($self->_get_vfwebqq() && $self->_login2()){
+        $self->info("重新连接(1)成功");
+    }
+    else{
+        $self->info("重新连接(1)失败");
+        $self->relogin();
+    }
+}
 sub login {
     my $self = shift;
     my %p = @_;

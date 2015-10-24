@@ -38,7 +38,7 @@ sub call{
             Disposition => 'attachment',
             Type        => 'image/png',
         );
-        $data->{data} = $mime->as_string if not defined $data->{data};
+        $data->{data} = $mime->as_string;
         my($is_success,$err) = $client->mail(%$data);
         if(not $is_success){
             $client->error("插件[".__PACKAGE__."]邮件发送失败: $err");

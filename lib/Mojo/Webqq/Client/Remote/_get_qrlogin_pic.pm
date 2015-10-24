@@ -29,7 +29,7 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
     };
     
     if($@){
-        $self->error("验证码写入文件失败: $@");
+        $self->error("二维码写入文件失败: $@");
         return 0;
     }
 
