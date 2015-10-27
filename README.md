@@ -70,7 +70,7 @@ Mojo-Webqq v1.5.9 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 ###官方交流
 
 * [QQ群](http://jq.qq.com/?_wv=1027&k=kjVJzo)
-* [IRC](http://irc.perfi.wang/?channel=#灌水区,#Mojo-Webqq)
+* [IRC](http://irc.perfi.wang/?channel=#Mojo-Webqq)
 
 ###COPYRIGHT 和 LICENCE
 
