@@ -19,6 +19,7 @@ sub call{
     my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
+    my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
@@ -112,7 +113,8 @@ sub call{
         }
         $client->each_group(sub{
             my($client,$group) = @_;
-            my $mode = "Pi";$mode = "Pis" if(@groups and not first {$group->gname eq $_} @groups);
+            return if(@groups and not first {$group->gname eq $_} @groups);
+            my $mode = defined $mode{$group->gname}?$mode{$group->gname}:"Pi";
             my $channel_name = '#'.$group->gname;$channel_name=~s/\s|,|&//g;
             my $channel = $ircd->search_channel(name=>$channel_name);
             if(defined $channel){
@@ -371,6 +373,26 @@ sub call{
         });
 
     }
+
+    my $property_change_callback = sub{
+        my($client,$object,$property,$old,$new)=@_;
+        if($object->is_friend){
+            return if $property ne "nick" and $property ne "markname";
+            my $user = $ircd->search_user(id=>$object->id,virtual=>1);
+            return unless defined $user;
+            $user->set_nick($object->displayname);
+        }
+        elsif($object->is_group_member){
+            return if $property ne "nick" and $property ne "card"; 
+            my $user = $ircd->search_user(id=>$object->id,virtual=>1);
+            return unless defined $user;
+            $user->set_nick($object->displayname);
+        }
+    };
+    $client->on("friend_property_change"=>$property_change_callback,
+                "group_member_property_change"=>$property_change_callback
+    );
+
     $ircd->ready();
 }
 1;

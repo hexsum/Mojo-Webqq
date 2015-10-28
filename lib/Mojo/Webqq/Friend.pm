@@ -29,7 +29,19 @@ sub update{
     my $self = shift;
     my $hash = shift;
     for(keys %$self){
-        $self->{$_} = $hash->{$_} if exists $hash->{$_} ;    
+        if(exists $hash->{$_}){
+            my $old_property = $self->{$_};
+            my $new_property = $hash->{$_};
+            $self->{$_} = $hash->{$_};
+            if(defined $old_property and defined $new_property){
+                if($old_property ne $new_property){
+                    $self->{_client}->emit("friend_property_change"=>$self,$_,$old_property,$new_property);    
+                }
+            }
+            elsif( ! (!defined $new_property and !defined $old_property) ){
+                $self->{_client}->emit("friend_property_change"=>$self,$_,$old_property,$new_property); 
+            }
+        }
     }
     $self;
 }

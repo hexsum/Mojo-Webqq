@@ -1092,6 +1092,36 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
         $msg->content($content);
     });
 
+=head2 friend_property_change 好友对象属性发生改变
+
+    $client->on(friend_property_change=>sub{
+        my($client,$friend,$property,$old_value,$new_value)=@_;
+    });
+
+=head2 group_property_change 群对象属性发生改变
+
+    $client->on(group_property_change=>sub{
+        my($client,$group,$property,$old_value,$new_value)=@_;
+    });
+
+=head2 group_member_property_change 群成员对象属性发生改变
+
+    $client->on(group_member_property_change=>sub{
+        my($client,$member,$property,$old_value,$new_value)=@_;
+    });
+
+=head2 discuss_property_change 讨论组属性发生改变
+
+    $client->on(discuss_property_change=>sub{
+        my($client,$discuss,$property,$old_value,$new_value)=@_;
+    });
+
+=head2 discuss_member_property_change 讨论组成员属性发生改变
+
+    $client->on(discuss_member_property_change=>sub{
+        my($client,$member,$property,$old_value,$new_value)=@_;
+    });
+
 =head2 model_update_fail 更新好友、群、讨论组信息失败
 
 程序目前依靠定时更新好友、群、讨论组等数据来判断新增好友、新增群成员等
