@@ -115,15 +115,18 @@ sub update{
         }
         else{
             if(exists $hash->{$_}){
-                my $old_property = $self->{$_};
-                my $new_property = $hash->{$_};
-                $self->{$_} = $hash->{$_};
-                if(defined $old_property and defined $new_property){
-                    if($old_property ne $new_property){
+                if(defined $hash->{$_} and defined $self->{$_}){
+                    if($hash->{$_} ne $self->{$_}){
+                        my $old_property = $self->{$_};
+                        my $new_property = $hash->{$_};
+                        $self->{$_} = $hash->{$_};
                         $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property);
                     }
                 }
-                elsif( ! (!defined $new_property and !defined $old_property) ){
+                elsif( ! (!defined $hash->{$_} and !defined $self->{$_}) ){
+                    my $old_property = $self->{$_};
+                    my $new_property = $hash->{$_};
+                    $self->{$_} = $hash->{$_};
                     $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property);
                 }
             }
