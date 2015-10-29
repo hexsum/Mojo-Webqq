@@ -154,7 +154,9 @@ sub send_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::Message";
+        my $content = $msg->content;
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
         return $self;
     }
@@ -176,6 +178,7 @@ sub send_message{
         });    
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
     }
     else{
@@ -187,7 +190,9 @@ sub send_group_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::GroupMessage";
+        my $content = $msg->content;
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
         return $self;
     }
@@ -210,6 +215,7 @@ sub send_group_message{
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
     }
     else{
@@ -221,7 +227,9 @@ sub send_discuss_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::DiscussMessage";
+        my $content = $msg->content;
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
         return $self;
     }
@@ -244,6 +252,7 @@ sub send_discuss_message{
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
     }
     else{
@@ -255,7 +264,9 @@ sub send_sess_message{
     if(@_==1){
         my $msg = shift;
         $self->die("不支持的数据类型") if ref $msg ne "Mojo::Webqq::Message::Send::GroupMessage";
+        my $content = $msg->content;
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
         return $self;
     }
@@ -284,6 +295,7 @@ sub send_sess_message{
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
     }
     elsif(ref $member eq "Mojo::Webqq::Discuss::Member" and defined $member->did and defined $member->id){
@@ -305,6 +317,7 @@ sub send_sess_message{
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
+        $msg->raw_content($self->face_parse($msg->content)) if $msg->content ne $content;
         $self->message_queue->put($msg);
     }
     else{
