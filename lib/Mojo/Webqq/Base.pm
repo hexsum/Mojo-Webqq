@@ -169,7 +169,13 @@ sub debug{
 }
 sub print {
     my $self = shift;
-    $self->log->info(join (defined $,?$,:''),@_);
+    my $flag = 1;
+    if($flag){
+        $self->log->info({time=>'',level=>'',},join (defined $,?$,:''),@_);
+    }
+    else{
+        $self->log->info(join (defined $,?$,:''),@_);
+    }
     $self;
 }
 

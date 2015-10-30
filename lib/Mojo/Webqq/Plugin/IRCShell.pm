@@ -380,13 +380,13 @@ sub call{
             return if $property ne "nick" and $property ne "markname";
             my $user = $ircd->search_user(id=>$object->id,virtual=>1);
             return unless defined $user;
-            $user->set_nick($object->displayname);
+            $user->set_nick($object->displayname) if $object->displayname ne $user->nick;
         }
         elsif($object->is_group_member){
             return if $property ne "nick" and $property ne "card"; 
             my $user = $ircd->search_user(id=>$object->id,virtual=>1);
             return unless defined $user;
-            $user->set_nick($object->displayname);
+            $user->set_nick($object->displayname) if $object->displayname ne $user->nick;
         }
     };
     $client->on("friend_property_change"=>$property_change_callback,

@@ -52,12 +52,13 @@ has log    => sub{Mojo::Webqq::Log->new(encoding=>$_[0]->log_encoding,path=>$_[0
     }
     @lines = split /\n/,join "",@lines;
     my $return = "";
-    $time = POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time));
+    $time = $time?POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time)):"";
+    $level = $level?"[$level]":"";
     for(@lines){
         $return .=
-            $time
-        .   " " 
-        .   "[$level]" 
+          $time
+        . " " 
+        . $level 
         . " " 
         . $title 
         . $_ 
