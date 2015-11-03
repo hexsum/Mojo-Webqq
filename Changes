@@ -1,3 +1,10 @@
+2015-11-03 Mojo::Webqq v1.6.0
+1）修复PostQRcode插件发送邮件一直是重复的旧二维码的bug
+2）github添加travis-ci代码检查功能
+3）增加好友、群、讨论组属性发送变化事件
+4）修复无法在before_send_message回调中修改实际消息发送内容的bug
+5）好友、群成员昵称变化时IRCShell插件也可以自动更新对应的irc虚拟账户的昵称
+
 2015-10-23 Mojo::Webqq v1.5.9
 1）IRCShell插件的IRC Server依赖模块改为Mojo::IRC::Server::Chinese
 2）Perlcode插件隐藏错误信息中的Sandbox命名空间
