@@ -731,11 +731,14 @@ sub msg_put{
                 unless(defined $sender){
                     $self->update_discuss($discuss);
                     $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-                    $sender = $self->new_discuss_member(
-                        did=>$msg->{discuss_id},
-                        id=>$msg->{sender_id},
-                        nick=>"昵称未知",
-                    ) unless defined $sender;
+                    unless(defined $sender){
+                        $sender = $self->new_discuss_member(
+                            did=>$msg->{discuss_id},
+                            id=>$msg->{sender_id},
+                            nick=>"昵称未知",
+                        );
+                        $discuss->add_group_member($sender,1);
+                    }
                 }
             }                
             else{            
@@ -744,11 +747,14 @@ sub msg_put{
                 return unless defined $discuss;
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
                 $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
-                $sender = $self->new_discuss_member(
-                    did=>$msg->{discuss_id},
-                    id=>$msg->{sender_id},
-                    nick=>"昵称未知"
-                ) unless defined $sender; 
+                unless(defined $sender){
+                    $sender = $self->new_discuss_member(
+                        did=>$msg->{discuss_id},
+                        id=>$msg->{sender_id},
+                        nick=>"昵称未知"
+                    );
+                    $discuss->add_discuss_member($sender,1);
+                }
             }                
             $msg->{sender} = $sender;
             $msg->{receiver} = $receiver;
@@ -768,8 +774,10 @@ sub msg_put{
             unless(defined $sender){
                 $self->update_discuss($discuss);
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-                $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
-                    unless defined $sender;
+                unless(defined $sender){
+                    $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知");
+                    $discuss->add_discuss_member($sender,1);
+                }
             }
         }
         else{
@@ -777,10 +785,11 @@ sub msg_put{
             $discuss = $self->search_discuss(did=>$msg->{discuss_id});
             return unless defined $discuss;
             $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
-            $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知") 
-                unless defined $sender;
             $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
-            
+            unless(defined $sender){
+                $sender = $self->new_discuss_member(did=>$msg->{discuss_id},id=>$msg->{sender_id},nick=>"昵称未知");
+                $discuss->add_discuss_member($sender,1);
+            }
         }
         $msg->{sender} = $sender;
         $msg->{discuss} = $discuss;

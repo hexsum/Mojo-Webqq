@@ -450,7 +450,39 @@ sub search_group_member {
 }
 
 sub add_discuss {
+    my $self = shift;
+    my $discuss = shift;
+    my $nocheck = shift;
+    $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss";
+    if(@{$self->discuss}  == 0){
+        push @{$self->discuss},$discuss;
+        return $self;
+    }
+    if($nocheck){
+        push @{$self->discuss},$discuss;
+        return $self;
+    }
+    my $d = $self->search_discuss(did => $discuss->did);
+    if(defined $d){
+        $d = $discuss;
+    }
+    else{#new discuss
+        push @{$self->discuss},$discuss;
+    }
+    return $self;
 
+}
+sub remove_discuss {
+    my $self = shift;
+    my $discuss = shift;
+    $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss";
+    for(my $i=0;@{$self->discuss};$i++){
+        if($discuss->did eq $self->discuss->[$i]->did){
+            splice @{$self->discuss},$i,1;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 sub add_discuss_member {
@@ -501,11 +533,11 @@ sub update_discuss {
     else{
         my($new_discusss,$lost_discusss,$sames) = $self->array_diff($self->discuss,\@discusss,sub{$_[0]->did});  
         for(@{$new_discusss}){
-            $self->add_discuss_member($_);
+            $self->add_discuss($_);
             $self->emit(new_discuss=>$_);   
         }
         for(@{$lost_discusss}){
-            $self->remove_discuss_member($_);
+            $self->remove_discuss($_);
             $self->emit(lose_discuss=>$_);
         }
         for(@{$sames}){
