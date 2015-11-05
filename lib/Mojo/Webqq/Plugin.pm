@@ -39,6 +39,7 @@ sub load {
             $self->emit("plugin_load",$module);
         }
     }
+    return $self;
 }
 
 sub call{
@@ -68,6 +69,7 @@ sub call{
             $self->error("运行插件[ $_ ]失败：找不到该插件"); 
         }
     }
+    return $self;
 }
 
 1;

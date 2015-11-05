@@ -1228,7 +1228,7 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 将qq协议转换成irc协议，启动一个本地的irc服务器，使用任意irc客户端（irc user设置为qq号）连接后即可以按照irc的方式使用qq
 
-需要依赖模块 L<Mojo::IRC::Server>
+需要依赖模块 L<Mojo::IRC::Server::Chinese>
 
     $client->load("IRCShell",data=>{host=>"127.0.0.1",port=>6667,});#开启本地的irc server
     #支持的参数包括：
