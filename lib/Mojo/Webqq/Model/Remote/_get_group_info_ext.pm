@@ -30,7 +30,7 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
         $member->{gender} = $_->{g}?"female":"male";
         $member->{qq}  = $_->{uin};
         $member->{role} = $role{$_->{role}};
-        $member->{card} = $_->{card};
+        $member->{card} = (defined $_->{card} and $_->{card} ne "")?$_->{card}: undef;
         $member->{nick} = $_->{nick};
         $member->{qage} = $_->{qage};
         $member->{join_time} = $_->{join_time};
