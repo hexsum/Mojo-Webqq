@@ -45,12 +45,7 @@ Mojo-Webqq v1.6.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ![IRCShell](screenshot/IRCShell.png)
 
-###安装步骤
-
-    1. perl Makefile.PL
-    2. make
-    3. make test
-    4. make install
+###安装方法
 
 推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
