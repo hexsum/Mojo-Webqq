@@ -10,8 +10,8 @@ Mojo-Webqq v1.6.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   MsgSync              99       已发布      sjdy521     实现qq群和irc消息同步
   IRCShell             99       已发布      sjdy521     Linux环境下通过irc客户端使用qq
   Openqq               98       已发布      sjdy521     提供qq发送消息api接口
-  Perlcode             97       已发布      sjdy521     通过qq消息查询perl文档
-  Perldoc              96       已发布      sjdy521     通过qq消息执行perl代码
+  Perlcode             97       已发布      sjdy521     通过qq消息执行perl代码
+  Perldoc              96       已发布      sjdy521     通过qq消息查询perl文档
   StockInfo            95       已发布      shalk       查询股票信息
   KnowledgeBase        2        已发布      sjdy521     通过qq消息自定义问答知识库
   FuckDaShen           1        已发布      sjdy521     对消息中的"大神"关键词进行鄙视
