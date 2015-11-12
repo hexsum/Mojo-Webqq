@@ -3,9 +3,12 @@ sub Mojo::Webqq::Client::_recv_message{
     return if $self->is_stop;
     my $api_url = ($self->security?'https':'http') . '://d.web2.qq.com/channel/poll2';
     my $callback = sub {
-        my $json = shift;
+        my ($json,$ua,$tx) = @_;
         #分析接收到的消息，并把分析后的消息放到接收消息队列中
-        $self->parse_receive_msg($json) if defined $json;
+        if(defined $json){
+            $self->parse_receive_msg($json);
+            $self->emit(receive_raw_message=>$tx->res->body,$json);
+        }
         #重新开始接收消息
         $self->emit("poll_over");
     };

@@ -213,7 +213,9 @@ sub call{
             elsif($user->is_virtual){
                 $user->join_channel($channel)  if not $user->is_join_channel($channel);
             }
-            else{return if not $user->is_join_channel($channel);}
+            #else{
+            #    #$user->join_channel($channel) if not $user->is_join_channel($channel);
+            #}
             for(grep {!$_->is_virtual} $channel->users){
                 my @content = split /\r?\n/,$msg->content;
                 if($content[0]=~/^\@([^\s]+?) /){
