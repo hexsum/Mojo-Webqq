@@ -1137,6 +1137,14 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
         $client->relogin();
     });
 
+=head2 receive_raw_message 接收到原始消息内容
+
+    $client->on(receive_raw_message=>sub{
+        my ($client,$bytes,$hash) = @_;
+        #$bytes 是接收到的原始消息 json 格式数据，未做任何处理
+        #$hash 是将 $bytes 进行 Mojo::JSON::decode_json 之后得到的 perl hash 结构
+    });
+
 =head1 关于插件
 
 =head2 load
