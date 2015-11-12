@@ -525,12 +525,12 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     login_type      #"qrlogin"表示使用二维码登录，"login"表示帐号密码登录，默认为"qrlogin"
     encrypt_method  #perl|js 系统会自动判断，一般情况下你不需要自己设置登录加密算法
     
-    verifycode_path #图片验证码保存路径，默认是临时目录下随机名称
-    qrcode_path     #二维码保存路径，默认是临时目录下随机名称
-        
     tmpdir          #程序使用的临时目录，主要用于保存一些验证码、二维码等数据，默认为系统临时目录
-    cookie_dir      #登录cookie的保存目录，默认为临时目录
-    pic_dir         #图片接收默认地址，默认为 tmpdir
+    cookie_dir      #登录cookie的保存目录，默认为 tmpdir 参数所设置的目录
+    pic_dir         #图片接收默认地址，默认为 tmpdir 参数所设置的目录
+
+    verifycode_path #图片验证码保存路径，默认是 tmpdir 目录下固定文件名
+    qrcode_path     #二维码保存路径，默认是 tmpdir 目录下固定文件名
 
     $client->new(ua_debug=>0,qq=>xxxxxx,login_type=>"qrlogin");
     $client->new(ua_debug=>0,qq=>xxxxxx,pwd=>xxxxx,login_type=>"login");
@@ -1250,6 +1250,8 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 欢迎加入irc.perfi.wang的#PERL学习交流，该频道已经和QQ群[PERL学习交流]联通
 
 欢迎加入irc.perfi.wang的#Mojolicious，该频道已经和QQ群[Mojolicious]联通
+
+欢迎加入irc.perfi.wang的#Mojo-Webqq，该频道已经和QQ群[Mojo-Webqq]联通
         
 
 =head2 Mojo::Webqq::Plugin::Perldoc
