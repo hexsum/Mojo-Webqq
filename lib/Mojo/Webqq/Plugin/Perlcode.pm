@@ -15,7 +15,7 @@ sub call{
     my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
-        if($msg->content=~/(?:>>>)(.*?)(?:__END__|$)/s or $msg->content =~/perl\s+-e\s+'([^']+)'/s){
+        if($msg->content=~/^(?:>>>)(.*?)(?:__END__|$)/s or $msg->content =~/perl\s+-e\s+'([^']+)'/s){
             $msg->allow_plugin(0);
             return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $doc = '';
@@ -84,7 +84,7 @@ sub call{
                     }
                     elsif(defined $stdout_buf){$content=$stdout_buf}
                     elsif(defined $stderr_buf){$content=$stderr_buf}
-                    $content = "代码没有输出任何内容" if ( !defined $content or $content eq "");
+                    $content = "代码打印内容为空" if ( !defined $content or $content eq "");
                     $client->reply_message($msg,$content);
                 },
             );  

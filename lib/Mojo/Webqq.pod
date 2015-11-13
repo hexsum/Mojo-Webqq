@@ -1218,6 +1218,8 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 目前仅支持上海和深圳6位数字股票代码
 
+作者 shalk  L<https://github.com/shalk>
+
 =head2 Mojo::Webqq::Plugin::MsgSync
 
 实现QQ群和IRC的联通，彼此的消息自动同步，采用的是irc bot转发的形式，需要依赖L<Mojo::IRC>模块
@@ -1279,6 +1281,58 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 触发条件：消息以 >>> 开头，比如：
 
     >>> print "hello world";
+
+=head2 Mojo::Webqq::Plugin::ProgrameCode
+
+通过QQ消息执行各种编程语言代码，当前支持26种编程语言:
+
+ruby/perl/clojure/coffeescript/bash/cpp/c/assembly/java/scala
+
+csharp/d/erlang/go/idris/rust/php/elixir/fsharp/haskell/javascript
+
+julia/lua/nim/ocaml/python
+
+加载插件方法:
+
+    $client->load("ProgrameCode");
+
+触发条件： 消息以 code|language>>>开头，比如：
+
+=head3 php
+
+        code|php>>>
+        <?php
+        echo "Hello World\n";
+
+=head3 c
+
+        code|c>>>
+        #include <stdio.h>
+        int main() {
+            printf("Hello World!\n");
+            return 0;
+        }
+
+=head3 cpp
+
+        code|cpp>>>
+        #include <iostream>
+        using namespace std;
+        int main() {
+            cout << "Hello World!";
+            return 0;
+        }
+
+=head3 java
+
+        code|java>>>
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello World!");
+            }
+        }
+
+作者 limengyu1990 L<https://github.com/limengyu1990>
 
 =head2 Mojo::Webqq::Plugin::KnowledgeBase
 
