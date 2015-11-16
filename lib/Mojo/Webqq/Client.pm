@@ -230,6 +230,7 @@ sub login {
         }
     };
     $delay?$self->on(after_load_plugin=>$callback):$callback->();
+    return $self;
 }
 
 sub mail{
