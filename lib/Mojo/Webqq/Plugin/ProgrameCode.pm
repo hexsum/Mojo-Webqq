@@ -122,11 +122,13 @@ my %languages = (
 sub call{
     my $client = shift;
     my $data = shift;
-    $client->on(receive_message=>sub{
+    my $callback = sub{
         my($client,$msg)=@_;
         if ($msg->content =~ m/^code\s*\|\s*([a-zA-z]+?)\s*>>>(.*)/s) {
             my $language = $1;
             my $code = $2;
+            return if not $msg->allow_plugin;
+            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             return if not exists $languages{$language};
             return if not $code;
             $msg->allow_plugin(0);
@@ -150,5 +152,6 @@ sub call{
                 }
             });
         }
-    });
+    };
+    $client->on(receive_message=>$callback,send_message=>$callback);
 }
