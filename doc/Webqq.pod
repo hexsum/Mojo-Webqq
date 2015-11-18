@@ -1282,7 +1282,7 @@ qq好友会默认加入到irc的 '#我的好友' 频道中
 
     >>> print "hello world";
 
-=head2 Mojo::Webqq::Plugin::ProgrameCode
+=head2 Mojo::Webqq::Plugin::ProgramCode
 
 通过QQ消息执行各种编程语言代码，当前支持26种编程语言:
 
@@ -1294,7 +1294,7 @@ julia/lua/nim/ocaml/python
 
 加载插件方法:
 
-    $client->load("ProgrameCode");
+    $client->load("ProgramCode");
 
 触发条件： 消息以 code|language>>>开头，比如：
 

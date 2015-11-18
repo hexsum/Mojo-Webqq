@@ -1,4 +1,4 @@
-package Mojo::Webqq::Plugin::ProgrameCode;
+package Mojo::Webqq::Plugin::ProgramCode;
 our $PRIORITY = 94;
 use Encode;
 =head1 SYNOPSIS
