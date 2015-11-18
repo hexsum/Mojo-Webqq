@@ -52,8 +52,20 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         #你也可以使用$msg->dump() 来打印消息结构
     });
 
+    #ready事件触发时 表示客户端一切准备就绪：已经成功登录、已经加载完个人/好友/群信息等
+    #你的代码建议尽量写在 ready 事件中
+    $client->on(ready=>sub{
+        my $client = shift;
+
+        #你的代码写在此处 
+
+    });
+
     #客户端开始运行
     $client->run();
+
+    #run相当于执行一个死循环，不会跳出循环之外
+    #所以run应该总是放在代码最后执行，并且不要在run之后再添加任何自己的代码了
 
 =head1 DESCRIPTION
 
