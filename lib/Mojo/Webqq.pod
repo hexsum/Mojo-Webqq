@@ -204,12 +204,15 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     示例代码：
     my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
-    $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
-    $group->send("hello world")
-    $group->each_group_member(
+    $group->send("hello world"); #在指定的群中发送消息
+
+    my $member = $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
+    $member->send("hello world"); #给群中指定的群成员发送临时消息
+
+    $group->each_group_member(sub{
         my($client,$member) = @_;
         ...;
-    )
+    });
 
     for my $group ($client->groups){
         ...;
