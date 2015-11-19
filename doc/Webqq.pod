@@ -205,11 +205,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     示例代码：
     my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
     $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
-    $group->send("hello world")
-    $group->each_group_member(
+    $group->send("hello world");
+    $group->each_group_member(sub{
         my($client,$member) = @_;
         ...;
-    )
+    });
 
     for my $group ($client->groups){
         ...;
@@ -1369,7 +1369,7 @@ julia/lua/nim/ocaml/python
 
 =head2 Mojo::Webqq::Plugin::Translation
 
-语言翻译功能，自动检测输出输出语言，消息指令格式：
+多国语言翻译功能，自动检测输入输出语言，消息指令格式：
 
     翻译 hello
     翻译 你好

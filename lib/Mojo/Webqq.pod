@@ -1369,7 +1369,7 @@ julia/lua/nim/ocaml/python
 
 =head2 Mojo::Webqq::Plugin::Translation
 
-语言翻译功能，自动检测输出输出语言，消息指令格式：
+多国语言翻译功能，自动检测输入输出语言，消息指令格式：
 
     翻译 hello
     翻译 你好
