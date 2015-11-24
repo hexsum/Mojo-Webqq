@@ -77,6 +77,14 @@ sub ready{
         }
     });   
     $self->interval(3600*4,sub{$self->data(+{})});
+    $self->interval(300,sub{
+        return if ref $self ne 'Mojo::Webqq';
+        for my $g ($self->groups){
+            for my $m ($g->members){
+                $m->{_client} = $self if not defined $m->{_client};    
+            }
+        } 
+    });
     $self->interval(600,sub{
         return if $self->is_stop;
         $self->update_group;

@@ -33,14 +33,14 @@ sub update{
                     my $old_property = $self->{$_};
                     my $new_property = $hash->{$_};
                     $self->{$_} = $hash->{$_};
-                    $self->{_client}->emit("discuss_member_property_change"=>$self,$_,$old_property,$new_property);
+                    $self->{_client}->emit("discuss_member_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
                 }
             }
             elsif( ! (!defined $hash->{$_} and !defined $self->{$_}) ){
                 my $old_property = $self->{$_};
                 my $new_property = $hash->{$_};
                 $self->{$_} = $hash->{$_};
-                $self->{_client}->emit("discuss_member_property_change"=>$self,$_,$old_property,$new_property);
+                $self->{_client}->emit("discuss_member_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
             }
         }
     }

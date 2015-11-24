@@ -101,11 +101,11 @@ sub update{
                 my($new_members,$lost_members,$sames)=$self->{_client}->array_diff($self->member, \@member,sub{$_[0]->id});
                 for(@{$new_members}){
                     $self->add_discuss_member($_);
-                    $self->{_client}->emit(new_discuss_member=>$_);
+                    $self->{_client}->emit(new_discuss_member=>$_) if defined $self->{_client};
                 }
                 for(@{$lost_members}){
                     $self->remove_discuss_member($_);
-                    $self->{_client}->emit(lose_discuss_member=>$_);
+                    $self->{_client}->emit(lose_discuss_member=>$_) if defined $self->{_client};
                 }
                 for(@{$sames}){
                     my($old,$new) = ($_->[0],$_->[1]);
@@ -120,14 +120,14 @@ sub update{
                         my $old_property = $self->{$_};
                         my $new_property = $hash->{$_};
                         $self->{$_} = $hash->{$_};
-                        $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property);
+                        $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
                     }
                 }
                 elsif( ! (!defined $hash->{$_} and !defined $self->{$_}) ){
                     my $old_property = $self->{$_};
                     my $new_property = $hash->{$_};
                     $self->{$_} = $hash->{$_};
-                    $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property);
+                    $self->{_client}->emit("discuss_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
                 }
             }
         }
