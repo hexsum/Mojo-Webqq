@@ -79,11 +79,37 @@ sub ready{
     $self->interval(3600*4,sub{$self->data(+{})});
     $self->interval(300,sub{
         return if ref $self ne 'Mojo::Webqq';
+        $self->debug("检查数据完整性...");
         for my $g ($self->groups){
+            if(not defined $g->{_client}){
+                $g->{_client} = $self;
+                $self->warn("群对象(" . $g->gid . ")数据异常, 已尝试修复");
+            }
             for my $m ($g->members){
-                $m->{_client} = $self if not defined $m->{_client};    
+                if(not defined $m->{_client}){
+                    $m->{_client} = $self;
+                    $self->warn("群成员对象(". $m->id . ")数据异常, 已尝试修复");
+                }
             }
         } 
+        for my $d ($self->discusss){
+            if(not defined $d->{_client}){
+                $d->{_client} = $self;
+                $self->warn("讨论组对象(" . $d->did . ")数据异常, 已尝试修复");
+            }
+            for my $m ($d->members){
+                if(not defined $m->{_client}){
+                    $m->{_client} = $self;
+                    $self->warn("讨论组成员对象(". $m->id . ")数据异常, 已尝试修复");
+                }
+            }
+        }
+        for my $f ($self->friends){
+            if(not defined $f->{_client}){
+                $f->{_client} = $self;
+                $self->warn("好友对象(" . $f->id . ")数据异常, 已尝试修复");
+            }
+        }        
     });
     $self->interval(600,sub{
         return if $self->is_stop;
