@@ -24,14 +24,13 @@ sub call{
             $code=~s/CORE:://g;
             $code=~s/CORE::GLOBAL:://g; 
             return unless $code;
-            my $copy = $code=~s/(\n^__DATA__\s*?\n(.*?))(?:^__[A-Z]+__|\z)//rgms;
+            $code=~s/(\n^__DATA__\s*?\n(.*?))(?:^__[A-Z]+__|\z)//gms;
             my $__data__ = $2;
             if(defined $__data__){
-                unless(open Mojo::Webqq::Plugin::Perlcode::Sandbox::DATA ,"<",\$__data__){
+                unless(open(Mojo::Webqq::Plugin::Perlcode::Sandbox::DATA ,"<",\$__data__)){
                     $client->warn("处理__DATA__出现异常: $!");
                     return
                 }
-                $code = $copy;
             }
             $code = q#package Mojo::Webqq::Plugin::Perlcode::Sandbox;use feature qw(say);local $|=1;BEGIN{$^W=0;use File::Path;use BSD::Resource;setrlimit(RLIMIT_NOFILE,100,100);setrlimit(RLIMIT_CPU,8,8);setrlimit(RLIMIT_FSIZE,1024,1024);setrlimit(RLIMIT_NPROC,5,5);setrlimit(RLIMIT_STACK,1024*1024*10,1024*1024*10);setrlimit(RLIMIT_DATA,1024*1024*10,1024*1024*10);*CORE::GLOBAL::fork=sub{};}$|=1;{my($u,$g)=((getpwnam("nobody"))[2],(getgrnam("nobody"))[2]);mkpath('/tmp/webqq/bin/',{owner=>$u,group=>$g,mode=>0555}) unless -e '/tmp/webqq/bin';chdir '/tmp/webqq/bin' or die $!;chroot '/tmp/webqq/bin' or die "chroot fail: $!";chdir "/";($(, $))=($g,"$g $g");($<,$>)=($u,$u);}local %ENV=();# .  $code;
             my ($stdout_buf,$stderr_buf,$is_stdout_cut,$is_stderr_cut);

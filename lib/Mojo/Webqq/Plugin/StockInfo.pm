@@ -111,8 +111,7 @@ sub stockinfo_convert{
     my $reply;
     $reply .= "股票名称:   $name($code)\n";
     $reply .= "------------------------\n";
-    $reply .= "当前价格:$current_price\t\t" ,"开盘价格:$today_open_price\n";
-    $reply .= "昨日收盘:$yesterday_price\n";
+    $reply .= "当前价格:$current_price\t开盘价格:$today_open_price\t昨日收盘:$yesterday_price\n";
     $reply .= sprintf  "幅度    :%-15s换手率  :%-17s\n",$UpdownPercent."%",$changePercent."%";
     $reply .= "成交量  :$totalNumber\n";
     $reply .= "------------------------\n";
