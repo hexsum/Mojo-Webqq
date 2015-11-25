@@ -31,7 +31,7 @@ sub encode_json{
 
 sub truncate {
     my $self = shift;
-    my $out_and_err = shift;
+    my $out_and_err = shift || '';
     my %p = @_;
     my $max_bytes = $p{max_bytes} || 200;
     my $max_lines = $p{max_lines} || 10;

@@ -316,7 +316,7 @@ sub update_group_ext {
             }
             else{$self->warn("更新[ $g->{gname} ]扩展信息失败");}
         }
-        my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname} . $_[0]->{member_count}});
+        my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname} . (defined $_[0]->{member_count}?$_[0]->{member_count}:"")});
         my $unique_group = $self->array_unique($self->group,sub{$_[0]->gname . @{$_[0]->member}});
         for my $g(@$unique_group){ 
             my $id = $g->gname . @{$g->member};
