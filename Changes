@@ -1,3 +1,11 @@
+2015-11-25 Mojo::Webqq v1.6.2
+1）新增receive_raw_message事件
+2）修复IRCShell插件在相同昵称的irc帐号已经存在的情况下，无法正常显示qq群消息的bug
+3）新增 ProgramCode/Translation/MobileInfo 插件 感谢 @不负如来不负卿 贡献
+4）增加定期数据完整性检测机制，对于异常数据尝试进行修复，解决Can't call method "emit" on an undefined value的问题
+5）修复少量Use of uninitialized value in concatenation的警告
+6）修复文档示例代码错误 感谢 @涣涣天空 纠正
+
 2015-11-12 Mojo::Webqq v1.6.1
 1）修复无法正常更新讨论组信息，无法正常接收讨论组消息的bug
 2）$client->load()/$client->call()方法返回$client本身，方便实现链式调用
