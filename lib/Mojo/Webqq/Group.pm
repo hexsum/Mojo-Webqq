@@ -156,6 +156,17 @@ sub invite_friend{
     my @friends = @_;
     return $self->{_client}->invite_friend($self,@friends);
 }
+sub shutup_group_member{
+    my $self = shift;
+    my $time = shift;
+    my @members = @_;
+    return $self->{_client}->shutup_group_member($self,$time,@members);
+}
+sub speakup_group_member{
+    my $self = shift;
+    my @members = @_;
+    return $self->{_client}->speakup_group_member($self,@members);
+}
 sub kick_group_member{
     my $self = shift;
     my @members = @_;

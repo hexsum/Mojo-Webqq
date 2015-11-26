@@ -197,6 +197,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     set_group_admin         #设置群成员为管理员
     remove_group_admin      #取消群成员的管理员身份
     set_group_member_card   #设置群名片
+    shutup_group_member     #对群成员进行禁言
+    speakup_group_member    #取消群成员禁言
     members                 #返回群成员对象列表  
     send                    #给群对象发送消息
     me                      #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
@@ -233,6 +235,12 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     #取消指定成员的管理员身份，需要群主身份
     $group->remove_group_admin($member1 [,$member2,...]);
+
+    #对指定的群成员进行禁言，禁言时间单位为秒，建议尽量是分钟的整数倍，最小60秒
+    $group->shutup_group_member(60,$member1 [,$member2,...]);
+
+    #对指定的群成员取消禁言操作
+    $group->speakup_group_member($member1 [,$member2,...]);
 
     #设置自己的群名片
     $group->set_group_member_card($group->me, $card);

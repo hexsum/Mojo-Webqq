@@ -25,6 +25,7 @@ use Mojo::Webqq::Model::Remote::_set_group_admin;
 use Mojo::Webqq::Model::Remote::_remove_group_admin;
 use Mojo::Webqq::Model::Remote::_kick_group_member;
 use Mojo::Webqq::Model::Remote::_set_group_member_card;
+use Mojo::Webqq::Model::Remote::_shutup_group_member;
 
 use base qw(Mojo::Webqq::Base);
 
@@ -679,6 +680,62 @@ sub kick_group_member{
         $self->info("踢除群成员成功");
     }
     else{$self->error("剔除群成员失败")}
+    return $ret;
+}
+
+sub shutup_group_member{
+    my $self = shift;
+    return if not $self->is_support_model_ext;
+    my $group = shift;
+    my $time = shift;
+    my @members = @_;
+    if($time<60){
+        $self->error("禁言时间太短，至少1分钟");
+        return;
+    }
+    if(not defined $group->gnumber){
+        $self->error("未获取到群号码，无法完成禁言操作");
+        return;
+    }
+    if($group->me->gtype ne "manage" and $group->me->gtype ne "create"){
+        $self->error("非群主或管理员，无法完成禁言操作");
+        return;
+    }
+    for(@members){
+        $self->die("非群成员对象") if not $_->is_group_member;
+        if($_->role eq "admin" or $_->role eq "owner"){
+            $self->error("无法对群主或管理员进行禁言操作");
+            return; 
+        } 
+    }
+    my $ret = $self->_shutup_group_member($group->gnumber,$time,map {$_->qq} @members);
+    if($ret){$self->info("禁言操作成功");}
+    else{$self->error("禁言操作失败");}
+    return $ret;
+}
+sub speakup_group_member{
+    my $self = shift;
+    return if not $self->is_support_model_ext;
+    my $group = shift;
+    my @members = @_;
+    if(not defined $group->gnumber){
+        $self->error("未获取到群号码，无法完成禁言操作");
+        return;
+    }
+    if($group->me->gtype ne "manage" and $group->me->gtype ne "create"){
+        $self->error("非群主或管理员，无法完成禁言操作");
+        return;
+    }
+    for(@members){
+        $self->die("非群成员对象") if not $_->is_group_member;
+        if($_->role eq "admin" or $_->role eq "owner"){
+            $self->error("无法对群主或管理员进行取消禁言操作");
+            return; 
+        } 
+    }
+    my $ret = $self->_shutup_group_member($group->gnumber,0,map {$_->qq} @members);
+    if($ret){$self->info("取消禁言操作成功");}
+    else{$self->error("取消禁言操作失败");}
     return $ret;
 }
 sub set_group_admin{
