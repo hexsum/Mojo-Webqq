@@ -289,7 +289,6 @@ sub add_group{
     }
     return $self;
 }
-
 sub remove_group{
     my $self = shift;
     my $group = shift;
@@ -674,7 +673,7 @@ sub kick_group_member{
     my $ret = $self->_kick_group_member($group->gnumber,map {$_->qq} @members);
     if($ret){
         for(@members){
-            $self->remove_group_member($_);
+            $_->group->remove_group_member($_);
             $self->emit(lose_group_member=>$_);
         }
         $self->info("踢除群成员成功");

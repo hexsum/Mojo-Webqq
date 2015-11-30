@@ -7,6 +7,7 @@ Mojo-Webqq v1.6.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   名称                 优先级   当前状态    github作者    功能说明
   ------------------------------------------------------------------------------
   ShowMsg              100      已发布      sjdy521       打印客户端接收和发送的消息
+  GroupManage          100      已发布      sjdy521       群管理，入群欢迎、限制发图频率等
   MsgSync              99       已发布      sjdy521       实现qq群和irc消息同步
   IRCShell             99       已发布      sjdy521       Linux环境下通过irc客户端使用qq
   Openqq               98       已发布      sjdy521       提供qq发送消息api接口
