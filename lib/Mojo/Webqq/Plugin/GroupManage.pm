@@ -17,7 +17,8 @@ sub do_speak_limit{
     my $kick_limit = $data->{speak_limit}{kick_limit};
 
     my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
-    my $slot = int((time-$start)/$period);
+    return if $msg->msg_time-$start <0;
+    my $slot = int(($msg->msg_time-$start)/$period);
     my $count = ++$db->{speak_limit}{$gid}{$sender_id}{$slot};
 
     if(defined $kick_limit and $count >= $kick_limit){
@@ -45,7 +46,8 @@ sub do_pic_limit{
     my $kick_limit = $data->{pic_limit}{kick_limit};
 
     my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
-    my $slot = int((time-$start)/$period);
+    return if $msg->msg_time-$start <0;
+    my $slot = int(($msg->msg_time-$start)/$period);
     for(@{$msg->raw_content}){
         if($_->{type} eq 'cface'){
             $db->{pic_limit}{$gid}{$sender_id}{$slot}++;  
