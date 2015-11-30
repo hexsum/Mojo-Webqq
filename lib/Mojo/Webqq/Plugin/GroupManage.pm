@@ -27,7 +27,7 @@ sub do_speak_limit{
         $msg->group->shutup_group_member($shutup_time,$msg->sender);
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
-        $msg->group->send(sprintf $warn_message,$msg->sender->displayname); 
+        $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
     }
 }
 sub do_pic_limit{
@@ -53,13 +53,13 @@ sub do_pic_limit{
     }
     my $count = $db->{pic_limit}{$gid}{$sender_id}{$slot} || 0;
     if(defined $kick_limit and $count >= $kick_limit){
-        $msg->group->kick_group_member($msg->sender);
+        $msg->sender->group->kick_group_member($msg->sender);
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
-        $msg->group->shutup_group_member($shutup_time,$msg->sender);
+        $msg->sender->group->shutup_group_member($shutup_time,$msg->sender);
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
-        $msg->group->send(sprintf $warn_message,$msg->sender->displayname); 
+        $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
     }
 }
 #sub do_badwork_check {}
@@ -72,6 +72,7 @@ sub call {
     $client->on(
         receive_message     => sub {
             my($client,$msg) = @_;
+            return if $msg->type ne "group_message";
             #说话频率限制
             do_speak_limit($client,$data,$db,$msg);        
             #发图数量限制

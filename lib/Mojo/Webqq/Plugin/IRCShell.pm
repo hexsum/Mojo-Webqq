@@ -247,8 +247,7 @@ sub call{
                     nick    =>$friend->displayname,
                     virtual => 1,
                 );
-
-                $user->join($channel);
+                $user->join_channel($channel);
             }
             elsif($user->is_virtual){
                 $user->join_channel($channel)  if not $user->is_join_channel($channel);
