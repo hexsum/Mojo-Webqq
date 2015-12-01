@@ -53,8 +53,16 @@ Mojo-Webqq v1.6.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
-    $ cpan -i App::cpanminus #安装cpanm工具
-    $ cpanm -v Mojo::Webqq   #在线安装Mojo::Webqq模块 
+    1. 安装cpanm工具
+
+    方法1： 通过cpan安装cpanm
+    $ cpan -i App::cpanminus
+    
+    方法2： 直接在线安装cpanm
+    $ curl -L http://cpanmin.us | perl - App::cpanminus
+    
+    2. 使用cpanm在线安装Mojo::Webqq模块
+    $ cpanm -v Mojo::Webqq
 
 ###核心依赖模块
 
