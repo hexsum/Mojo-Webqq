@@ -1403,12 +1403,12 @@ julia/lua/nim/ocaml/python
         new_group_member => '欢迎新成员 @%s 入群[鼓掌][鼓掌][鼓掌]', #新成员入群欢迎语，%s会被替换成群成员名称
         lose_group_member => '很遗憾 @%s 离开了本群[流泪][流泪][流泪]', #成员离群提醒
         speak_limit => {#发送消息频率限制
-            period          => 5, #统计周期，单位是秒
-            warn_limit      => 3, #统计周期内达到该次数，发送警告信息
+            period          => 10, #统计周期，单位是秒
+            warn_limit      => 8, #统计周期内达到该次数，发送警告信息
             warn_message    => '@%s 警告, 您发言过于频繁，可能会被禁言或踢出本群', #警告内容
-            shutup_limit    => 6, #统计周期内达到该次数，成员会被禁言
+            shutup_limit    => 10, #统计周期内达到该次数，成员会被禁言
             shutup_time     => 600, #禁言时长
-            kick_limit      => 8,   #统计周期内达到该次数，成员会被踢出本群
+            #kick_limit      => 15,   #统计周期内达到该次数，成员会被踢出本群
         },
         pic_limit => {#发图频率限制
             period          => 600,

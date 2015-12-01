@@ -26,6 +26,7 @@ sub call{
         if(substr($msg->{params}[0],0,1) eq "#" ){
             my $channel_name = $msg->{params}[0];
             my $content = $msg->{params}[1];
+            my $raw_content = $content;
             my $channel = $ircd->search_channel(name=>$channel_name);
             return if not defined $channel;
             my $group = $client->search_group(gid=>$channel->id);
@@ -33,6 +34,7 @@ sub call{
             if($content=~/^([^\s]+?): /){
                 my $at_nick = $1;
                 $content =~s/^([^\s]+?): /\@$at_nick / if  $ircd->search_user(nick=>$at_nick);
+                $raw_content = $content;
             }
             if($user->user ne $master_irc_user and !$user->is_localhost){
                 $content = $user->nick . ": $content"; 
@@ -42,8 +44,15 @@ sub call{
                 $_[1]->msg_from("irc");
                 $_[1]->cb(sub{
                     my($client,$msg,$status)=@_;
-                    return if $status->is_success;
-                    $user->send($user->ident,"PRIVMSG",$channel_name,$content . "[发送失败]");
+                    if($status->is_success){
+                        if($msg->content ne $raw_content){
+                            $msg->content($raw_content);
+                            $msg->raw_content($client->face_parse($msg->content));
+                        }
+                    }
+                    else{
+                        $user->send($user->ident,"PRIVMSG",$channel_name,$content . "[发送失败]");
+                    }
                 });
             });
         }
