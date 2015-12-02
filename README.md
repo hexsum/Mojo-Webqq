@@ -1,4 +1,4 @@
-Mojo-Webqq v1.6.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
+Mojo-Webqq v1.6.3 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
 ========================
 使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10.1+
 

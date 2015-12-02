@@ -1,3 +1,11 @@
+2015-12-02 Mojo::Webqq v1.6.3
+1）修复Perlcode插件在perl-5.10.1版本上编译错误的bug 感谢 @hzz1989
+2）修复StockInfo插件加载时产生警告问题
+3）增加群禁言功能，详情请参加文档说明
+4）新增GroupManage群管理插件
+5）IRCShell插件完善
+6）增加更多demo示例 感谢 @hzz1989
+
 2015-11-25 Mojo::Webqq v1.6.2
 1）新增receive_raw_message事件
 2）修复IRCShell插件在相同昵称的irc帐号已经存在的情况下，无法正常显示qq群消息的bug
