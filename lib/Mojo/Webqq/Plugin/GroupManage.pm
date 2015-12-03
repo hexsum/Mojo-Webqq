@@ -1,5 +1,6 @@
 package Mojo::Webqq::Plugin::GroupManage;
 use strict;
+use List::Util qw(first);
 our $PRIORITY = 100;
 use POSIX ();
 sub do_speak_limit{
@@ -24,9 +25,11 @@ sub do_speak_limit{
 
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->group->kick_group_member($msg->sender);
+        delete $db->{speak_limit}{$gid}{$sender_id};
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
         $msg->group->shutup_group_member($shutup_time,$msg->sender);
+        delete $db->{speak_limit}{$gid}{$sender_id};
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
         $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
@@ -36,6 +39,8 @@ sub do_pic_limit{
     my($client,$data,$db,$msg) = @_;
     my $gid = $msg->group->gid;
     my $sender_id = $msg->sender->id;
+    return if not first {$_->{type} eq 'cface'} @{$msg->raw_content};    
+
     my $period = $data->{pic_limit}{period} || 600;
 
     my $warn_limit = $data->{pic_limit}{warn_limit};
@@ -58,15 +63,52 @@ sub do_pic_limit{
     my $count = $db->{pic_limit}{$gid}{$sender_id}{$slot} || 0;
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->sender->group->kick_group_member($msg->sender);
+        delete $db->{pic_limit}{$gid}{$sender_id};
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
         $msg->sender->group->shutup_group_member($shutup_time,$msg->sender);
+        delete $db->{pic_limit}{$gid}{$sender_id};
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
         $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
     }
 }
-#sub do_badwork_check {}
+sub do_keyword_limit {
+    my($client,$data,$db,$msg) = @_;
+    my $gid = $msg->group->gid;
+    my $sender_id = $msg->sender->id;
+    my $period = $data->{keyword_limit}{period} || 600;
+    my @keywords = ref $data->{keyword_limit}{keyword} eq "ARRAY"?@{$data->{keyword_limit}{keyword}}:();
+    return if @keywords == 0;
+    return if not first {$msg->content =~/\Q$_\E/} @keywords;
+    my $warn_limit = $data->{keyword_limit}{warn_limit};
+    my $warn_message = $data->{keyword_limit}{warn_message} || '@%s 警告, 您发言包含限制内容，可能会被禁言或踢出本群';
+
+    my $shutup_limit = $data->{keyword_limit}{shutup_limit};
+    my $shutup_time = $data->{keyword_limit}{shutup_time} || 600;
+
+    my $kick_limit = $data->{keyword_limit}{kick_limit};
+
+    my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
+    return if time - $msg->msg_time >600;
+    return if $msg->msg_time-$start <0;
+    my $slot = int(($msg->msg_time-$start)/$period);
+
+    $db->{keyword_limit}{$gid}{$sender_id}{$slot}++;
+
+    my $count = $db->{keyword_limit}{$gid}{$sender_id}{$slot} || 0;
+    if(defined $kick_limit and $count >= $kick_limit){
+        $msg->sender->group->kick_group_member($msg->sender);
+        delete $db->{keyword_limit}{$gid}{$sender_id};
+    }
+    elsif(defined $shutup_limit and $count >= $shutup_limit){
+        $msg->sender->group->shutup_group_member($shutup_time,$msg->sender);
+        delete $db->{keyword_limit}{$gid}{$sender_id};
+    }
+    elsif(defined $warn_limit and $count >= $warn_limit){
+        $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
+    }
+}
 sub call {
     my $client = shift;
     my $data   = shift;
@@ -82,7 +124,7 @@ sub call {
             #发图数量限制
             do_pic_limit($client,$data,$db,$msg);
             #关键字限制
-            #do_badwork_check($client,$data,$db,$msg);
+            do_keyword_limit($client,$data,$db,$msg)
         },
         new_group           => sub {$_[1]->send($data->{new_group} || "大家好，初来咋到，请多关照");},
         #lose_group         => sub { },
