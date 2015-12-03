@@ -93,7 +93,7 @@ sub update{
     for(grep {substr($_,0,1) ne "_"} keys %$self){
         if($_ eq "member" and exists $hash->{member} and ref $hash->{member} eq "ARRAY"){
             next if not @{$hash->{member}};
-            my @member = map {ref($_ eq "Mojo::Webqq::Discuss::Member")?$_:$self->{_client}->new_discuss_member->new($_)} @{$hash->{member}};
+            my @member = map {ref $_ eq "Mojo::Webqq::Discuss::Member"?$_:$self->{_client}->new_discuss_member($_)} @{$hash->{member}};
             if( $self->is_empty() ){
                 $self->member(\@member);
             }

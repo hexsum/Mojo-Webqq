@@ -202,7 +202,7 @@ sub send_group_message{
         return;
     }
     if(ref $group eq "Mojo::Webqq::Group" and defined $group->gid){
-        my $sender = $group->search_group_member(id=>$self->user->id) || $self->user;
+        my $sender = $group->me || $self->user;
         #my $msg =  Mojo::Webqq::Message::Send::GroupMessage->new({
         my $msg =  $self->new_send_group_message({
             msg_id      => $self->gen_message_id,
