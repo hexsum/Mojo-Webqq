@@ -1416,7 +1416,14 @@ julia/lua/nim/ocaml/python
             warn_message   => '@%s 警告, 您发图过多，可能会被禁言或踢出本群',
             shutup_limit    => 8,
             kick_limit      => 10,
-        }
+        },
+        keyword_limit => {
+            period=> 600,
+            keyword=>[qw(fuck 傻逼 你妹 滚)],
+            warn_limit=>3,
+            shutup_limit=>5,
+            #kick_limit=>undef,
+        },
     });
 
 =head2 Mojo::Webqq::Plugin::PostQRcode

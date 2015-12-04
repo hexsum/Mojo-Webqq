@@ -146,6 +146,12 @@ sub call {
         #lose_discuss_member => sub { },
         #new_friend          => sub { },
         #lose_friend         => sub { },
+        group_member_property_change => sub {
+            my($client,$member,$property,$old,$new)=@_;
+            return if $property ne "card";
+            return if not defined($new);
+            $member->group->send('@' . (defined($old)?$old:$member->nick) . " 修改群名片为: $new");
+        }
     );
 }
 1;
