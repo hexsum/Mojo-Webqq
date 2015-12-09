@@ -1,7 +1,7 @@
 sub Mojo::Webqq::Model::_get_discuss_info {
     my $self = shift;       
     my $did = shift;
-    my $api_url  = 'http://d.web2.qq.com/channel/get_discu_info';
+    my $api_url  = 'http://d1.web2.qq.com/channel/get_discu_info';
     my @query_string = (
         did         =>  $did,
         vfwebqq     =>  $self->vfwebqq,
@@ -10,7 +10,7 @@ sub Mojo::Webqq::Model::_get_discuss_info {
         t           =>  time(),
     );
     my $headers = {
-        Referer  => 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2',
+        Referer  => 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',
         json     => 1,
     };
 

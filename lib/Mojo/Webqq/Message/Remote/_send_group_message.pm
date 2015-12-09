@@ -25,9 +25,9 @@ sub Mojo::Webqq::Message::_send_group_message{
         }
     };
     
-    my $api_url = ($self->security?'https':'http') . '://d.web2.qq.com/channel/send_qun_msg2';
+    my $api_url = ($self->security?'https':'http') . '://d1.web2.qq.com/channel/send_qun_msg2';
     my $headers = {
-        Referer => 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2',
+        Referer => 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',
         json    => 1,
     };
     use Encode;

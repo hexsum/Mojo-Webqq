@@ -1,7 +1,7 @@
 sub Mojo::Webqq::Client::_recv_message{
     my $self = shift;
     return if $self->is_stop;
-    my $api_url = ($self->security?'https':'http') . '://d.web2.qq.com/channel/poll2';
+    my $api_url = ($self->security?'https':'http') . '://d1.web2.qq.com/channel/poll2';
     my $callback = sub {
         my ($json,$ua,$tx) = @_;
         eval{
@@ -17,11 +17,12 @@ sub Mojo::Webqq::Client::_recv_message{
     };
 
     my %r = (
+        ptwebqq     => $self->ptwebqq,
         clientid    =>  $self->clientid,
         psessionid  =>  $self->psessionid,
         key         =>  "",
     );
-    my $headers = {Referer=>"http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2",json=>1};
+    my $headers = {Referer=>"http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2",json=>1};
     $self->http_post(
         $api_url,   
         $headers,

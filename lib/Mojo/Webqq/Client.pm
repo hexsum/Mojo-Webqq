@@ -130,7 +130,7 @@ sub ready{
         });
     });
     #接收消息
-    $self->on(poll_over=>sub{$_[0]->_recv_message();});
+    $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
     $self->info("开始接收消息...\n");
     $self->_recv_message();
     $Mojo::Webqq::Client::CLIENT_COUNT++;
