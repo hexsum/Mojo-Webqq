@@ -24,6 +24,7 @@ use Mojo::Webqq::Message::Remote::_send_sess_message;
 
 use Mojo::Webqq::Message::Queue;
 use Mojo::Webqq::Message::Face;
+use Mojo::Webqq::Message::XMLescape;
 use Mojo::Webqq::Message::Emoji;
 
 sub gen_message_queue{
@@ -584,13 +585,14 @@ sub msg_put{
                     $c = "[未识别内容]";
                 }
             }
-            elsif($c eq " "){
-                next;
-            }
+            #elsif($c eq " "){
+            #    next;
+            #}
             else{
                 $c=encode("utf8",$c);
-                $c=~s/ $//;   
-                $c=~s/\r|\n/\n/g;
+                $c=$self->xmlescape_parse($c);
+                #$c=~s/ $//;   
+                $c=~s/\r\n/\n/g;
                 my $res = $self->emoji_parse($c);
                 push @{$msg->{raw_content}},@$res;
                 $c = join "",map{$_->{content}} @$res;
