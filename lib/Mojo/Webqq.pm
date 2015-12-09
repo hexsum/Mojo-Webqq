@@ -1,6 +1,6 @@
 package Mojo::Webqq;
 use strict;
-$Mojo::Webqq::VERSION = "1.6.5";
+$Mojo::Webqq::VERSION = "1.6.6";
 use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
