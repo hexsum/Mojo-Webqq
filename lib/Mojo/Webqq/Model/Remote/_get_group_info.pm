@@ -37,7 +37,7 @@ sub Mojo::Webqq::Model::_get_group_info {
     #retcode等于0说明包含完整的ginfo和minfo
     if(exists $json->{result}{minfo} and ref $json->{result}{minfo} eq "ARRAY"){
         my %cards;
-        if(ref $json->{result}{cards} eq "ARRAY" or @{ $json->{result}{cards} }!=0){
+        if(ref $json->{result}{cards} eq "ARRAY" and @{ $json->{result}{cards} }!=0){
             for  (@{ $json->{result}{cards} }){
                 $cards{$_->{muin}} = $_->{card};
             }
