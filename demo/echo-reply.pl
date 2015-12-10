@@ -1,4 +1,5 @@
-use lib "../";
+#!/usr/bin/env perl
+use lib "../lib/";
 use Mojo::Webqq;
 
 #注意: 
