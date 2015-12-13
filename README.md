@@ -126,11 +126,12 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         $post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除此行
         
         my $client = Mojo::Webqq->new(qq=>$qq,login_type=>"qrlogin");
+        $client->login();
         $client->load("ShowMsg");
         $client->load("Openqq",data=>{listen=>{host=>$host,port=>$port}, post_api=>$post_api});
         $client->run();
     
-    上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会在本机产生一个监听指定地址端口的 http serevr
+    上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会完成 QQ 登录并在本机产生一个监听指定地址端口的 http serevr
     
         $ perl xxxx.pl
     
@@ -162,7 +163,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
             
         $ cpanm -v Mojo::IRC::Server::Chinese #先安装 IRC 依赖模块
 
-        $ perl -MMojo::Webqq -e 'Mojo::Webqq->new(qq=>$ARGV[0])->load("ShowMsg")->load("IRCShell")->run()' xxxx #我的QQ号码作为命令第一个参数
+        $ perl -MMojo::Webqq -e 'Mojo::Webqq->new(qq=>$ARGV[0])->login->load(["ShowMsg","IRCShell"])->run()' xxxx #我的QQ号码作为命令第一个参数
     
     使用weechat、irssi、mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
 
