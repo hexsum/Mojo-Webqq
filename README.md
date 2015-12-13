@@ -164,7 +164,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
         $ perl -MMojo::Webqq -e 'Mojo::Webqq->new(qq=>$ARGV[0])->load("ShowMsg")->load("IRCShell")->run()' xxxx #我的QQ号码作为命令第一个参数
     
-    使用weechat、irssi/mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
+    使用weechat、irssi、mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
 
 4. *我是一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能*
 
@@ -173,8 +173,8 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###核心依赖模块
 
-* Mojolicious
-* Encode::Locale
+* [Mojolicious](https://metacpan.org/pod/Mojolicious)
+* [Encode::Locale](https://metacpan.org/pod/Encode::Locale)
 
 ###相关文档
 
