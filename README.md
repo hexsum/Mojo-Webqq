@@ -53,16 +53,119 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
-    1. 安装cpanm工具
+1. 安装cpanm工具
 
-    方法1： 通过cpan安装cpanm
-    $ cpan -i App::cpanminus
+    方法a： 通过cpan安装cpanm
+        $ cpan -i App::cpanminus
     
-    方法2： 直接在线安装cpanm
-    $ curl -L http://cpanmin.us | perl - App::cpanminus
+    方法b： 直接在线安装cpanm
+        $ curl -L http://cpanmin.us | perl - App::cpanminus
+
+2. 使用cpanm在线安装 Mojo::Webqq 模块
+
+        $ cpanm -v Mojo::Webqq
+
+3. 安装失败可能有帮助的解决方法
+        
+    如果你运气不佳，通过cpanm没有一次性安装成功，这里提供了一些可能有用的信息
+
+    在安装 Mojo::Webqq 的过程中，cpan或者cpanm会帮助我们自动安装很多其他的依赖模块
     
-    2. 使用cpanm在线安装Mojo::Webqq模块
-    $ cpanm -v Mojo::Webqq
+    在众多的依赖模块中，安装经常容易出现问题的主要是 IO::Socket::SSL
+    
+    IO::Socket::SSL 主要提供了 https 支持，在安装过程中可能会涉及到SSL相关库的编译
+
+    对于 Linux 用户，通常采用的是编译安装的方式，系统缺少编译安装必要的环境，则会导致编译失败
+    
+    对于 Windows 用户，由于不具备良好的编译安装环境，推荐采用一些已经打包比较全面的Perl运行环境
+
+    RedHat/Centos:
+        $ yum install -y openssl-devel
+        
+    Ubuntu:
+        $ sudo apt-get install libssl-dev
+
+    Window:
+        
+    安装 [Strawberry Perl](http://strawberryperl.com/) 这是一个已经包含 [Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod) 所需核心依赖的较全面的Windows Perl运行环境 
+    
+    [32位系统安装包](http://strawberryperl.com/download/5.22.0.1/strawberry-perl-5.22.0.1-32bit.msi)
+        
+    [64位系统安装包](http://strawberryperl.com/download/5.22.0.1/strawberry-perl-5.22.0.1-64bit.msi)
+        
+    或者自己到 [Strawberry Perl官网](http://strawberryperl.com/) 下载适合自己的最新版本
+    
+    安装前最好先卸载系统中已经安装的其他Perl版本以免互相影响
+    
+    搞定了编译和运行环境之后，再重新回到 步骤2 安装Mojo::Webqq即可
+        
+
+###如何使用
+
+1. 我对Perl很熟悉，是一个专业的Perler
+
+    该项目是一个纯粹的Perl模块，已经发布到了cpan上，请仔细阅读 `Mojo::Weqq` 模块的[使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)
+
+    除此之外，你可以看下 [demo](https://github.com/sjdy521/Mojo-Webqq/tree/master/demo) 目录下的更多代码示例
+
+2. 我是对Perl不熟悉，是一个其他语言的开发者，只对提供的消息发送/接收接口感兴趣
+
+    可以直接把如下代码保存成一个源码文件，使用 perl 解释器来运行
+    
+        #!/usr/bin/env perl
+        use Mojo::Webqq;
+        my ($qq,$host,$port,$post_api);
+        
+        $qq = 12345678;    #修改为你自己的实际QQ号码
+        $host = "0.0.0.0"; #发送消息接口监听地址，修改为自己希望监听的地址
+        $port = 5000;      #发送消息接口监听端口，修改为自己希望监听的端口
+        $post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除此行
+        
+        my $client = Mojo::Webqq->new(qq=>$qq,login_type=>"qrlogin");
+        $client->load("ShowMsg");
+        $client->load("Openqq",data=>{listen=>{host=>$host,port=>$port}, post_api=>$post_api});
+        $client->run();
+    
+    上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会在本机产生一个监听指定地址端口的 http serevr
+    
+        $ perl xxxx.pl
+    
+    发送好友消息的接口调用示例
+    
+        http://127.0.0.1:5000/openqq/send_message?qq=>xxxxx&content=hello
+        
+        * About to connect() to 127.0.0.1 port 5000 (#0)
+        *   Trying 127.0.0.1...
+        * Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
+        > GET /openqq/send_message?qq=>xxxxx&content=hello HTTP/1.1
+        > User-Agent: curl/7.29.0
+        > Host: 127.0.0.1:5000
+        > Accept: */*
+        > 
+        < HTTP/1.1 200 OK
+        < Content-Type: application/json;charset=UTF-8
+        < Date: Sun, 13 Dec 2015 04:54:38 GMT
+        < Content-Length: 52
+        < Server: Mojolicious (Perl)
+        <
+        * Connection #0 to host 127.0.0.1 left intact
+        
+        {"status":"发送成功","msg_id":23910327,"code":0}
+    
+    更多接口参数说明参加[Openqq插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
+    
+3.  我是一个极客，我只想能够在命令行上通过  IRC 的方式来玩转 QQ 聊天
+            
+        $ cpanm -v Mojo::IRC::Server::Chinese #先安装 IRC 依赖模块
+
+        $ perl -MMojo::Webqq -e 'Mojo::Webqq->new(qq=>$ARGV[0])->load("ShowMsg")->load("IRCShell")->run()' xxxx #我的QQ号码作为命令第一个参数
+    
+    使用weechat、irssi/mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
+
+4. 我是有一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能
+
+    请关注 [GroupManage 插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GroupManage)   
+
 
 ###核心依赖模块
 
@@ -72,7 +175,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 ###相关文档
 
 * [更新日志](https://github.com/sjdy521/Mojo-Webqq/blob/master/Changes)
-* [开发文档](https://github.com/sjdy521/Mojo-Webqq/blob/master/doc/Webqq.pod)
+* [开发文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)
 
 ###官方交流
 
@@ -86,3 +189,4 @@ Copyright (C) 2014 by sjdy521
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
+
