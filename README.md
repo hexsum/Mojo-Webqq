@@ -91,7 +91,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
     Window:
         
-    安装 [Strawberry Perl](http://strawberryperl.com/) 这是一个已经包含 [Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod) 所需核心依赖的较全面的Windows Perl运行环境 
+    安装 [Strawberry Perl](http://strawberryperl.com/)，这是一个已经包含 [Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod) 所需核心依赖的较全面的Windows Perl运行环境 
     
     [32位系统安装包](http://strawberryperl.com/download/5.22.0.1/strawberry-perl-5.22.0.1-32bit.msi)
         
@@ -166,7 +166,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     使用weechat、irssi/mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
 
-4. *我是有一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能*
+4. *我是一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能*
 
     请关注 [GroupManage 插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GroupManage)   
 
