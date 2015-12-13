@@ -529,9 +529,11 @@ sub parse_receive_msg {
         $self->poll_failure_count( ++$poll_failure_count);
         $self->warn( "获取消息失败，当前失败次数: ". $self->poll_failure_count. "\n" );
         if ( $self->poll_failure_count > $self->poll_failure_count_max ) {
-            $self->warn("接收消息失败次数超过最大值，尝试进行重新连接...\n");
             $self->poll_failure_count(0);
-            $self->_relink();
+            #$self->warn("接收消息失败次数超过最大值，尝试进行重新连接...\n");
+            #$self->_relink();
+            $self->warn("接收消息失败次数超过最大值，尝试进行重新登录...\n");
+            $self->relogin();
         }
     }
 
