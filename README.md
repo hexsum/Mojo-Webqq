@@ -1,6 +1,6 @@
 Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
 ========================
-使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10.1+
+使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10.1+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
 
 ###插件列表
 ``` 
@@ -53,19 +53,21 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
-1. 安装cpanm工具
+1. *安装cpanm工具*
 
     方法a： 通过cpan安装cpanm
+
         $ cpan -i App::cpanminus
     
     方法b： 直接在线安装cpanm
+
         $ curl -L http://cpanmin.us | perl - App::cpanminus
 
-2. 使用cpanm在线安装 Mojo::Webqq 模块
+2. *使用cpanm在线安装 Mojo::Webqq 模块*
 
         $ cpanm -v Mojo::Webqq
 
-3. 安装失败可能有帮助的解决方法
+3. *安装失败可能有帮助的解决方法*
         
     如果你运气不佳，通过cpanm没有一次性安装成功，这里提供了一些可能有用的信息
 
@@ -80,9 +82,11 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     对于 Windows 用户，由于不具备良好的编译安装环境，推荐采用一些已经打包比较全面的Perl运行环境
 
     RedHat/Centos:
+
         $ yum install -y openssl-devel
         
     Ubuntu:
+
         $ sudo apt-get install libssl-dev
 
     Window:
@@ -102,13 +106,13 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###如何使用
 
-1. 我对Perl很熟悉，是一个专业的Perler
+1. *我对Perl很熟悉，是一个专业的Perler*
 
     该项目是一个纯粹的Perl模块，已经发布到了cpan上，请仔细阅读 `Mojo::Weqq` 模块的[使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)
 
     除此之外，你可以看下 [demo](https://github.com/sjdy521/Mojo-Webqq/tree/master/demo) 目录下的更多代码示例
 
-2. 我是对Perl不熟悉，是一个其他语言的开发者，只对提供的消息发送/接收接口感兴趣
+2. *我是对Perl不熟悉，是一个其他语言的开发者，只对提供的消息发送/接收接口感兴趣*
 
     可以直接把如下代码保存成一个源码文件，使用 perl 解释器来运行
     
@@ -154,7 +158,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     更多接口参数说明参加[Openqq插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
     
-3.  我是一个极客，我只想能够在命令行上通过  IRC 的方式来玩转 QQ 聊天
+3.  *我是一个极客，我只想能够在命令行上通过  IRC 的方式来玩转 QQ 聊天*
             
         $ cpanm -v Mojo::IRC::Server::Chinese #先安装 IRC 依赖模块
 
@@ -162,7 +166,7 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     使用weechat、irssi/mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
 
-4. 我是有一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能
+4. *我是有一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能*
 
     请关注 [GroupManage 插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GroupManage)   
 
