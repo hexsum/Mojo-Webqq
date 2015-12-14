@@ -80,6 +80,8 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     对于 Linux 用户，通常采用的是编译安装的方式，系统缺少编译安装必要的环境，则会导致编译失败
     
     对于 Windows 用户，由于不具备良好的编译安装环境，推荐采用一些已经打包比较全面的Perl运行环境
+    
+    例如比较流行的 strawberryperl 或者 activeperl 的最新版本都默认包含 Mojo::Webqq 的核心依赖模块
 
     RedHat/Centos:
 
@@ -91,6 +93,8 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
     Window:
         
+    这里以 strawberryperl 为例
+
     安装 [Strawberry Perl](http://strawberryperl.com/)，这是一个已经包含 [Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod) 所需核心依赖的较全面的Windows Perl运行环境 
     
     [32位系统安装包](http://strawberryperl.com/download/5.22.0.1/strawberry-perl-5.22.0.1-32bit.msi)
@@ -125,13 +129,13 @@ Mojo-Webqq v1.6.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         $port = 5000;      #发送消息接口监听端口，修改为自己希望监听的端口
         $post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除此行
         
-        my $client = Mojo::Webqq->new(qq=>$qq,login_type=>"qrlogin");
+        my $client = Mojo::Webqq->new(qq=>$qq);
         $client->login();
         $client->load("ShowMsg");
         $client->load("Openqq",data=>{listen=>{host=>$host,port=>$port}, post_api=>$post_api});
         $client->run();
     
-    上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会完成 QQ 登录并在本机产生一个监听指定地址端口的 http serevr
+    上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会完成 QQ 登录并在本机产生一个监听指定地址端口的 http server
     
         $ perl xxxx.pl
     
