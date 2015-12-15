@@ -155,6 +155,7 @@ sub update_user {
     unless ( defined $user_info ) {
         $self->warn("更新个人信息失败\n");
         $self->emit("model_update"=>"user",0);
+        $self->user($self->new_user({id=>$self->qq,qq=>$self->qq}));
         return;
     }       
     $self->user($self->new_user($user_info));
