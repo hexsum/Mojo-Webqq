@@ -334,7 +334,7 @@ sub parse_send_status_msg{
             if(exists $json->{msg} and $json->{msg} eq 'send ok'){
                 return $self->new_send_status(code=>0,msg=>"发送成功");
             }
-            elsif(exists $json->{errMsg}){
+            elsif(exists $json->{errMsg} and $json->{errMsg} eq "ERROR"){
                 return $self->new_send_status(code=>-3,msg=>"发送失败");
             }
             else{

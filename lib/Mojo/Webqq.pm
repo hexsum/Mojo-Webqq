@@ -151,7 +151,7 @@ sub new {
     $self->on(send_message=>sub{
         my($self,$msg,$status)=@_;
         if($status->is_success){$self->send_failure_count(0);}
-        else{my $count = $self->send_failure_count;$self->send_failure_count(++$count);}
+        elsif($status->code == -3){my $count = $self->send_failure_count;$self->send_failure_count(++$count);}
         if($self->send_failure_count >= $self->send_failure_count_max){
             $self->relogin();
         }
