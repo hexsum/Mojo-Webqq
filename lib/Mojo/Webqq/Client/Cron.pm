@@ -17,8 +17,13 @@ sub add_job{
         $time = $t;
     }
     else{
-        my($hour,$minute) = split /:/,$t;
-        $time = {hour => $hour,minute => $minute,second=>0};
+        my @split = split /:/,$t;
+        if(@split == 2){
+            $time = {hour => $split[0],minute => $split[1],second=>0};
+        }
+        elsif(@split == 3){
+            $time = {hour => $split[0],minute => $split[1],second=>$split[2]};
+        }
     }
     my $delay;
     #my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
