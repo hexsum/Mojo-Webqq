@@ -331,7 +331,15 @@ sub parse_send_status_msg{
     my $json = shift;
     if(defined $json){
         if(exists $json->{errCode} and $json->{errCode}==0){
-            return $self->new_send_status(code=>0,msg=>"发送成功"); 
+            if(exists $json->{msg} and $json->{msg} eq 'send ok'){
+                return $self->new_send_status(code=>0,msg=>"发送成功");
+            }
+            elsif(exists $json->{errMsg}){
+                return $self->new_send_status(code=>-3,msg=>"发送失败");
+            }
+            else{
+                return $self->new_send_status(code=>-4,msg=>"发送失败");
+            }
         }
         elsif(exists $json->{retcode} and $json->{retcode}==0){
             return $self->new_send_status(code=>0,msg=>"发送成功");

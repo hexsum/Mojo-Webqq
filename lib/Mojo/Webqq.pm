@@ -74,6 +74,8 @@ has is_stop                 => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
 has login_state             => "init";#init|relogin|success|scaning|confirming
+has send_failure_count      => 0;
+has send_failure_count_max  => 3;
 has poll_failure_count      => 0;
 has poll_failure_count_max  => 3;
 has message_queue           => sub { $_[0]->gen_message_queue };
@@ -145,6 +147,14 @@ sub new {
         my($self,$type,$status)=@_;
         $self->model_status->{$type} = $status;
         $self->emit("model_update_fail") if $self->get_model_status == 0;
+    });
+    $self->on(send_message=>sub{
+        my($self,$msg,$status)=@_;
+        if($status->is_success){$self->send_failure_count(0);}
+        else{my $count = $self->send_failure_count;$self->send_failure_count(++$count);}
+        if($self->send_failure_count >= $self->send_failure_count_max){
+            $self->relogin();
+        }
     });
     $self;
 }
