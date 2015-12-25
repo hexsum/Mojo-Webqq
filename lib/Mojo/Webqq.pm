@@ -71,6 +71,7 @@ has sess_sig_cache => sub {Mojo::Webqq::Cache->new};
 has id_to_qq_cache => sub {Mojo::Webqq::Cache->new};
 
 has is_stop                 => 0;
+has is_ready                => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
 has login_state             => "init";#init|relogin|success|scaning|confirming

@@ -23,7 +23,7 @@ use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron);
 
 sub run{
     my $self = shift;
-    $self->ready();
+    $self->ready() if not $self->is_ready;
     $self->emit("run");
     $self->ioloop->start unless $self->ioloop->is_running;
 }
@@ -134,6 +134,7 @@ sub ready{
     $self->info("开始接收消息...\n");
     $self->_recv_message();
     $Mojo::Webqq::Client::CLIENT_COUNT++;
+    $self->is_ready(1);
     $self->emit("ready");
 }
 
