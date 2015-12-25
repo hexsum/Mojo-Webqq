@@ -43,7 +43,7 @@ sub call{
         },
         send_message=>sub{
             my($client,$msg,$status)=@_;
-            my $attach = $status->is_success?"":"[发送失败]";
+            my $attach = $status->is_success?"":"[发送失败".(defined $status->info?"(".$status->info.")":"") . "]";
             if($msg->type eq 'message'){
                 my $sender_nick = "我";
                 my $receiver_nick = $msg->receiver->displayname;

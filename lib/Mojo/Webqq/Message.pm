@@ -1,5 +1,6 @@
 package Mojo::Webqq::Message;
 use strict;
+use Mojo::JSON qw(encode_json);
 $Mojo::Webqq::Message::LAST_DISPATCH_TIME  = undef;
 $Mojo::Webqq::Message::SEND_INTERVAL  = 3;
 use Encode;
@@ -88,7 +89,7 @@ sub gen_message_queue{
             #消息的ttl值减少到0则丢弃消息
             if($msg->ttl <= 0){
                 $self->debug("消息[ " . $msg->msg_id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
-                my $status = $self->new_send_status(code=>-1,msg=>"发送失败");
+                my $status = $self->new_send_status(code=>-1,msg=>"发送失败",info=>"TTL失效");
                 if(ref $msg->cb eq 'CODE'){
                     $msg->cb->(
                         $self,
@@ -330,26 +331,34 @@ sub parse_send_status_msg{
     my $self = shift;
     my $json = shift;
     if(defined $json){
-        if(exists $json->{errCode} and $json->{errCode}==0){
-            if(exists $json->{msg} and $json->{msg} eq 'send ok'){
-                return $self->new_send_status(code=>0,msg=>"发送成功");
+        if(exists $json->{errCode}){
+            if($json->{errCode}==0 and exists $json->{msg} and $json->{msg} eq 'send ok'){
+                return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif(exists $json->{errMsg} and $json->{errMsg} eq "ERROR"){
-                return $self->new_send_status(code=>-3,msg=>"发送失败");
+                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'登录超时');
             }
             else{
-                return $self->new_send_status(code=>-4,msg=>"发送失败");
+                return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
             }
         }
-        elsif(exists $json->{retcode} and $json->{retcode}==0){
-            return $self->new_send_status(code=>0,msg=>"发送成功");
+        elsif(exists $json->{retcode}){
+            if($json->{retcode}==0){
+                return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
+            }
+            elsif($json->{retcode}==1202){
+                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'登录超时');
+            }
+            else{
+                return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
+            }
         }
         else{
-            return $self->new_send_status(code=>-2,msg=>"发送失败");
+            return $self->new_send_status(code=>-2,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
         }
     }
     else{
-        return $self->new_send_status(code=>-1,msg=>"发送失败"); 
+        return $self->new_send_status(code=>-1,msg=>"发送失败",info=>'数据格式错误'); 
     }
 }
 

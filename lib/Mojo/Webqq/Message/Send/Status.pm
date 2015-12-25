@@ -6,7 +6,7 @@ use Mojo::Base;
 use base qw(Mojo::Base);
 sub has { Mojo::Base::attr( __PACKAGE__, @_ ) };
 
-has [qw(code msg)];
+has [qw(code msg info)];
 sub is_success{
     my $self = shift;
     return $self->code == 0?1:0; 
