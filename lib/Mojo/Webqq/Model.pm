@@ -68,14 +68,12 @@ sub is_support_model_ext {
 }
 sub get_model_status{
     my $self = shift;
-    if(     defined $self->model_status->{user} 
-        and defined $self->model_status->{friend} 
+    if(     defined $self->model_status->{friend} 
         and defined $self->model_status->{group}
     ){
         my $is_fail =
-               $self->model_status->{user} == 0
-            && $self->model_status->{friend} == 0
-            && $self->model_status->{group} == 0
+                $self->model_status->{friend} == 0
+            &&  $self->model_status->{group} == 0
         ;
         return $is_fail?0:1;
     }

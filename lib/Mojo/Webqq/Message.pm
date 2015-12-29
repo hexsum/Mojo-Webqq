@@ -330,6 +330,7 @@ sub send_sess_message{
 sub parse_send_status_msg{
     my $self = shift;
     my $json = shift;
+    use DDP; p $json;
     if(defined $json){
         if(exists $json->{errCode}){
             if($json->{errCode}==0 and exists $json->{msg} and $json->{msg} eq 'send ok'){
