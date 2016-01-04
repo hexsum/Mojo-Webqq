@@ -157,6 +157,7 @@ sub relogin{
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
     $self->ua->cookie_jar->empty;
     $self->poll_failure_count(0);
+    $self->send_failure_count(0);
     $self->csrf_token(undef);
     $self->model_ext(0);
 
