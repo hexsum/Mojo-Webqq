@@ -187,7 +187,7 @@ sub add_friend {
     }
     my $f = $self->search_friend(id => $friend->id);
     if(defined $f){
-        $f = $friend;
+        %$f = %$friend;
     }
     else{
         push @{$self->friend},$friend;
@@ -281,7 +281,7 @@ sub add_group{
     }
     my $g = $self->search_group(gid => $group->gid);
     if(defined $g){
-        $g = $group;
+        %$g = %$group;
     }
     else{#new group
         push @{$self->group},$group;
@@ -463,7 +463,7 @@ sub add_discuss {
     }
     my $d = $self->search_discuss(did => $discuss->did);
     if(defined $d){
-        $d = $discuss;
+        %$d = %$discuss;
     }
     else{#new discuss
         push @{$self->discuss},$discuss;

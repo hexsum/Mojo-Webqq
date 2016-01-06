@@ -68,7 +68,7 @@ sub add_group_member{
     }
     my $m = $self->search_group_member(id=>$member->id);
     if(defined $m){
-        $m = $member;
+        %$m = %$member;
     }   
     else{
         push @{$self->member},$member;

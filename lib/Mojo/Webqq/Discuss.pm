@@ -62,7 +62,7 @@ sub add_discuss_member{
     }
     my $m = $self->search_discuss_member(id=>$member->id);
     if(defined $m){
-        $m = $member;
+        %$m = %$member;
     }   
     else{
         push @{$self->member},$member;
