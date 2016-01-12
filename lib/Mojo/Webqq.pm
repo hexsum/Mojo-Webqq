@@ -81,8 +81,8 @@ has poll_failure_count      => 0;
 has poll_failure_count_max  => 3;
 has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
-    local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug;
     require Mojo::UserAgent;
+    #local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug; 
     require Storable if $_[0]->keep_cookie;
     Mojo::UserAgent->new(
         max_redirects      => 7,
@@ -139,7 +139,7 @@ sub on {
 sub new {
     my $class = shift;
     my $self  = $class->SUPER::new(@_);
-    $ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
+    #$ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
     if(not defined $self->{qq}){
         $self->fatal("客户端初始化缺少qq参数");
         $self->exit();

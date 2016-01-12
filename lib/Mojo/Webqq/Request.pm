@@ -34,6 +34,11 @@ sub _http_request{
         my $cb = pop;
         $self->ua->$method(@_,sub{
             my($ua,$tx) = @_;
+            if($self->ua_debug){
+                $self->print("-- Non-blocking request (@{[$tx->req->url->to_abs]})\n");
+                $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
+                $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n");
+            }
             $self->save_cookie();
             if(defined $tx and $tx->success){
                 my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
@@ -53,6 +58,11 @@ sub _http_request{
         my $tx;
         for(my $i=0;$i<=$opt{retry_times};$i++){
             $tx = $self->ua->$method(@_);
+            if($self->ua_debug){
+                $self->print("-- Blocking request (@{[$tx->req->url->to_abs]})\n");
+                $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
+                $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n");
+            }
             $self->save_cookie();
             if(defined $tx and $tx->success){
                 my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
