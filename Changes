@@ -1,3 +1,11 @@
+2016-01-12 Mojo::Webqq v1.6.9
+1）修复可能出现多次调用$client->ready()的bug 感谢 @datasdk 反馈
+2）修复model_update_fail事件无法触发的bug 感谢 @林听海风 的反馈
+3）重新登录清空相关的计数器，否则会导致频发重新登录 感谢 @路人乙 的反馈
+4）修复 add_friend/add_group/add_group_member/add_discuss_member 存在的bug
+5）修复开启ua_debug选项打印的debug信息乱码的问题
+6）修复群名称中包含空格字符导致无法获取到gnumber的bug 感谢 @lyrl 的反馈
+
 2015-12-23 Mojo::Webqq v1.6.8
 1）$client->add_job() 支持HH:MM 和 HH:MM:SS 两种时间格式
 2）只针对特定发送失败的状态进行重新登录，避免其他原因导致的发送失败也被意外的重新登录，造成重新登录过于频繁
