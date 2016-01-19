@@ -95,7 +95,8 @@ TEMPLATE
                 undef $server;
             }
         });
-        $server->listen([{host=>$data->{post_host},port=>$data->{post_port}}]);
+        #$server->listen([{host=>$data->{post_host},port=>$data->{post_port}}]);
+        $server->listen(["http://$data->{post_host}:$data->{post_port}"  ,]);
         $server->run;
     });
 }

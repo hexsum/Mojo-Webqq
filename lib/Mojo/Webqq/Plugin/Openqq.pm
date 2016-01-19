@@ -143,10 +143,10 @@ sub call{
     $server->app->secrets("hello world");
     $server->app->log($client->log);
     if(ref $data eq "ARRAY"){#旧版本兼容性
-        $server->listen($data);
+        $server->listen([ map { 'http://' . (defined $_->{host}?$_->{host}:"0.0.0.0") .":" . (defined $_->{port}?$_->{port}:5000)} @$data]);
     }
     elsif(ref $data eq "HASH" and ref $data->{listen} eq "ARRAY"){
-        $server->listen($data->{listen}) ;
+        $server->listen([ map { 'http://' . (defined $_->{host}?$_->{host}:"0.0.0.0") .":" . (defined $_->{port}?$_->{port}:5000)} @{ $data->{listen}} ]) ;
     }
     $server->start;
 }
