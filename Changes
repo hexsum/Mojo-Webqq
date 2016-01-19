@@ -1,3 +1,6 @@
+2016-01-19 Mojo::Webqq v1.7.0
+1）修复对新版Mojolicious兼容性问题
+
 2016-01-12 Mojo::Webqq v1.6.9
 1）修复可能出现多次调用$client->ready()的bug 感谢 @datasdk 反馈
 2）修复model_update_fail事件无法触发的bug 感谢 @林听海风 的反馈
