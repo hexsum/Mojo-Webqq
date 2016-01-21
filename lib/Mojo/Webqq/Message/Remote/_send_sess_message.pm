@@ -1,6 +1,20 @@
 sub Mojo::Webqq::Message::_send_sess_message{
     my($self,$msg) = @_;
-    return unless defined $msg->sess_sig;
+    if(not defined $msg->sess_sig){
+        my $status = $self->new_send_status(code=>-5,msg=>"发送失败",info=>'无法获取到sess_sig');
+        if(ref $msg->cb eq 'CODE'){
+            $msg->cb->(
+                $self,
+                $msg,
+                $status,
+            );
+        }
+        $self->emit(send_message =>
+            $msg,
+            $status,
+        );
+        return;
+    }
     my $callback = sub{
         my $json = shift;
         my $status = $self->parse_send_status_msg( $json );
