@@ -205,7 +205,10 @@ sub login {
         }
         if(defined $self->ptwebqq and defined $self->skey){
             $self->info("检测到最近登录活动，尝试直接恢复登录...");
-            $self->relogin() if not $self->_get_vfwebqq() && $self->_login2();
+            if(not $self->_get_vfwebqq() && $self->_login2()){
+                $self->relogin();
+                return;
+            }
         } 
         elsif(
             $self->_prepare_for_login()    
