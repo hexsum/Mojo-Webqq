@@ -138,7 +138,7 @@ sub on {
 
 sub new {
     my $class = shift;
-    my $self  = $class->SUPER::new(@_);
+    my $self  = $class->Mojo::Base::new(@_);
     #$ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
     if(not defined $self->{qq}){
         $self->fatal("客户端初始化缺少qq参数");
