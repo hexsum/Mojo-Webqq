@@ -35,6 +35,7 @@ sub stop{
     my $self = shift;
     my $mode = shift || "auto";
     $self->is_stop(1);
+    $self->info("客户端停止运行");
     if($mode eq "auto"){
         $Mojo::Webqq::Client::CLIENT_COUNT > 1?$Mojo::Webqq::Client::CLIENT_COUNT--:exit;
     }
@@ -158,6 +159,7 @@ sub relogin{
     $self->ua->cookie_jar->empty;
     $self->poll_failure_count(0);
     $self->send_failure_count(0);
+    $self->qrcode_count(0);
     $self->csrf_token(undef);
     $self->model_ext(0);
 
@@ -238,6 +240,7 @@ sub login {
                     next;
                 }
                 elsif($ret == -6){#二维码已经过期，重新下载二维码
+                    $self->emit("qrcode_expire");
                     $self->_get_qrlogin_pic();
                     next;
                 }
@@ -259,6 +262,7 @@ sub login {
             $self->stop();
         }
         else{
+            $self->qrcode_count(0);
             $self->info("帐号(" . $self->qq . ")登录成功");
             $self->update_user;
             $self->update_friend;

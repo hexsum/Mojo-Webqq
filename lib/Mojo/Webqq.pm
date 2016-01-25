@@ -75,6 +75,8 @@ has is_ready                => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
 has login_state             => "init";#init|relogin|success|scaning|confirming
+has qrcode_count            => 0;
+has qrcode_count_max        => 10;
 has send_failure_count      => 0;
 has send_failure_count_max  => 3;
 has poll_failure_count      => 0;
@@ -144,6 +146,14 @@ sub new {
         $self->fatal("客户端初始化缺少qq参数");
         $self->exit();
     }
+    $self->on(qrcode_expire=>sub{
+        my($self) = @_;
+        my $count = $self->qrcode_count;
+        $self->qrcode_count(++$count);
+        if($self->qrcode_count >= $self->qrcode_count_max){
+            $self->stop();
+        }
+    });
     $self->on(model_update=>sub{
         my($self,$type,$status)=@_;
         $self->model_status->{$type} = $status;
