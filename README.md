@@ -132,7 +132,7 @@ Mojo-Webqq v1.7.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         my $client = Mojo::Webqq->new(qq=>$qq);
         $client->login();
         $client->load("ShowMsg");
-        $client->load("Openqq",data=>{listen=>{host=>$host,port=>$port}, post_api=>$post_api});
+        $client->load("Openqq",data=>{listen=>[{host=>$host,port=>$port}], post_api=>$post_api});
         $client->run();
     
     上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会完成 QQ 登录并在本机产生一个监听指定地址端口的 http server
