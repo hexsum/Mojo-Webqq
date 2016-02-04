@@ -12,7 +12,7 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
         s     => 5,
         d     => 72,
         v     => 4,
-        t     => rand(),
+        t     => rand(), #你是如何知道这个是随机数的，凭感觉？？
     );  
     my $data = $self->http_get($self->gen_url($api,@query_string),{Referer=>'https://ui.ptlogin2.qq.com/cgi-bin/login?daid=164&target=self&style=16&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'});
     if( not defined $data){
