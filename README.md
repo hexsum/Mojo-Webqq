@@ -1,6 +1,11 @@
-Mojo-Webqq v1.7.1 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
+Mojo-Webqq v1.7.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
 ========================
 使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10.1+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
+
+###郑重声明
+
+本项目完全遵循网页微信官方提供的原始聊天功能，不包含任何破解、偷盗等行为，本项目完全开源，目的是为了促进技术交流学习
+禁止任何商业盈利目的以及一切非法用途传播，否则后果自负
 
 ###插件列表
 ``` 
