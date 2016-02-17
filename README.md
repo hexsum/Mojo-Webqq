@@ -65,7 +65,7 @@ Mojo-Webqq v1.7.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     方法b： 直接在线安装cpanm
 
-        $ curl -L http://cpanmin.us | perl - App::cpanminus
+        $ curl -kL http://cpanmin.us | perl - App::cpanminus
 
 2. *使用cpanm在线安装 Mojo::Webqq 模块*
 
@@ -145,7 +145,7 @@ Mojo-Webqq v1.7.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     发送好友消息的接口调用示例
     
-        http://127.0.0.1:5000/openqq/send_message?qq=>xxxxx&content=hello
+        http://127.0.0.1:5000/openqq/send_message?qq=xxxxx&content=hello
         
         * About to connect() to 127.0.0.1 port 5000 (#0)
         *   Trying 127.0.0.1...
