@@ -24,7 +24,7 @@ sub http_post{
 }
 sub _http_request{
     my $self = shift;
-    my $method = shift;
+    my $method = shift;    #$method eq [get|post]
     my %opt = (json=>0,retry_times=>$self->ua_retry_times);
     if(ref $_[1] eq "HASH"){#with header or option
         $opt{json} = delete $_[1]->{json} if defined $_[1]->{json};
@@ -57,7 +57,7 @@ sub _http_request{
     else{
         my $tx;
         for(my $i=0;$i<=$opt{retry_times};$i++){
-            $tx = $self->ua->$method(@_);
+            $tx = $self->ua->$method(@_);   #$method eq [get|post]
             if($self->ua_debug){
                 $self->print("-- Blocking request (@{[$tx->req->url->to_abs]})\n");
                 $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
