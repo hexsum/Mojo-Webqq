@@ -153,6 +153,7 @@ sub new {
     my $class = shift;
     my $self  = $class->Mojo::Base::new(@_);
     #$ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
+    $self->info("当前正在使用 Mojo-Webqq v" . $self->version);
     if(not defined $self->{qq}){
         $self->fatal("客户端初始化缺少qq参数");
         $self->exit();
