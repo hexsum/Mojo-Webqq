@@ -27,6 +27,7 @@ sub new {
 
 sub members{
     my $self = shift;
+    $self->{_client}->update_discuss($self) if $self->is_empty;
     return @{$self->member};
 }
 sub each_discuss_member{
@@ -34,6 +35,7 @@ sub each_discuss_member{
     my $callback = shift;
     $self->{_client}->die("参数必须是函数引用") if ref $callback ne "CODE";
     return if ref $self->member ne "ARRAY";
+    $self->{_client}->update_discuss($self) if $self->is_empty;
     for(@{$self->member}){
         $callback->($self->{_client},$_);
     }
@@ -43,6 +45,7 @@ sub search_discuss_member{
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
+    $self->{_client}->update_discuss($self) if $self->is_empty;
     if(wantarray){
         return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}}  keys %p) ? 0 : 1;} @{$self->member};
     }
@@ -86,11 +89,14 @@ sub is_empty{
     my $self = shift;
     return !(ref($self->member) eq "ARRAY"?0+@{$self->member}:0);
 }
-
+sub update_discuss_member {
+    my $self = shift;
+    $self->{_client}->update_discuss_member($self,@_);
+}
 sub update{
     my $self = shift;
     my $hash = shift;
-    for(grep {substr($_,0,1) ne "_"} keys %$self){
+    for(grep {substr($_,0,1) ne "_"} keys %$hash){
         if($_ eq "member" and exists $hash->{member} and ref $hash->{member} eq "ARRAY"){
             next if not @{$hash->{member}};
             my @member = map {ref $_ eq "Mojo::Webqq::Discuss::Member"?$_:$self->{_client}->new_discuss_member($_)} @{$hash->{member}};

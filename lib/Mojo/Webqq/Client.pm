@@ -1,6 +1,7 @@
 package Mojo::Webqq::Client;
 use strict;
 use Mojo::IOLoop;
+use Mojo::IOLoop::Delay;
 $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
 
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
@@ -30,6 +31,14 @@ sub run{
 
 sub multi_run{
     Mojo::IOLoop->singleton->start unless Mojo::IOLoop->singleton->is_running; 
+}
+sub steps {
+    my $self = shift;
+    Mojo::IOLoop::Delay->new(ioloop=>$self->ioloop)->steps(@_)->catch(sub {
+        my ($delay, $err) = @_;
+        $self->error("steps error: $err");
+    })->wait;
+    $self;
 }
 sub stop{
     my $self = shift;
@@ -77,8 +86,18 @@ sub ready{
             $self->emit(first_talk=>$msg->sender,$msg);
         }
     });   
+    $self->on(new_group=>sub{
+        my($self,$group)=@_;
+        $self->update_group($group,is_blocking=>0,is_update_group_ext=>1,is_update_group_member_ext=>1);
+    });
+    
+    $self->on(new_group_member=>sub{
+        my($self,$member)=@_;
+        $member->group->update_group_member_exxt(is_blocking=>0);
+    });
+    $self->on(new_friend=>sub{});
     $self->interval(3600*4,sub{$self->data(+{})});
-    $self->interval(300,sub{
+    $self->interval(900,sub{
         return if ref $self ne 'Mojo::Webqq';
         $self->debug("检查数据完整性...");
         for my $g ($self->groups){
@@ -114,22 +133,34 @@ sub ready{
     });
     $self->interval(600,sub{
         return if $self->is_stop;
-        $self->update_group;
+        return if not $self->is_update_group;
+        $self->update_group(is_blocking=>0,is_update_group_ext=>0,is_update_group_member=>1,is_update_group_member_ext=>0);
     });
 
     $self->timer(60,sub{
         $self->interval(600,sub{
             return if $self->is_stop;
-            $self->update_discuss;    
+            return if not $self->is_update_discuss;
+            $self->update_discuss(is_blocking=>0,is_update_discuss_member=>1);    
         });
     });
 
     $self->timer(60+60,sub{
         $self->interval(600,sub{
             return if $self->is_stop;
-            $self->update_friend;
+            return if not $self->is_update_friend;
+            $self->update_friend(is_blocking=>0,is_update_friend_ext=>0);
         });
     });
+
+    $self->timer(60+60+60,sub{
+        $self->interval(600,sub{
+            return if $self->is_stop;
+            return if not $self->is_update_user;
+            $self->update_user(is_blocking=>0);
+        });
+    });
+
     #接收消息
     $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
     $self->info("开始接收消息...\n");
@@ -265,10 +296,10 @@ sub login {
             $self->qrcode_count(0);
             $self->info("帐号(" . $self->qq . ")登录成功");
             $self->update_user;
-            $self->update_friend;
-            $self->update_group;
-            $self->update_discuss;
-            $self->update_recent;
+            $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
+            $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
+            $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if $self->is_init_discuss;
+            $self->update_recent(is_blocking=>1) if $self->is_init_recent;
             $self->emit("login");
         }
     };

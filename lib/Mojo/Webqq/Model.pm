@@ -106,6 +106,7 @@ sub each_friend{
     my $self = shift;
     my $callback = shift;
     $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if @{$self->friend} == 0;
     for (@{$self->friend}){
         $callback->($self,$_);   
     }
@@ -114,6 +115,7 @@ sub each_group{
     my $self = shift;
     my $callback = shift;
     $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    $self->update_group(is_blocking=>1,is_update_group_member=>0) if @{$self->group} == 0;
     for (@{$self->group}){
         $callback->($self,$_);     
     }
@@ -123,6 +125,7 @@ sub each_discuss{
     my $self = shift;
     my $callback = shift;
     $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if @{$self->discuss} == 0;
     for (@{$self->discuss}){
         $callback->($self,$_);
     }
@@ -131,6 +134,14 @@ sub each_group_member{
     my $self = shift;
     my $callback = shift;
     $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    if(@{$self->group} == 0){
+        $self->update_group(is_blocking=>1,is_update_group_member=>1);
+    }
+    else{
+        for( @{$self->group}){
+            $_->upadte_group_member(is_blocking=>1,) if $_->is_empty;   
+        }
+    }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->group};
     for (@member){
         $callback->($self,$_);
@@ -140,6 +151,14 @@ sub each_discuss_member{
     my $self = shift;
     my $callback = shift;
     $self->die("参数必须是函数引用") if ref $callback ne "CODE";
+    if(@{$self->discuss} == 0){
+        $self->update_discuss(is_blocking=>1,is_update_discuss_member=>1);
+    }
+    else{
+        for( @{$self->discuss}){
+            $_->upadte_discuss_member(is_blocking=>1,) if $_->is_empty;
+        }
+    }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->discuss};
     for (@member){
         $callback->($self,$_);
@@ -148,16 +167,26 @@ sub each_discuss_member{
 
 sub update_user {
     my $self = shift;
+    my $is_blocking = ! shift;
     $self->info("更新个人信息...\n");
-    my $user_info = $self->_get_user_info();
-    unless ( defined $user_info ) {
-        $self->warn("更新个人信息失败\n");
-        $self->emit("model_update"=>"user",0);
-        $self->user($self->new_user({id=>$self->qq,qq=>$self->qq}));
-        return;
-    }       
-    $self->user($self->new_user($user_info));
-    $self->emit("model_update"=>"user",1);
+    my $handle = sub{
+        my $user_info = shift;
+        unless ( defined $user_info ) {
+            $self->warn("更新个人信息失败\n");
+            $self->user($self->new_user({id=>$self->qq,qq=>$self->qq}));
+            $self->emit("model_update"=>"user",0);
+            return;
+        }       
+        $self->user($self->new_user($user_info));
+        $self->emit("model_update"=>"user",1);
+    };
+    if($is_blocking){
+        my $user_info = $self->_get_user_info();
+        $handle->($user_info);
+    } 
+    else{
+        $self->_get_user_info($handle);
+    }
 }
 
 sub remove_friend {
@@ -197,67 +226,104 @@ sub add_friend {
 
 sub update_friend_ext {
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking} ;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     $self->info("更新好友扩展信息...\n");
-    my $friends_ext_info = $self->_get_user_friends_ext();
-    if(defined $friends_ext_info and ref $friends_ext_info eq "ARRAY"){
-        my(undef,$ext)=$self->array_unique($friends_ext_info,sub{"$_[0]->{nick}|$_[0]->{category}"});
-        my $unique_friend = $self->array_unique($self->friend,sub{$_[0]->nick . "|" . $_[0]->category});
-        for(@$unique_friend){
-            my $id = $_->nick . "|" . $_->category;
-            next if not exists $ext->{$id};
-            $_->{qq} = $ext->{$id}{qq};
+    my $handle = sub{
+        my $friends_ext_info = shift;
+        if(defined $friends_ext_info and ref $friends_ext_info eq "ARRAY"){
+            my(undef,$ext)=$self->array_unique($friends_ext_info,sub{"$_[0]->{nick}|$_[0]->{category}"});
+            my $unique_friend = $self->array_unique($self->friend,sub{$_[0]->nick . "|" . $_[0]->category});
+            for(@$unique_friend){
+                my $id = $_->nick . "|" . $_->category;
+                next if not exists $ext->{$id};
+                $_->{qq} = $ext->{$id}{qq};
+            }
+            $self->emit("model_update"=>"friend_ext",1);
         }
-        $self->emit("model_update"=>"friend_ext",1);
+        else{
+            $self->warn("更新好友扩展信息失败");
+            $self->emit("model_update"=>"friend_ext",0);
+        }
+    };
+    if($p{is_blocking}){
+        my $friends_ext_info = $self->_get_user_friends_ext();
+        $handle->($friends_ext_info);
     }
     else{
-        $self->warn("更新好友扩展信息失败");
-        $self->emit("model_update"=>"friend_ext",0);
+        $self->_get_user_friends_ext($handle);    
     }
 }
 sub update_friend {
     my $self = shift;
-    my $friend = shift;
-    if(defined $friend){
-        $self->die("不支持的数据类型") if ref $friend ne "Mojo::Webqq::Friend";
-        $self->info("更新好友 [ " . $friend->nick .  " ] 信息...\n");
-        my $friend_info = $self->_get_friend_info($friend->id);  
-        if(defined $friend_info){$friend->update($friend_info);}
-        else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...\n");}
-        return $self;
-    }
-    my @friends;
-    $self->info("更新好友信息...\n"); 
-    my $friends_info = $self->_get_user_friends();
-    if(defined $friends_info){
-        push @friends,$self->new_friend($_) for @{$friends_info};
-        if(ref $self->friend eq "ARRAY" and @{$self->friend}  == 0){
-            $self->friend(\@friends);
+    if(ref $_[0] eq "Mojo::Webqq::Friend"){
+        my $friend = shift;
+        my %p = @_;
+        $p{is_blocking} = 1 if not defined $p{is_blocking};
+        $self->info("更新好友 [ " . $friend->nick .  " ] 信息...");
+        my $handle = sub{
+            my $friend_info = shift;
+            if(defined $friend_info){$friend->update($friend_info);}
+            else{$self->warn("更新好友 [ " . $friend->nick .  " ] 信息失败...");}
+        };
+        if($p{is_blocking}){
+            my $friend_info = $self->_get_friend_info($friend->id);
+            $handle->($friend_info);
         }
         else{
-            my($new_friends,$lost_friends,$sames) = $self->array_diff($self->friend,\@friends,sub{$_[0]->id});
-            for(@{$new_friends}){
-                $self->add_friend($_);
-                $self->emit(new_friend=>$_);
-            }
-            for(@{$lost_friends}){
-                $self->remove_friend($_);
-                $self->emit(lose_friend=>$_);
-            }
-            for(@{$sames}){
-                my($old,$new) = @$_;
-                $old->update($new);
-            }
+            $self->_get_friend_info($friend->id,$handle);
         }
-        $self->update_friend_ext();
-        $self->emit("model_update","friend",1);
+        return $self;
     }
-    else{$self->warn("更新好友信息失败\n");$self->emit("model_update","friend",0);}
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
+    $p{is_update_friend_ext} = 1 if not defined $p{is_update_friend_ext};
+    $self->info("更新好友信息..."); 
+    my $handle = sub{
+        my @friends;
+        my $friends_info = shift;
+        if(defined $friends_info){
+            push @friends,$self->new_friend($_) for @{$friends_info};
+            if(ref $self->friend eq "ARRAY" and @{$self->friend}  == 0){
+                $self->friend(\@friends);
+            }
+            else{
+                my($new_friends,$lost_friends,$sames) = $self->array_diff($self->friend,\@friends,sub{$_[0]->id});
+                for(@{$new_friends}){
+                    $self->add_friend($_);
+                    $self->emit(new_friend=>$_);
+                }
+                for(@{$lost_friends}){
+                    $self->remove_friend($_);
+                    $self->emit(lose_friend=>$_);
+                }
+                for(@{$sames}){
+                    my($old,$new) = @$_;
+                    $old->update($new);
+                }
+            }
+            $self->emit("model_update","friend",1);
+            $self->update_friend_ext(is_blocking=>$p{is_blocking}) if $p{is_update_friend_ext};
+        }
+        else{$self->warn("更新好友信息失败");$self->emit("model_update","friend",0);}
+    };
+    if($p{is_blocking}){
+        my $friends_info = $self->_get_user_friends();
+        $handle->($friends_info);
+    }
+    else{
+        $self->_get_user_friends($handle);
+    }
 }
 sub search_friend {
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
+    $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if @{ $self->friend } == 0;
     if(wantarray){
         return grep {my $f = $_;(first {$p{$_} ne $f->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @{$self->friend};
     }
@@ -302,129 +368,213 @@ sub remove_group{
 }
 sub update_group_ext {
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    my $group;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
+    return if @{ $self->group } == 0;
+    $group = shift if ref $_[0] eq "Mojo::Webqq::Group";
     $self->info("更新群扩展信息...");
-    my $group_list_ext = $self->_get_group_list_info_ext();
-    if(defined $group_list_ext and ref $group_list_ext eq "ARRAY"){
-        for my $g(@$group_list_ext){
-            my $group_info_ext = $self->_get_group_info_ext($g->{gnumber});
-            if(defined $group_info_ext){
-                for(keys %$group_info_ext){
-                    $g->{$_} = $group_info_ext->{$_}; 
-                }  
-            }
-            else{$self->warn("更新[ $g->{gname} ]扩展信息失败");}
-        }
-        my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname} . (defined $_[0]->{member_count}?$_[0]->{member_count}:"")});
-        my $unique_group = $self->array_unique($self->group,sub{$_[0]->gname . @{$_[0]->member}});
-        for my $g(@$unique_group){ 
-            my $id = $g->gname . @{$g->member};
-            next if not exists $gext->{$id};
-            $g->{gtype} = $gext->{$id}{gtype};
-            $g->{gnumber} = $gext->{$id}{gnumber};
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
+    $p{is_update_group_member_ext} = 1 if not defined $p{is_update_group_member_ext};
 
-            my(undef,$mext) = $self->array_unique($gext->{$id}{member},sub{ $_[0]->{nick} . (defined($_[0]->{card})?$_[0]->{card}:"") . $_[0]->{gender}});
-            my $unique_member = $self->array_unique($g->member,sub{$_[0]->nick . (defined($_[0]->card)?$_[0]->card:"") . $_[0]->gender});
+    my $handle = sub{
+        my $group_list_ext = shift;
+        if(defined $group_list_ext and ref $group_list_ext eq "ARRAY"){
+            my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname}});
+            my $unique_group = $self->array_unique($self->group,sub{$_[0]->gname}); 
+            my @groups = defined $group?(grep {$_->gid eq $group->gid} @$unique_group) : @$unique_group;
+            for my $g (@groups){
+                my $id = $g->gname;
+                next if not exists $gext->{$id};
+                #$g->{gtype} = $gext->{$id}{gtype};
+                #$g->{gnumber} = $gext->{$id}{gnumber};
+                $g->update($gext->{$id});
+                $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
+            }
+            $self->emit("model_update","group_ext",1);
+        }
+        else{$self->warn("更新群扩展信息失败");$self->emit("model_update","group_ext",0);}
+    };
+    if($p{is_blocking}){
+        my $group_list_ext = $self->_get_group_list_info_ext();
+        $handle->($group_list_ext);   
+    }
+    else{
+        $self->_get_group_list_info_ext($handle);
+    }
+}
+sub update_group_member_ext {
+    my $self = shift;
+    my $group = shift;
+    if ( not $self->is_support_model_ext){
+        $self->warn("群组[ ". $group->gname . " ]当前无法支持获取扩展信息");
+        return;
+    }
+    $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group";
+    if(not defined $group->gnumber){
+        $self->warn("群组[ ". $group->gname . " ]未包含有效的gnumber，无法更新群成员扩展信息");
+        return;
+    }
+    if($group->is_empty){
+        $self->warn("群组[ ". $group->gname . " ]未包含群成员，忽略更新群成员扩展信息");
+        return;
+    }
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
+    $self->info("更新群组[ ". $group->gname . " ]成员扩展信息");
+    my $handle = sub{
+        my $group_info_ext = shift;
+        if(defined $group_info_ext){
+            my(undef,$mext) = $self->array_unique($group_info_ext->{member},sub{ $_[0]->{nick} . (defined($_[0]->{card})?$_[0]->{card}:"") . $_[0]->{gender}});
+            my $unique_member = $self->array_unique($group->member,sub{$_[0]->nick . (defined($_[0]->card)?$_[0]->card:"") . $_[0]->gender});
             for(@$unique_member){
                 my $id = $_->nick . (defined($_->card)?$_->card:"") . $_->gender;
-                next if not exists $mext->{$id}; 
-                $_->{qage} = $mext->{$id}{qage};
-                $_->{level} = $mext->{$id}{level};
-                $_->{bad_record} = $mext->{$id}{bad_record};
-                $_->{qq} = $mext->{$id}{qq};
-                $_->{role} = $mext->{$id}{role};
-                $_->{join_time} = $mext->{$id}{join_time};
-                $_->{last_speak_time} = $mext->{$id}{last_speak_time};
-                $_->{gtype} = $g->gtype;
-                $_->{gnumber} = $g->gnumber;
+                next if not exists $mext->{$id};
+                #$_->{qage} = $mext->{$id}{qage};
+                #$_->{level} = $mext->{$id}{level};
+                #$_->{bad_record} = $mext->{$id}{bad_record};
+                #$_->{qq} = $mext->{$id}{qq};
+                #$_->{role} = $mext->{$id}{role};
+                #$_->{join_time} = $mext->{$id}{join_time};
+                #$_->{last_speak_time} = $mext->{$id}{last_speak_time};
+                $_->update($mext->{$id});
+                $_->{gtype} = $group->gtype;
+                $_->{gnumber} = $group->gnumber || $mext->{$id}->{gnumber};
             }
+            $self->emit("model_update","group_member_ext",1);
         }
-        $self->emit("model_update","group_ext",1);
+        else{$self->warn("更新群组[ " . $group->gname . " ]成员扩展信息失败");}
+    }; 
+    if($p{is_blocking}){
+        my $group_info_ext = $self->_get_group_info_ext($group->gnumber);
+        $handle->($group_info_ext);
     }
-    else{$self->warn("更新群扩展信息失败\n");$self->emit("model_update","group_ext",0);}
-
+    else{
+        $self->_get_group_info_ext($group->gnumber,$handle);
+    }
+    
+}
+sub update_group_member {
+    my $self = shift;
+    my $group = shift;
+    $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group";
+    $self->info("更新群组[ ". $group->gname . " ]成员信息");
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
+    $p{is_update_group_member_ext} = 1 if not defined $p{is_update_group_member_ext};
+    my $handle = sub{
+        my $group_info = shift;
+        if(defined $group_info){ 
+            if(ref $group_info->{member} eq 'ARRAY'){
+                $group->update($group_info); 
+                $self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
+            }
+            else{$self->debug("更新群组[ " . $group->gname . " ]成员信息无效")}
+        }
+        else{$self->warn("更新群组[ " . $group->gname . " ]成员信息失败")}
+        
+    };
+    if($p{is_blocking}){
+        my $group_info = $self->_get_group_info($group->gcode);
+        $handle->($group_info);
+    }
+    else{
+        $self->_get_group_info($group->gcode,$handle);
+    }
 }
 sub update_group {
     my $self = shift;
-    my $group = shift;
-    if(defined $group){
-        $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group"; 
-        $self->info("更新群 [ " . $group->gname .  " ] 信息...");
-        my $group_info = $self->_get_group_info($group->gcode);
-        if(defined $group_info){
-            $self->warn("更新群 [ " . $group->gname .  " ] 信息成功(未获取到群成员信息)") 
-                if ref $group_info->{member} ne "ARRAY";
-            $group->update($group_info);
+    if(ref $_[0] eq "Mojo::Webqq::Group"){
+        my $group = shift;
+        my %p = @_;
+        $self->info("更新群组[ ". $group->gname . " ]信息");
+        $p{is_blocking} = 1 if not defined $p{is_blocking};
+        $p{is_update_group_ext} = 1 if not defined $p{is_update_group_ext} ;
+        $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
+        $p{is_update_group_member_ext} = $p{is_update_group_ext} if not defined $p{is_update_group_member_ext} ;
+        my $handle = sub{
+            my $group_info = shift;
+            if(defined $group_info){
+                if(ref $group_info->{member} eq 'ARRAY'){
+                    $group->update($group_info);
+                    $self->update_group_ext($group,%p) if $p{is_update_group_ext};
+                }
+                else{$self->debug("更新群组[ " . $group->gname . " ]成员信息无效")}
+            }
+            else{$self->warn("更新群组[ " . $group->gname . " ]成员信息失败")}
+
+        };
+        if($p{is_blocking}){
+            my $group_info = $self->_get_group_info($group->gcode);
+            $handle->($group_info);
         }
         else{
-            $self->warn("更新群 [ " . $group->gname .  " ] 信息失败...");
+            $self->_get_group_info($group->gcode,$handle);
         }
         return $self;
     }
-    my @groups;
-    $self->info("更新群列表信息...\n");
-    my $group_list = $self->_get_group_list_info(); 
-    unless(defined $group_list){
-        $self->warn("更新群列表信息失败\n");
-        $self->emit("model_update","group",0);
-        return $self;
-    }
-    for my $g (@{$group_list}){
-        my $group_info;
-        $self->info("更新[ " . $g->{gname} . " ]信息\n");
-        $group_info = $self->_get_group_info($g->{gcode});
-        unless(defined $group_info){
-            $self->warn("更新[ " . $g->{gname} . " ]信息失败\n");
-            $group_info = $g;
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking} ;
+    $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
+    $p{is_update_group_ext} = 1 if not defined $p{is_update_group_ext} ;
+    $p{is_update_group_member_ext} = $p{is_update_group_member} if not defined $p{is_update_group_member_ext} ;
+    $self->info("更新群列表信息...");
+    my $handle = sub{
+        my @groups;
+        my $group_list = shift; 
+        unless(defined $group_list){
+            $self->warn("更新群列表信息失败\n");
+            $self->emit("model_update","group",0);
+            return $self;
         }
-        if(ref $group_info->{member} ne 'ARRAY'){
-            $self->warn("更新群 [ " . $group_info->{gname} .  " ]信息成功(未获取到群成员信息)");
+        for my $g (@{$group_list}){
+            push @groups, $self->new_group($g);
+        } 
+        if(ref $self->group eq "ARRAY" and @{$self->group} == 0){
+            $self->group(\@groups);
         }
-        push @groups, $self->new_group($group_info);
-    } 
-    if(ref $self->group eq "ARRAY" and @{$self->group} == 0){
-        $self->group(\@groups);
+        else{
+            my($new_groups,$lost_groups,$sames) = $self->array_diff($self->group,\@groups,sub{$_[0]->gid});  
+            for(@{$new_groups}){
+                $self->add_group($_);
+                $self->emit(new_group=>$_) ;
+            }
+            for(@{$lost_groups}){
+                $self->remove_group($_);
+                $self->emit(lose_group=>$_) ;
+            }
+            for(@{$sames}){
+                my($old_group,$new_group) = ($_->[0],$_->[1]);
+                $old_group->update($new_group); 
+            }
+        }
+        $self->emit("model_update","group",1);
+        if($p{is_update_group_ext}){
+            $self->update_group_ext(%p);
+        }
+        if($p{is_update_group_member}){
+            for(@{ $self->group }){
+                $self->update_group_member($_,%p);
+            }
+        }
+    };
+    if($p{is_blocking}){
+        my $group_list = $self->_get_group_list_info(); 
+        $handle->($group_list);
     }
     else{
-        my($new_groups,$lost_groups,$sames) = $self->array_diff($self->group,\@groups,sub{$_[0]->gid});  
-        for(@{$new_groups}){
-            $self->add_group($_);
-            $self->emit(new_group=>$_) ;
-        }
-        for(@{$lost_groups}){
-            $self->remove_group($_);
-            $self->emit(lose_group=>$_) ;
-        }
-        for(@{$sames}){
-            my($old_group,$new_group) = ($_->[0],$_->[1]);
-            $old_group->update($new_group); 
-        }
-        #for (
-        #    grep { ref($_->[0]->member) eq "ARRAY"
-        #        and ref($_->[1]->member) eq "ARRAY"
-        #        and @{$_->[0]->member}!=0 
-        #    } @{$sames}
-        #){
-        #    if(@{$_->[1]->member}!=0){
-        #        my($old_group,$new_group) = ($_->[0],$_->[1]);
-        #        my($new_members,$lose_members)=$self->array_diff($old_group->member,$new_group->member,sub{$_[0]->id});
-        #        $self->emit(new_group_member=>$_) for @{$new_members};
-        #        $self->emit(lose_group_member=>$_) for @{$lose_members};
-        #    }
-        #    else{
-        #        $_->[1]->member($_->[0]->member);
-        #    }
-        #}
-        #$self->group(\@groups);
+        $self->_get_group_list_info($handle);
     }
-    $self->update_group_ext();
-    $self->emit("model_update","group",1);
 }
 
 sub search_group {
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
+    $self->update_group(is_update_group_member=>0) if @{ $self->group } == 0;
     delete $p{member};
     delete $p{_client};
     if(wantarray){
@@ -439,7 +589,15 @@ sub search_group_member {
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
-    my @member = map {@{$_->member}} @{$self->group};
+    if(@{$self->group} == 0){
+        $self->update_group(is_blocking=>1,is_update_group_member=>1);
+    }
+    else{
+        for( @{$self->group}){
+            $_->upadte_group_member(is_blocking=>1,) if $_->is_empty;
+        }
+    }
+    my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->group};
     if(wantarray){
         return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
@@ -484,86 +642,116 @@ sub remove_discuss {
     return 0;
 }
 
-sub add_discuss_member {
+sub add_discuss_member {}
 
-}
-
-sub update_discuss {
+sub update_discuss_member{
     my $self = shift;
-    my $discuss = shift;
-    if(defined $discuss){
-        $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss"; 
-        $self->info("更新讨论组 [ " . $discuss->dname .  " ] 信息...");
-        my $discuss_info = $self->_get_discuss_info($discuss->did);
+    my $discuss = shift; 
+    $self->die("不支持的数据类型") if ref $discuss ne "Mojo::Webqq::Discuss";
+    $self->info("更新讨论组[ ". $discuss->dname . " ]成员信息");
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
+    my $handle = sub{
+        my $discuss_info = shift;
         if(defined $discuss_info){
-            $self->debug("更新讨论组 [ " . $discuss->dname .  " ] 信息成功(未获取到成员信息)") 
-                if ref $discuss_info->{member} ne "ARRAY";
-            $discuss->update($discuss_info);
+            if(ref $discuss_info->{member} eq 'ARRAY'){
+                $discuss->update($discuss_info);
+            }
+            else{$self->debug("更新讨论组[ " . $discuss->dname . " ]成员信息无效")}
         }
-        else{
-            $self->warn("更新讨论组 [ " . $discuss->dname .  " ] 信息失败...");
-        }
-        return $self;
-    }
-    my @discusss;
-    $self->debug("更新讨论组列表信息...\n");
-    my $discuss_list = $self->_get_discuss_list_info(); 
-    unless(defined $discuss_list){
-        $self->warn("更新讨论组列表信息失败\n");
-        $self->emit("model_update","discuss",0);
-        return $self;
-    }
-    for my $d (@{$discuss_list}){
-        my $discuss_info;
-        $self->info("更新[ " . $d->{dname} . " ]信息\n");
-        $discuss_info = $self->_get_discuss_info($d->{did});
-        unless(defined $discuss_info){
-            $self->warn("更新[ " . $d->{dname} . " ]信息失败\n");
-            $discuss_info = $d;
-        }
-        if(ref $discuss_info->{member} ne 'ARRAY'){
-            $self->debug("更新讨论组 [ " . $discuss_info->{dname} .  " ] 信息成功(未获取到成员信息)");
-        }
-        push @discusss, $self->new_discuss($discuss_info);
-    } 
-    if(ref $self->discuss eq "ARRAY" and @{$self->discuss} == 0){
-        $self->discuss(\@discusss);
+        else{$self->warn("更新讨论组[ " . $discuss->dname . " ]成员信息失败")}
+    };
+
+    if($p{is_blocking}){
+        my $discuss_info = $self->_get_discuss_info($discuss->did);
+        $handle->($discuss_info);
     }
     else{
-        my($new_discusss,$lost_discusss,$sames) = $self->array_diff($self->discuss,\@discusss,sub{$_[0]->did});  
-        for(@{$new_discusss}){
-            $self->add_discuss($_);
-            $self->emit(new_discuss=>$_);   
-        }
-        for(@{$lost_discusss}){
-            $self->remove_discuss($_);
-            $self->emit(lose_discuss=>$_);
-        }
-        for(@{$sames}){
-            my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
-            $old_discuss->update($new_discuss);
-        }
-        #for (
-        #    grep { ref($_->[0]->member) eq "ARRAY"
-        #        and ref($_->[1]->member) eq "ARRAY"
-        #        and @{$_->[0]->member}!=0 
-        #        and @{$_->[1]->member}!=0
-        #    } @{$sames}
-        #){
-        #    my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
-        #    my($new_members,$lose_members)= $self->array_diff($old_discuss->member,$new_discuss->member,sub{$_[0]->id});
-        #    $self->emit(new_discuss_member=>$_) for @{$new_members};
-        #    $self->emit(lose_discuss_member=>$_) for @{$lose_members};
-        #}
-        #$self->discuss(\@discusss);
+        $self->_get_discuss_info($discuss->did,$handle);
     }
-    $self->emit("model_update","discuss",1);
+    
+}
+sub update_discuss {
+    my $self = shift;
+    if(ref $_[0] eq "Mojo::Webqq::Discuss"){
+        my $discuss = shift;
+        my %p = @_;
+        $self->info("更新讨论组[ ". $discuss->dname . " ]信息");
+        $p{is_blocking} = 1 if not defined $p{is_blocking};
+        my $handle = sub{
+            my $discuss_info = shift;
+            if(defined $discuss_info){
+                if(ref $discuss_info->{member} eq 'ARRAY'){
+                    $discuss->update($discuss_info);
+                }
+                else{$self->debug("更新讨论组[ " . $discuss->gname . " ]成员信息无效")}
+            }
+            else{$self->warn("更新讨论组[ " . $discuss->dname . " ]成员信息失败")}
+
+        };
+        if($p{is_blocking}){
+            my $discuss_info = $self->_get_discuss_info($discuss->did);
+            $handle->($discuss_info);
+        }
+        else{
+            $self->_get_discuss_info($discuss->did,$handle);
+        }
+        return $self;
+    }
+    my %p = @_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking} ;
+    $p{is_update_discuss_member} = 1 if not defined $p{is_update_discuss_member} ;
+    $self->info("更新讨论组列表信息...");
+    my $handle = sub{
+        my @discusss;
+        my $discuss_list = shift;
+        unless(defined $discuss_list){
+            $self->warn("更新讨论列表信息失败\n");
+            $self->emit("model_update","discuss",0);
+            return $self;
+        }
+        for my $d (@{$discuss_list}){
+            push @discusss, $self->new_discuss($d);
+        }
+        if(ref $self->discuss eq "ARRAY" and @{$self->discuss} == 0){
+            $self->discuss(\@discusss);
+        }
+        else{
+            my($new_discusss,$lost_discusss,$sames) = $self->array_diff($self->discuss,\@discusss,sub{$_[0]->did});
+            for(@{$new_discusss}){
+                $self->add_discuss($_);
+                $self->emit(new_discuss=>$_) ;
+            }
+            for(@{$lost_discusss}){
+                $self->remove_discuss($_);
+                $self->emit(lose_discuss=>$_) ;
+            }
+            for(@{$sames}){
+                my($old_discuss,$new_discuss) = ($_->[0],$_->[1]);
+                $old_discuss->update($new_discuss);
+            }
+        }
+        $self->emit("model_update","discuss",1);
+        if($p{is_update_discuss_member}){
+            for(@{ $self->discuss }){
+                $self->update_discuss_member($_,%p);
+            }
+        }
+    };
+    if($p{is_blocking}){
+        my $discuss_list = $self->_get_discuss_list_info();
+        $handle->($discuss_list);
+    }
+    else{
+        $self->_get_discuss_list_info($handle);
+    }
 }
 
 sub search_discuss {
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
+    $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if @{$self->discuss} == 0;
     delete $p{member};
     delete $p{_client};
     if(wantarray){
@@ -578,7 +766,15 @@ sub search_discuss_member {
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
-    my @member = map {@{$_->member}} @{$self->discuss};
+    if(@{$self->discuss} == 0){
+        $self->update_discuss(is_blocking=>1,is_update_discuss_member=>1);
+    }
+    else{
+        for( @{$self->discuss}){
+            $_->upadte_discuss_member(is_blocking=>1,) if $_->is_empty;
+        }
+    }
+    my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->discuss};
     if(wantarray){
         return grep {my $m = $_;(first {$p{$_} ne $m->$_} grep {defined $p{$_}} keys %p) ? 0 : 1;} @member;
     }
@@ -604,19 +800,30 @@ sub add_recent {
 
 sub update_recent {
     my $self = shift;
+    my %p =@_;
+    $p{is_blocking} = 1 if not defined $p{is_blocking};
     $self->info("更新最近联系人信息...\n");
-    my $recent_info = $self->_get_recent_info();
-    if(defined $recent_info){
-        for(@{$recent_info}){
-            if($_->{type} eq "friend"){$self->add_recent($self->search_friend(id=>$_->{id}))}
-            #elsif($_->{type} eq "group"){}
-            #elsif($_->{type} eq "discuss"){}
+    my $handle = sub{
+        my $recent_info =  shift;
+        if(defined $recent_info){
+            for(@{$recent_info}){
+                if($_->{type} eq "friend"){$self->add_recent($self->search_friend(id=>$_->{id}))}
+                #elsif($_->{type} eq "group"){}
+                #elsif($_->{type} eq "discuss"){}
+            }
+            $self->emit("model_update","recent",1);
         }
-        $self->emit("model_update","recent",1);
+        else{
+            $self->warn("更新最近联系人信息失败\n");
+            $self->emit("model_update","recent",0);
+        }
+    };
+    if($p{is_blocking}){
+        my $recent_info = $self->_get_recent_info();
+        $handle->($recent_info);
     }
     else{
-        $self->warn("更新最近联系人信息失败\n");
-        $self->emit("model_update","recent",0);
+        $self->_get_recent_info($handle);
     }
 }
 
@@ -634,7 +841,10 @@ sub search_recent {
 
 sub invite_friend{
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     my $group = shift;
     my @friends = @_;
     if(not defined $group->gnumber){
@@ -655,7 +865,10 @@ sub invite_friend{
 }
 sub kick_group_member{
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     my $group = shift;
     my @members = @_;
     if(not defined $group->gnumber){
@@ -683,7 +896,10 @@ sub kick_group_member{
 
 sub shutup_group_member{
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     my $group = shift;
     my $time = shift;
     my @members = @_;
@@ -713,7 +929,10 @@ sub shutup_group_member{
 }
 sub speakup_group_member{
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     my $group = shift;
     my @members = @_;
     if(not defined $group->gnumber){
@@ -738,7 +957,10 @@ sub speakup_group_member{
 }
 sub set_group_admin{
     my $self = shift;
-    return if not $self->is_support_model_ext;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息");
+        return;
+    }
     my $group = shift;
     my @members = @_;
     if(not defined $group->gnumber){

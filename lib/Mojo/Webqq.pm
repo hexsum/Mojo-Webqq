@@ -1,5 +1,6 @@
 package Mojo::Webqq;
 use strict;
+use Carp ();
 $Mojo::Webqq::VERSION = "1.7.0";
 use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
@@ -21,8 +22,18 @@ has log_level           => 'info';     #debug|info|warn|error|fatal
 has log_path            => undef;
 has log_encoding        => undef;      #utf8|gbk|...
 has email               => undef;
-has encrypt_method      => "perl";     #perl|js
 
+has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
+has is_init_group          => 1;                            #是否在首次登录时初始化群组信息
+has is_init_discuss        => 1;                            #是否在首次登录时初始化讨论组信息
+has is_init_recent         => 0;                            #是否在首次登录时初始化最近联系人信息
+
+has is_update_user          => 0;                            #是否定期更新个人信息
+has is_update_group         => 1;                            #是否定期更新群组信息
+has is_update_friend        => 1;                            #是否定期更新好友信息
+has is_update_discuss       => 1;                            #是否定期更新讨论组信息
+
+has encrypt_method      => "perl";     #perl|js
 has tmpdir              => sub {File::Spec->tmpdir();};
 has pic_dir             => sub {$_[0]->tmpdir};
 has cookie_dir          => sub{return $_[0]->tmpdir;};
@@ -146,6 +157,11 @@ sub new {
         $self->fatal("客户端初始化缺少qq参数");
         $self->exit();
     }
+    $self->ioloop->reactor->on(error=>sub{
+        my ($reactor, $err) = @_;
+        $self->error("reactor error: " . Carp::longmess($err));
+    });
+    $SIG{__WARN__} = sub{$self->warn(@_);};
     $self->on(qrcode_expire=>sub{
         my($self) = @_;
         my $count = $self->qrcode_count;
@@ -172,14 +188,17 @@ sub new {
 
 sub friends{
     my $self = shift;
+    $self->update_friend() if @{$self->friend} == 0;
     return @{$self->friend};
 }
 sub groups{
     my $self = shift;
+    $self->update_group() if @{$self->group} == 0;
     return @{$self->group};
 }
 sub discusss{
     my $self = shift;
+    $self->update_discuss() if @{$self->discuss} == 0;
     return @{$self->discuss};
 }
 sub recents{

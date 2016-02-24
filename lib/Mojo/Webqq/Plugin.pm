@@ -55,7 +55,7 @@ sub call{
     }
     for(sort {$self->plugins->{$b}{priority} <=> $self->plugins->{$a}{priority}} @plugins){
         if(exists $self->plugins->{$_}){
-            $self->debug("执行插件[ $_ ]");
+            $self->info("执行插件[ $_ ]");
             eval {
                 &{$self->plugins->{$_}{code}}($self,$self->plugins->{$_}{data},@_);   
             };
