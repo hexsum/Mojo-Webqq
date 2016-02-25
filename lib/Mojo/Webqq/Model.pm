@@ -368,18 +368,28 @@ sub remove_group{
 }
 sub update_group_ext {
     my $self = shift;
-    my $group;
     if ( not $self->is_support_model_ext){
         $self->warn("无法支持获取扩展信息");
         return;
     }
     return if @{ $self->group } == 0;
+    my $group;
     $group = shift if ref $_[0] eq "Mojo::Webqq::Group";
-    $self->info("更新群扩展信息...");
     my %p = @_;
     $p{is_blocking} = 1 if not defined $p{is_blocking};
-    $p{is_update_group_member_ext} = 1 if not defined $p{is_update_group_member_ext};
+    $p{is_update_group_member_ext} = 1 if not defined $p{is_update_group_member_ext};    
 
+    if(defined $group and defined $group->gnumber){#要更新的指定群组已经包含扩展信息
+        $self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
+        return;
+    }
+    elsif( (!defined $group) and (! first { !defined $_->gnumber} @{$self->group} ) ){ #所有群组都包含扩展信息了
+        for(@{$self->group}){
+            $self->update_group_member_ext($_,%p) if $p{is_update_group_member_ext};
+        }  
+        return;
+    }
+    $self->info("更新群组扩展信息...");
     my $handle = sub{
         my $group_list_ext = shift;
         if(defined $group_list_ext and ref $group_list_ext eq "ARRAY"){
