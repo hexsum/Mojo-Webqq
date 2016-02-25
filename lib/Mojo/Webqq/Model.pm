@@ -470,7 +470,7 @@ sub update_group_member {
         if(defined $group_info){ 
             if(ref $group_info->{member} eq 'ARRAY'){
                 $group->update($group_info); 
-                $self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
+                #$self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
             }
             else{$self->debug("更新群组[ " . $group->gname . " ]成员信息无效")}
         }
@@ -492,9 +492,9 @@ sub update_group {
         my %p = @_;
         $self->info("更新群组[ ". $group->gname . " ]信息");
         $p{is_blocking} = 1 if not defined $p{is_blocking};
-        $p{is_update_group_ext} = 1 if not defined $p{is_update_group_ext} ;
         $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
-        $p{is_update_group_member_ext} = $p{is_update_group_ext} if not defined $p{is_update_group_member_ext} ;
+        $p{is_update_group_ext} = $p{is_blocking} if not defined $p{is_update_group_ext} ;
+        $p{is_update_group_member_ext} = $p{is_update_group_ext} && $p{is_blocking}  if not defined $p{is_update_group_member_ext} ;
         my $handle = sub{
             my $group_info = shift;
             if(defined $group_info){
@@ -519,8 +519,8 @@ sub update_group {
     my %p = @_;
     $p{is_blocking} = 1 if not defined $p{is_blocking} ;
     $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
-    $p{is_update_group_ext} = 1 if not defined $p{is_update_group_ext} ;
-    $p{is_update_group_member_ext} = $p{is_update_group_member} if not defined $p{is_update_group_member_ext} ;
+    $p{is_update_group_ext} = $p{is_blocking} if not defined $p{is_update_group_ext} ;
+    $p{is_update_group_member_ext} = $p{is_blocking} && $p{is_update_group_ext} && $p{is_update_group_member} if not defined $p{is_update_group_member_ext} ;
     $self->info("更新群列表信息...");
     my $handle = sub{
         my @groups;
@@ -552,13 +552,13 @@ sub update_group {
             }
         }
         $self->emit("model_update","group",1);
-        if($p{is_update_group_ext}){
-            $self->update_group_ext(%p);
-        }
         if($p{is_update_group_member}){
             for(@{ $self->group }){
                 $self->update_group_member($_,%p);
             }
+        }
+        if($p{is_update_group_ext}){
+            $self->update_group_ext(%p);
         }
     };
     if($p{is_blocking}){

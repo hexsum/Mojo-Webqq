@@ -184,6 +184,19 @@ sub new {
             $self->relogin();
         }
     });
+    $self->on(new_group=>sub{
+        my($self,$group)=@_;
+        $self->update_group($group,is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>1);
+    });
+
+    $self->on(new_group_member=>sub{
+        my($self,$member)=@_;
+        $member->group->update_group_member_ext(is_blocking=>1);
+    });
+    $self->on(new_friend=>sub{
+        my($self,$friend)=@_;
+        $self->update_friend_ext(is_blocking=>1);
+    });
     $self;
 }
 

@@ -86,16 +86,6 @@ sub ready{
             $self->emit(first_talk=>$msg->sender,$msg);
         }
     });   
-    $self->on(new_group=>sub{
-        my($self,$group)=@_;
-        $self->update_group($group,is_blocking=>0,is_update_group_ext=>1,is_update_group_member_ext=>1);
-    });
-    
-    $self->on(new_group_member=>sub{
-        my($self,$member)=@_;
-        $member->group->update_group_member_exxt(is_blocking=>0);
-    });
-    $self->on(new_friend=>sub{});
     $self->interval(3600*4,sub{$self->data(+{})});
     $self->interval(900,sub{
         return if ref $self ne 'Mojo::Webqq';
