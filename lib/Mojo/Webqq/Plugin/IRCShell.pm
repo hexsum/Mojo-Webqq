@@ -18,7 +18,7 @@ sub call{
     my $master_irc_user = $data->{master_irc_user} || $client->qq;
     my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
-    my @groups = ref($data->{group}) eq "ARRAY"?@{$data->{group}}:();
+    my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{

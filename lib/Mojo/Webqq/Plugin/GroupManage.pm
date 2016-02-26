@@ -103,7 +103,7 @@ sub call {
             return if $msg->type ne "group_message";
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}}
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}};
             #说话频率限制
             do_speak_limit($client,$data,$speak_counter,$msg);
             #发图数量限制
