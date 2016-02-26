@@ -34,7 +34,7 @@ sub look{
     my $key = shift;
     my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
     my $slot = int((time-$start)/$self->{period});
-    return 0+$self->{slot}{$key}[$slot];
+    return defined $self->{slot}{$key}[$slot]?0+$self->{slot}{$key}[$slot]:0;
 }
 sub check {
     my $self = shift;
