@@ -4,10 +4,9 @@ use List::Util qw(first);
 our $PRIORITY = 100;
 use POSIX ();
 sub do_speak_limit{
-    my($client,$data,$db,$msg) = @_;
+    my($client,$data,$speak_counter,$msg) = @_;
     my $gid = $msg->group->gid;
     my $sender_id = $msg->sender->id;
-    my $period = $data->{speak_limit}{period} || 600;
 
     my $warn_limit = $data->{speak_limit}{warn_limit};
     my $warn_message = $data->{speak_limit}{warn_message} || '@%s 警告, 您发言过于频繁，可能会被禁言或踢出本群';
@@ -17,31 +16,24 @@ sub do_speak_limit{
 
     my $kick_limit = $data->{speak_limit}{kick_limit};
 
-    my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
-    return if time - $msg->msg_time >600;
-    return if $msg->msg_time-$start <0;
-    my $slot = int(($msg->msg_time-$start)/$period);
-    my $count = ++$db->{speak_limit}{$gid}{$sender_id}{$slot};
-
+    my $count = $speak_counter->check($gid . "|" . $sender_id,$msg->msg_time);
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->group->kick_group_member($msg->sender);
-        delete $db->{speak_limit}{$gid}{$sender_id};
+        $speak_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
         $msg->group->shutup_group_member($shutup_time,$msg->sender);
-        delete $db->{speak_limit}{$gid}{$sender_id};
+        $speak_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
         $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
     }
 }
 sub do_pic_limit{
-    my($client,$data,$db,$msg) = @_;
+    my($client,$data,$pic_counter,$msg) = @_;
     my $gid = $msg->group->gid;
     my $sender_id = $msg->sender->id;
     return if not first {$_->{type} eq 'cface'} @{$msg->raw_content};    
-
-    my $period = $data->{pic_limit}{period} || 600;
 
     my $warn_limit = $data->{pic_limit}{warn_limit};
     my $warn_message = $data->{pic_limit}{warn_message} || '@%s 警告, 您发图过多，可能会被禁言或踢出本群';
@@ -51,33 +43,28 @@ sub do_pic_limit{
 
     my $kick_limit = $data->{pic_limit}{kick_limit};
 
-    my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
-    return if time - $msg->msg_time >600;
-    return if $msg->msg_time-$start <0;
-    my $slot = int(($msg->msg_time-$start)/$period);
     for(@{$msg->raw_content}){
         if($_->{type} eq 'cface'){
-            $db->{pic_limit}{$gid}{$sender_id}{$slot}++;  
+            $pic_counter->count($gid . "|" . $sender_id,$msg->msg_time);
         }
     }
-    my $count = $db->{pic_limit}{$gid}{$sender_id}{$slot} || 0;
+    my $count = $pic_counter->look($gid . "|" . $sender_id);
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->sender->group->kick_group_member($msg->sender);
-        delete $db->{pic_limit}{$gid}{$sender_id};
+        $pic_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
         $msg->sender->group->shutup_group_member($shutup_time,$msg->sender);
-        delete $db->{pic_limit}{$gid}{$sender_id};
+        $pic_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
         $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
     }
 }
 sub do_keyword_limit {
-    my($client,$data,$db,$msg) = @_;
+    my($client,$data,$keyword_counter,$msg) = @_;
     my $gid = $msg->group->gid;
     my $sender_id = $msg->sender->id;
-    my $period = $data->{keyword_limit}{period} || 600;
     my @keywords = ref $data->{keyword_limit}{keyword} eq "ARRAY"?@{$data->{keyword_limit}{keyword}}:();
     return if @keywords == 0;
     return if not first {$msg->content =~/\Q$_\E/} @keywords;
@@ -89,21 +76,15 @@ sub do_keyword_limit {
 
     my $kick_limit = $data->{keyword_limit}{kick_limit};
 
-    my $start = POSIX::mktime(0,0,0,(localtime)[3,4,5]);
-    return if time - $msg->msg_time >600;
-    return if $msg->msg_time-$start <0;
-    my $slot = int(($msg->msg_time-$start)/$period);
+    my $count = $keyword_counter->check($gid  . "|" . $sender_id,$msg->msg_time);
 
-    $db->{keyword_limit}{$gid}{$sender_id}{$slot}++;
-
-    my $count = $db->{keyword_limit}{$gid}{$sender_id}{$slot} || 0;
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->sender->group->kick_group_member($msg->sender);
-        delete $db->{keyword_limit}{$gid}{$sender_id};
+        $keyword_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $shutup_limit and $count >= $shutup_limit){
         $msg->sender->group->shutup_group_member($shutup_time,$msg->sender);
-        delete $db->{keyword_limit}{$gid}{$sender_id};
+        $keyword_counter->clear($gid . "|" . $sender_id);
     }
     elsif(defined $warn_limit and $count >= $warn_limit){
         $msg->reply(sprintf $warn_message,$msg->sender->displayname); 
@@ -112,19 +93,23 @@ sub do_keyword_limit {
 sub call {
     my $client = shift;
     my $data   = shift;
-    my $db = {};
-    $client->add_job(__PACKAGE__ . "清空数据库","00:00:00",sub{$db = {}});
-    $client->on(login=>sub{$db={}});
+    my $speak_counter = $client->new_counter(id=>'GroupManage',period=>$data->{speak_limit}{period} || 600);
+    my $pic_counter = $client->new_counter(id=>'GroupManage',period=>$data->{pic_limit}{period} || 600);
+    my $keyword_counter = $client->new_counter(id=>'GroupManage',period=>$data->{keyword_limit}{period} || 600);
+    $client->on(login=>sub{$speak_counter->reset();$pic_counter->reset();$keyword_counter->reset()});
     $client->on(
         receive_message     => sub {
             my($client,$msg) = @_;
             return if $msg->type ne "group_message";
+            return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}}
             #说话频率限制
-            do_speak_limit($client,$data,$db,$msg);        
+            do_speak_limit($client,$data,$speak_counter,$msg);
             #发图数量限制
-            do_pic_limit($client,$data,$db,$msg);
+            do_pic_limit($client,$data,$pic_counter,$msg);
             #关键字限制
-            do_keyword_limit($client,$data,$db,$msg)
+            do_keyword_limit($client,$data,$keyword_counter,$msg)
         },
         new_group           => sub {$_[1]->send($data->{new_group} || "大家好，初来咋到，请多关照");},
         #lose_group         => sub { },

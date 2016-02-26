@@ -1,8 +1,10 @@
 package Mojo::Webqq::Plugin::ShowMsg;
-$Mojo::Webqq::Plugin::ShowMsg::PRIORITY = 100;
+our $PRIORITY = 100;
 use POSIX qw(strftime);
+use List::Util qw(first);
 sub call{
     my $client = shift;
+    my $data = shift;
     $client->on(
         receive_message=>sub{
             my($client,$msg)=@_; 
@@ -17,6 +19,8 @@ sub call{
             elsif($msg->type eq 'group_message'){
                 my $gname = $msg->group->gname;
                 my $sender_nick = $msg->sender->displayname;
+                return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$gname eq $_} @{$data->{ban_group}};
+                return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$gname eq $_} @{$data->{allow_group}};
                 $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick|$gname :"},$msg->content);
             }
             elsif($msg->type eq 'discuss_message'){

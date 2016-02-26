@@ -206,7 +206,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     dump                    #打印群对象结构，方便调试
 
     示例代码：
-    my $group = $client->search_group_member(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
+    my $group = $client->search_group(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
     $group->send("hello world"); #在指定的群中发送消息
 
     my $member = $group->search_group_member(id=>xxx,nick=>xxx); #返回一个Mojo::Webqq::Group::Member对象
@@ -1251,6 +1251,15 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 =head1 插件列表
 
+=head2 Mojo::Webqq::Plugin::ShowMsg
+
+打印消息到终端
+
+    $client->load("ShowMsg",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+    });
+
 =head2 Mojo::Webqq::Plugin::StockInfo
 
 查询股票信息，聊天内容中输入 "gp 000001" 或者 "股票 000001" 触发
@@ -1396,6 +1405,17 @@ julia/lua/nim/ocaml/python
     del   今天天气怎么样
     删除  '哈哈 你真笨'
 
+其他更多参数设置
+
+    $client->load("KnowledgeBase",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        file => './KnowledgeBase.dat', #数据库保存路径
+        learn_command  => 'study',     #自定义学习指令关键字
+        delete_command =>'clear',      #自定义删除指令关键字
+        allow_operator => [12345,678910], #运行进行学习和删除的操作人qq号
+    });
+
 =head2 Mojo::Webqq::Plugin::FuckDaShen
 
 对qq消息中出现的"大神"关键词进行鄙视
@@ -1415,6 +1435,8 @@ julia/lua/nim/ocaml/python
 常用群管理功能，包括 新人入群欢迎、成员离开提醒、限制发言频率、限制发图频率
 
     $client->load("GroupManage",data=>{ 
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
         new_group_member => '欢迎新成员 @%s 入群[鼓掌][鼓掌][鼓掌]', #新成员入群欢迎语，%s会被替换成群成员名称
         lose_group_member => '很遗憾 @%s 离开了本群[流泪][流泪][流泪]', #成员离群提醒
         speak_limit => {#发送消息频率限制
@@ -1498,9 +1520,18 @@ julia/lua/nim/ocaml/python
 
 实现机器人的智能回复，支持好友消息、群消息、群临时消息、讨论组临时消息的自动回复
 
-为避免对群内成员产生影响，群内需要使用 @帐号昵称 来触发
+为避免对群内成员产生影响，默认群内需要使用 @帐号昵称 来触发
 
-    $client->load("SmartReply");
+    $client->load("SmartReply",data=>{
+        allow_group     => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group       => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        notice_reply    => ["对不起，请不要这么频繁的艾特我","对不起，您的艾特次数太多"], #可选，提醒时用语
+        notice_limit    => 8 ,  #可选，达到该次数提醒对话次数太多，提醒语来自默认或 notice_reply
+        warn_limit      => 10,  #可选,达到该次数，会被警告
+        ban_limit       => 12,  #可选,达到该次数会被列入黑名大不再进行回复
+        period          => 600, #可选，限制周期，单位 秒
+        is_need_at       => 1,  #默认是1 是否需要艾特才触发回复
+    });
 
 =head2 Mojo::Webqq::Plugin::Openqq
 

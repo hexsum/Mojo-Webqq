@@ -33,8 +33,8 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
             $member->{gender} = $_->{g}?"female":"male";
             $member->{qq}  = $_->{uin};
             $member->{role} = $role{$_->{role}};
-            $member->{card} = (defined $_->{card} and $_->{card} ne "")?$_->{card}: undef;
-            $member->{nick} = $_->{nick};
+            $member->{card} = (defined $_->{card} and $_->{card} ne "")?$self->xmlescape_parse($_->{card}): undef;
+            $member->{nick} = $self->xmlescape_parse($_->{nick});
             $member->{qage} = $_->{qage};
             $member->{join_time} = $_->{join_time};
             $member->{last_speak_time} = $_->{last_speak_time};

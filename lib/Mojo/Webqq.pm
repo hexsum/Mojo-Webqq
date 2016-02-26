@@ -5,11 +5,12 @@ $Mojo::Webqq::VERSION = "1.7.0";
 use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
+use Mojo::Webqq::Counter;
 sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 use Time::HiRes qw(gettimeofday);
 use POSIX;
 use File::Spec ();
-use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin);
+use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin Mojo::Webqq::Util);
 
 has qq                  => undef;
 has pwd                 => undef;
