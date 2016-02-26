@@ -93,9 +93,9 @@ sub do_keyword_limit {
 sub call {
     my $client = shift;
     my $data   = shift;
-    my $speak_counter = $client->new_counter(id=>'GroupManage',period=>$data->{speak_limit}{period} || 600);
-    my $pic_counter = $client->new_counter(id=>'GroupManage',period=>$data->{pic_limit}{period} || 600);
-    my $keyword_counter = $client->new_counter(id=>'GroupManage',period=>$data->{keyword_limit}{period} || 600);
+    my $speak_counter = $client->new_counter(id=>'GroupManage_speek',period=>$data->{speak_limit}{period} || 600);
+    my $pic_counter = $client->new_counter(id=>'GroupManage_pic',period=>$data->{pic_limit}{period} || 600);
+    my $keyword_counter = $client->new_counter(id=>'GroupManage_keyword',period=>$data->{keyword_limit}{period} || 600);
     $client->on(login=>sub{$speak_counter->reset();$pic_counter->reset();$keyword_counter->reset()});
     $client->on(
         receive_message     => sub {
