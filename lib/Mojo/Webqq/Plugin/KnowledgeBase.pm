@@ -6,8 +6,8 @@ sub call{
     my $client = shift;
     my $data = shift;
     my $file = $data->{file} || './KnowledgeBase.dat';
-    my $learn_command = quotemeta($data->{learn_command}) || 'learn|学习';
-    my $delete_command = quotemeta($data->{delete_command}) || 'delete|del|删除';
+    my $learn_command = defined $data->{learn_command}?quotemeta($data->{learn_command}):'learn|学习';
+    my $delete_command = defined $data->{delete_command}?quotemeta($data->{delete_command}):'delete|del|删除';
     my $base = {};
     $base = retrieve($file) if -e $file;
     #$client->timer(120,sub{nstore $base,$file});

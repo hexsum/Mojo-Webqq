@@ -17,6 +17,7 @@ sub call{
     my $notice_limit = $data->{notice_limit} || 8;
     my $warn_limit = $data->{warn_limit} || 10;
     my $ban_limit = $data->{ban_limit} || 12;
+    my $is_need_at = defined $data->{is_need_at}?$data->{is_need_at}:1;
 
     my $counter = $client->new_counter(id=>'SmartReply',period=>$data->{period} || 600);
     $client->on(login=>sub{%ban = ();$counter->reset();});

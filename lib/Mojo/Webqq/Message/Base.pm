@@ -70,7 +70,10 @@ sub to_json_hash{
         elsif(ref $self->{$key} eq ""){
             $json->{$key} = decode_utf8($self->{$key});
         }
-    }    
+    } 
+    $json->{sender_qq} = $self->sender->qq;
+    $json->{receiver_qq} = $self->receiver->qq;
+    $json->{gnumber} = $self->group->gnumber if $self->type eq "group_message";
     return $json;
 }
 
