@@ -43,6 +43,7 @@ sub steps {
 sub stop{
     my $self = shift;
     my $mode = shift || "auto";
+    return if $self->is_stop;
     $self->is_stop(1);
     $self->info("客户端停止运行");
     if($mode eq "auto"){
@@ -155,7 +156,6 @@ sub ready{
     $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
     $self->info("开始接收消息...\n");
     $self->_recv_message();
-    $Mojo::Webqq::Client::CLIENT_COUNT++;
     $self->is_ready(1);
     $self->emit("ready");
 }

@@ -120,6 +120,7 @@ sub Mojo::Webqq::Client::_login1{
             else{
                 $self->fatal("您输入的帐号或密码不正确，客户端终止运行...\n");
                 $self->stop();
+                return 0;
             }
         }   
         elsif($d{retcode} != 0){

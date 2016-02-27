@@ -198,6 +198,7 @@ sub new {
         my($self,$friend)=@_;
         $self->update_friend_ext(is_blocking=>1);
     });
+    $Mojo::Webqq::Client::CLIENT_COUNT++;
     $self;
 }
 
