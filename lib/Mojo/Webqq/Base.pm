@@ -119,8 +119,9 @@ sub array_diff{
 
 sub array_unique {
     my $self = shift;
-    my $diff = pop;
     my $array = shift;
+    my $diff = shift;
+    my $info = shift;
     my @result;
     my %info;
     my %tmp;
@@ -128,13 +129,19 @@ sub array_unique {
         my $id = $diff->($_);
         $tmp{$id}++;
     }
+    my $i = 0;
     for(@$array){
         my $id = $diff->($_);
         next if not exists $tmp{$id} ;
-        next if $tmp{$id}>1;
+        if($tmp{$id}>1){
+            $self->debug("$info array_unique id duplicate: $id($tmp{$id})") if defined $info;
+            $i++;
+            next;
+        }
         push @result,$_;
         $info{$id} = $_ if wantarray;
     }
+    $self->debug("$info array_unique id duplicate count: $i") if defined $info and $i >0;
     return wantarray?(\@result,\%info):\@result;
 }
 sub die{

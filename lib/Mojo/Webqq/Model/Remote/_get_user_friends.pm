@@ -1,3 +1,4 @@
+use Encode;
 sub Mojo::Webqq::Model::_get_user_friends{
     my $self = shift;
     my $callback = shift;
@@ -26,14 +27,14 @@ sub Mojo::Webqq::Model::_get_user_friends{
             }
         }
         for(@{ $json->{result}{categories}}){
-            $categories{ $_->{'index'} } = {'sort'=>$_->{'sort'},name=>encode("utf8",$_->{name}) };
+            $categories{ $_->{'index'} } = {'sort'=>$_->{'sort'},name=>Encode::encode("utf8",$_->{name}) };
         }
-        $categories{0} = {sort=>0,name=>'我的好友'};
+        $categories{0} = {sort=>0,name=>'我的好友'} if not defined $categories{0};
         for(@{ $json->{result}{info}}){
-            $info{$_->{uin}} = {face=>$_->{face},flag=>$_->{flag},nick=>encode("utf8",$_->{nick}),};
+            $info{$_->{uin}} = {face=>$_->{face},flag=>$_->{flag},nick=>Encode::encode("utf8",$_->{nick}),};
         }
         for(@{ $json->{result}{marknames} }){
-            $marknames{$_->{uin}} = {markname=>encode("utf8",$_->{markname}),type=>$_->{type}};
+            $marknames{$_->{uin}} = {markname=>$_->{markname},type=>$_->{type}};
         }
         for(@{ $json->{result}{vipinfo} }){
             $vipinfo{$_->{u}} = {vip_level=>$_->{vip_level},is_vip=>$_->{is_vip}};

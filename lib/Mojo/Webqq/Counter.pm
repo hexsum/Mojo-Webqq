@@ -27,7 +27,7 @@ sub count {
     else{ $ts = time; }
     my $slot = int(($ts-$start)/$self->{period});
     $self->{slot}{$key}[$slot]++;
-    $self;
+    return $self;
 }
 sub look{
     my $self = shift;
@@ -38,7 +38,8 @@ sub look{
 }
 sub check {
     my $self = shift;
-    return $self->count(@_)->look(@_);
+    $self->count(@_);
+    return $self->look(@_);
 }
 sub reset{
     my $self = shift;

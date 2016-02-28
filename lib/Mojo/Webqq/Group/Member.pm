@@ -32,6 +32,7 @@ has [qw(
 
 has qq  => sub{
     my $self = shift;
+    return $self->{qq} if defined $self->{qq};
     return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
 };
 sub displayname {
@@ -42,7 +43,7 @@ sub displayname {
 sub update{
     my $self = shift;
     my $hash = shift;
-    for(grep {substr($_,0,1) ne "_"} keys %$self){
+    for(grep {substr($_,0,1) ne "_"} keys %$hash){
         if(exists $hash->{$_}){
             if(defined $hash->{$_} and defined $self->{$_}){
                 if($hash->{$_} ne $self->{$_}){

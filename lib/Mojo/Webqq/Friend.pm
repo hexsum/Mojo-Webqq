@@ -15,7 +15,6 @@ has [qw(
     state       
     client_type 
 )];
-
 has qq => sub{
     my $self = shift;
     return $self->{qq} if defined $self->{qq};

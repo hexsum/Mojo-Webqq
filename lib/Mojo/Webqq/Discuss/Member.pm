@@ -26,7 +26,7 @@ sub displayname {
 sub update{
     my $self = shift;
     my $hash = shift;
-    for(grep {substr($_,0,1) ne "_"} keys %$self){
+    for(grep {substr($_,0,1) ne "_"} keys %$hash){
         if(exists $hash->{$_}){
             if(defined $hash->{$_} and defined $self->{$_}){
                 if($hash->{$_} ne $self->{$_}){

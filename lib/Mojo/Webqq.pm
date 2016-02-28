@@ -163,7 +163,11 @@ sub new {
         my ($reactor, $err) = @_;
         $self->error("reactor error: " . Carp::longmess($err));
     });
-    $SIG{__WARN__} = sub{$self->warn(@_);};
+    $SIG{__WARN__} = sub{$self->warn(Carp::longmess @_);};
+    $self->on(error=>sub{
+        my ($self, $err) = @_;
+        $self->error(Carp::longmess($err));
+    });
     $self->on(qrcode_expire=>sub{
         my($self) = @_;
         my $count = $self->qrcode_count;

@@ -89,38 +89,64 @@ sub ready{
     });   
     $self->interval(3600*4,sub{$self->data(+{})});
     $self->interval(900,sub{
-        return if ref $self ne 'Mojo::Webqq';
         $self->debug("检查数据完整性...");
         for my $g ($self->groups){
             if(not defined $g->{_client}){
                 $g->{_client} = $self;
-                $self->warn("群对象(" . $g->gid . ")数据异常, 已尝试修复");
+                $self->warn("群对象[ " . $g->gname . " ]数据异常, 已尝试修复");
             }
+            if(!defined $g->gnumber){
+                $self->warn("群对象[ " . $g->gname . " ]扩展数据异常, 已尝试修复");
+                $self->update_group_ext($g,is_blocking=>0,is_update_group_member_ext=>1);
+            }
+            my $ext_count = 0;
+            my $member_count = 0;
             for my $m ($g->members){
+                $member_count++;
                 if(not defined $m->{_client}){
                     $m->{_client} = $self;
-                    $self->warn("群成员对象(". $m->id . ")数据异常, 已尝试修复");
+                    $self->warn("群成员对象[ ". $m->id . "|". $g->gname . " ]数据异常, 已尝试修复");
                 }
+                $ext_count++ if defined $g->{gnumber} and defined $m->{qq};
+            }
+            if(defined $g->{gnumber} and $member_count>0 and $ext_count==0){
+                $self->warn("群对象[ " . $g->gname . " ]成员扩展数据异常，已尝试修复");
+                $self->update_group_member_ext($g,is_blocking=>0);
+            }
+            if(defined $g->{gnumber} and $member_count>0 and $ext_count>0 and $ext_count<$member_count){
+                $self->debug("群对象[ " . $g->gname . " ]成员扩展数据完整度: $ext_count/$member_count");
             }
         } 
         for my $d ($self->discusss){
             if(not defined $d->{_client}){
                 $d->{_client} = $self;
-                $self->warn("讨论组对象(" . $d->did . ")数据异常, 已尝试修复");
+                $self->warn("讨论组对象[ " . $d->displayname . " ]数据异常, 已尝试修复");
             }
             for my $m ($d->members){
                 if(not defined $m->{_client}){
                     $m->{_client} = $self;
-                    $self->warn("讨论组成员对象(". $m->id . ")数据异常, 已尝试修复");
+                    $self->warn("讨论组成员对象[ ". $m->displayname . "|" . $d->displayname . " ]数据异常, 已尝试修复");
                 }
             }
         }
+        my $ext_count = 0;
+        my $friend_count = 0;
         for my $f ($self->friends){
+            $friend_count++;
             if(not defined $f->{_client}){
                 $f->{_client} = $self;
-                $self->warn("好友对象(" . $f->id . ")数据异常, 已尝试修复");
+                $self->warn("好友对象[ " . $f->displayname . " ]数据异常, 已尝试修复");
             }
-        }        
+            $ext_count++ if defined $f->{qq};
+        }
+        if($friend_count>0 and $ext_count == 0){
+            $self->warn("好友扩展数据异常，已尝试修复");
+            $self->update_friend_ext(is_blocking=>0);
+        }
+        if($friend_count>0 and $ext_count >0 and $ext_count<$friend_count){
+            $self->debug("好友扩展数据完整度: $ext_count/$friend_count");
+        }
+        
     });
     $self->interval(600,sub{
         return if $self->is_stop;

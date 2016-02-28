@@ -232,16 +232,16 @@ sub update_friend_ext {
         $self->warn("无法支持获取扩展信息");
         return;
     }
-    $self->info("更新好友扩展信息...\n");
     my $handle = sub{
         my $friends_ext_info = shift;
         if(defined $friends_ext_info and ref $friends_ext_info eq "ARRAY"){
-            my(undef,$ext)=$self->array_unique($friends_ext_info,sub{"$_[0]->{nick}|$_[0]->{category}"});
-            my $unique_friend = $self->array_unique($self->friend,sub{$_[0]->nick . "|" . $_[0]->category});
-            for(@$unique_friend){
-                my $id = $_->nick . "|" . $_->category;
+            $self->info("更新好友扩展信息...");
+            my(undef,$ext)=$self->array_unique($friends_ext_info,sub{$_[0]->{displayname} . "|" . $_[0]->{category}},"friend_ext");
+            my $unique_friend = $self->array_unique($self->friend,sub{$_[0]->displayname . "|" . $_[0]->category},"friend");
+            for my $f(@$unique_friend){
+                my $id = $f->displayname . "|" . $f->category;
                 next if not exists $ext->{$id};
-                $_->{qq} = $ext->{$id}{qq};
+                $f->{qq} = $ext->{$id}{qq};
             }
             $self->emit("model_update"=>"friend_ext",1);
         }
@@ -282,11 +282,11 @@ sub update_friend {
     my %p = @_;
     $p{is_blocking} = 1 if not defined $p{is_blocking};
     $p{is_update_friend_ext} = 1 if not defined $p{is_update_friend_ext};
-    $self->info("更新好友信息..."); 
     my $handle = sub{
         my @friends;
         my $friends_info = shift;
         if(defined $friends_info){
+            $self->info("更新好友信息..."); 
             push @friends,$self->new_friend($_) for @{$friends_info};
             if(ref $self->friend eq "ARRAY" and @{$self->friend}  == 0){
                 $self->friend(\@friends);
@@ -389,20 +389,45 @@ sub update_group_ext {
         }  
         return;
     }
-    $self->info("更新群组扩展信息...");
     my $handle = sub{
         my $group_list_ext = shift;
         if(defined $group_list_ext and ref $group_list_ext eq "ARRAY"){
-            my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname}});
-            my $unique_group = $self->array_unique($self->group,sub{$_[0]->gname}); 
+            $self->info("更新群列表扩展信息...");
+            my(undef,$gext)= $self->array_unique($group_list_ext,sub{$_[0]->{gname}},"group_ext");
+            my $unique_group = $self->array_unique($self->group,sub{$_[0]->gname},"group"); 
             my @groups = defined $group?(grep {$_->gid eq $group->gid} @$unique_group) : @$unique_group;
-            for my $g (@groups){
-                my $id = $g->gname;
-                next if not exists $gext->{$id};
-                #$g->{gtype} = $gext->{$id}{gtype};
-                #$g->{gnumber} = $gext->{$id}{gnumber};
-                $g->update($gext->{$id});
-                $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
+            if($p{is_blocking}){
+                for my $g (@groups){
+                    my $id = $g->gname;
+                    next if not exists $gext->{$id};
+                    #$g->{gtype} = $gext->{$id}{gtype};
+                    #$g->{gnumber} = $gext->{$id}{gnumber};
+                    $g->update($gext->{$id});
+                    $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
+                }
+            }
+            else{
+                if($p{is_blocking}){
+                    for my $g (@groups){
+                        my $id = $g->gname;
+                        $g->update($gext->{$id});
+                        $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
+                    }
+                }
+                else{
+                    my $i = -3;
+                    for my $g (@groups){
+                        my $id = $g->gname;
+                        next if not exists $gext->{$id};
+                        #$g->{gtype} = $gext->{$id}{gtype};
+                        #$g->{gnumber} = $gext->{$id}{gnumber};
+                        $g->update($gext->{$id});
+                        $self->timer($i+3,sub{
+                            $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
+                        });
+                        $i++;
+                    }
+                }
             }
             $self->emit("model_update","group_ext",1);
         }
@@ -434,14 +459,14 @@ sub update_group_member_ext {
     }
     my %p = @_;
     $p{is_blocking} = 1 if not defined $p{is_blocking};
-    $self->info("更新群组[ ". $group->gname . " ]成员扩展信息");
     my $handle = sub{
         my $group_info_ext = shift;
         if(defined $group_info_ext){
-            my(undef,$mext) = $self->array_unique($group_info_ext->{member},sub{ $_[0]->{nick} . (defined($_[0]->{card})?$_[0]->{card}:"") . $_[0]->{gender}});
-            my $unique_member = $self->array_unique($group->member,sub{$_[0]->nick . (defined($_[0]->card)?$_[0]->card:"") . $_[0]->gender});
+            $self->info("更新群组[ ". $group->gname . " ]成员扩展信息");
+            my(undef,$mext) = $self->array_unique($group_info_ext->{member},sub{ $_[0]->{nick} . (defined($_[0]->{card})?$_[0]->{card}:"")},$group->gname . " member_ext");
+            my $unique_member = $self->array_unique($group->member,sub{$_[0]->nick . (defined($_[0]->card)?$_[0]->card:"")},$group->gname . " member");
             for(@$unique_member){
-                my $id = $_->nick . (defined($_->card)?$_->card:"") . $_->gender;
+                my $id = $_->nick . (defined($_->card)?$_->card:"");
                 next if not exists $mext->{$id};
                 #$_->{qage} = $mext->{$id}{qage};
                 #$_->{level} = $mext->{$id}{level};
@@ -471,13 +496,13 @@ sub update_group_member {
     my $self = shift;
     my $group = shift;
     $self->die("不支持的数据类型") if ref $group ne "Mojo::Webqq::Group";
-    $self->info("更新群组[ ". $group->gname . " ]成员信息");
     my %p = @_;
     $p{is_blocking} = 1 if not defined $p{is_blocking};
     $p{is_update_group_member_ext} = 1 if not defined $p{is_update_group_member_ext};
     my $handle = sub{
         my $group_info = shift;
         if(defined $group_info){ 
+            $self->info("更新群组[ ". $group->gname . " ]成员信息");
             if(ref $group_info->{member} eq 'ARRAY'){
                 $group->update($group_info); 
                 #$self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
@@ -500,7 +525,6 @@ sub update_group {
     if(ref $_[0] eq "Mojo::Webqq::Group"){
         my $group = shift;
         my %p = @_;
-        $self->info("更新群组[ ". $group->gname . " ]信息");
         $p{is_blocking} = 1 if not defined $p{is_blocking};
         $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
         $p{is_update_group_ext} = $p{is_blocking} if not defined $p{is_update_group_ext} ;
@@ -509,6 +533,7 @@ sub update_group {
             my $group_info = shift;
             if(defined $group_info){
                 if(ref $group_info->{member} eq 'ARRAY'){
+                    $self->info("更新群组[ ". $group->gname . " ]信息");
                     $group->update($group_info);
                     $self->update_group_ext($group,%p) if $p{is_update_group_ext};
                 }
@@ -531,7 +556,6 @@ sub update_group {
     $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
     $p{is_update_group_ext} = $p{is_blocking} if not defined $p{is_update_group_ext} ;
     $p{is_update_group_member_ext} = $p{is_blocking} && $p{is_update_group_ext} && $p{is_update_group_member} if not defined $p{is_update_group_member_ext} ;
-    $self->info("更新群列表信息...");
     my $handle = sub{
         my @groups;
         my $group_list = shift; 
@@ -540,6 +564,7 @@ sub update_group {
             $self->emit("model_update","group",0);
             return $self;
         }
+        $self->info("更新群列表信息...");
         for my $g (@{$group_list}){
             push @groups, $self->new_group($g);
         } 
@@ -563,8 +588,17 @@ sub update_group {
         }
         $self->emit("model_update","group",1);
         if($p{is_update_group_member}){
-            for(@{ $self->group }){
-                $self->update_group_member($_,%p);
+            if($p{is_blocking}){
+                for(@{ $self->group }){
+                    $self->update_group_member($_,%p);
+                }
+            }
+            else{
+                my $i = -3;
+                for my $g (@{ $self->group }){
+                    $self->timer($i+3,sub{$self->update_group_member($g,%p)});
+                    $i++;
+                }
             }
         }
         if($p{is_update_group_ext}){
