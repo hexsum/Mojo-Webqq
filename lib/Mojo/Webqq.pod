@@ -1413,7 +1413,8 @@ julia/lua/nim/ocaml/python
         file => './KnowledgeBase.dat', #数据库保存路径
         learn_command  => 'study',     #自定义学习指令关键字
         delete_command =>'clear',      #自定义删除指令关键字
-        allow_operator => [12345,678910], #运行进行学习和删除的操作人qq号
+        learn_operator => [12345,678910], #允许学习权限的操作人qq号
+        delete_operator => [12345,678910], #允许删除权限的操作人qq号
     });
 
 =head2 Mojo::Webqq::Plugin::FuckDaShen
@@ -1544,7 +1545,7 @@ julia/lua/nim/ocaml/python
     $client->load("Openqq",data=>{                                                 
         listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
         auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
-        post_api => 'http://xxxx',                      #可选，你自定义的接收消息上报接口
+        post_api => 'http://xxxx',                      #可选，自定义的接收消息上报接口,并可以根据接口返回内容回复消息
     });
 
     #若data中设置了auth函数引用，则表示api接口开启认证
@@ -1588,6 +1589,9 @@ julia/lua/nim/ocaml/python
     
     connect to 127.0.0.1 port 3000    
     POST /post_api
+    Accept: */*
+    Content-Length: xxx
+    Content-Type: application/json
     
     {   "receiver":"小灰",
         "msg_time":"1442542632",
@@ -1601,8 +1605,25 @@ julia/lua/nim/ocaml/python
         "msg_id":"10856",
         "type":"group_message"
     }
+
+    一般情况下，post_api接口返回的响应内容可以是随意，会被忽略
+    post_api接口返回的数据类型如果是 text/json 或者 application/json，并且json格式形式如下：
     
-    #支持好友消息、群消息、讨论组消息、临时消息的上报
+        {"reply":"xxxxx","code":0} #要回复消息，必须包含reply的属性，其他属性有无并不重要
+
+    则表示希望通过post_api响应的内容来直接回复该消息，post_api的返回结果比如
+
+    HTTP/1.1 200 OK
+    Connection: close
+    Content-Type: application/json;charset=UTF-8
+    Date: Mon, 29 Feb 2016 05:53:31 GMT
+    Content-Length: 27
+    Server: Mojolicious (Perl)
+
+    {"reply":"你好","code":0}
+    
+    则会直接对上报的消息进行回复，回复的内容为 "你好"
+    支持好友消息、群消息、讨论组消息、临时消息的上报
         
 
 当前支持的信息获取和发送消息的API接口（均返回json格式数据）：

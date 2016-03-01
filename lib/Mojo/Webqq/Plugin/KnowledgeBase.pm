@@ -14,7 +14,6 @@ sub call{
     my $callback = sub{
         my($client,$msg) = @_;
         return if $msg->type !~ /^message|group_message|dicsuss_message|sess_message$/;
-        return if ref $data->{allow_operator} eq "ARRAY" and ! first {$_ eq $msg->sender->qq} @{$data->{allow_operator}};
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
@@ -27,6 +26,7 @@ sub call{
                             (?|"([^"]+)"|'([^']+)'|([^\s"']+))
                             /xs){
             $msg->allow_plugin(0);
+            return if ref $data->{learn_operator} eq "ARRAY" and ! first {$_ eq $msg->sender->qq} @{$data->{learn_operator}};
             my($q,$a) = ($1,$2);
             return unless defined $q;
             return unless defined $a;
@@ -43,6 +43,7 @@ sub call{
                             (?|"([^"]+)"|'([^']+)'|([^\s"']+))
                             /xs){
             $msg->allow_plugin(0);
+            return if ref $data->{delete_operator} eq "ARRAY" and ! first {$_ eq $msg->sender->qq} @{$data->{delete_operator}};
             #return if $msg->sender->id ne $client->user->id;
             my($q) = ($1);
             $q=~s/^\s+|\s+$//g;
