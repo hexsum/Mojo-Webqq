@@ -135,7 +135,7 @@ sub call {
             my($client,$member,$property,$old,$new)=@_;
             return if $property ne "card";
             return if not defined($new);
-            #return if not defined($old);
+            return if not defined($old);
             $member->group->send('@' . (defined($old)?$old:$member->nick) . " 修改群名片为: $new");
         }
     );
