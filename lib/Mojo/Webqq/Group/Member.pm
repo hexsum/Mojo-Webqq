@@ -80,7 +80,7 @@ sub group {
 sub shutup{
     my $self = shift;
     my $time = shift;
-    $self->group->shutup_group_member($timer,$self);
+    $self->group->shutup_group_member($time,$self);
 }
 1;
 
