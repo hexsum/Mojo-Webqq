@@ -77,5 +77,10 @@ sub group {
     my $self = shift;
     return scalar $self->{_client}->search_group(gid=>$self->gid);
 }
+sub shutup{
+    my $self = shift;
+    my $time = shift;
+    $self->group->shutup_group_member($timer,$self);
+}
 1;
 

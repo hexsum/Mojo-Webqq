@@ -27,6 +27,9 @@ sub call{
                             if((!defined $json->{format}) or (defined $json->{format} and $json->{format} eq "text")){
                                 $msg->reply(Encode::encode("utf8",$json->{reply})) if defined $json->{reply}; 
                             } 
+                            if($msg->type eq "group_message" and defined $json->{shutup} and $json->{shutup} == 1){
+                                $msg->sender->shutup($json->{shutup_time} || 60);
+                            }
                         }
                     }
                     #elsif($tx->res->headers->content_type =~ m#image/#){
