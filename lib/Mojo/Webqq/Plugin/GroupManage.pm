@@ -111,19 +111,33 @@ sub call {
             #关键字限制
             do_keyword_limit($client,$data,$keyword_counter,$msg)
         },
-        new_group           => sub {$_[1]->send($data->{new_group} || "大家好，初来咋到，请多关照");},
+        new_group           => sub {
+            my $group = $_[1];
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            $group->send($data->{new_group} || "大家好，初来咋到，请多关照");
+            
+        },
         #lose_group         => sub { },
         new_group_member    => sub {
-            my $displayname = $_[1]->displayname;
+            my $member = $_[1];
+            my $group = $member->group;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            my $displayname = $member->displayname;
             return if $displayname eq "昵称未知";
-            $_[1]->group->send(
+            $group->send(
                 sprintf($data->{new_group_member} || '欢迎新成员 @%s 入群[鼓掌][鼓掌][鼓掌]',$displayname)
             ); 
         },
         lose_group_member   => sub {
-            my $displayname = $_[1]->displayname;
+            my $member = $_[1];
+            my $group = $member->group;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            my $displayname = $member->displayname;
             return if $displayname eq "昵称未知";
-            $_[1]->group->send(
+            $group->send(
                 sprintf($data->{lose_group_member} || '很遗憾 @%s 离开了本群[流泪][流泪][流泪]',$displayname)
             );
         },
@@ -133,10 +147,13 @@ sub call {
         #lose_friend         => sub { },
         group_member_property_change => sub {
             my($client,$member,$property,$old,$new)=@_;
+            my $group = $member->group;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
             return if $property ne "card";
             return if not defined($new);
             return if not defined($old);
-            $member->group->send('@' . (defined($old)?$old:$member->nick) . " 修改群名片为: $new");
+            $group->send('@' . (defined($old)?$old:$member->nick) . " 修改群名片为: $new");
         }
     );
 }
