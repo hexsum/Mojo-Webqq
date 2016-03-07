@@ -29,12 +29,11 @@ sub call{
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
         return if $is_need_at and $msg->type eq "group_message" and !$msg->is_at;
-
-        $msg->allow_plugin(0);
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
             return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
             my $limit = $counter->check($msg->group->gid ."|" .$msg->sender->id);
             if($is_need_at and $limit >= $ban_limit){
                 $ban{$msg->sender->id} = 1;
@@ -52,6 +51,10 @@ sub call{
                 return;
             }   
         } 
+        else{
+            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
+        }
+        $msg->allow_plugin(0);
 
         my $input = $msg->content;
         $input=~s/\@\Q$user_nick\E ?|\[[^\[\]]+\]\x01|\[[^\[\]]+\]//g;

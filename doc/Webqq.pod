@@ -1526,6 +1526,7 @@ julia/lua/nim/ocaml/python
     $client->load("SmartReply",data=>{
         allow_group     => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
         ban_group       => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        ban_user        => ["坏蛋",123456], #可选，禁用该插件的用户，可以是用户的显示名称或qq号码
         notice_reply    => ["对不起，请不要这么频繁的艾特我","对不起，您的艾特次数太多"], #可选，提醒时用语
         notice_limit    => 8 ,  #可选，达到该次数提醒对话次数太多，提醒语来自默认或 notice_reply
         warn_limit      => 10,  #可选,达到该次数，会被警告

@@ -139,7 +139,7 @@ sub call{
                 $filename = $1.$languages{$language};
             }
             my %r = (
-                files   =>      [{name=>$filename,content=>decode("utf8",$code)}],
+                files   =>      [{name=>decode("utf8",$filename),content=>decode("utf8",$code)}],
                 command =>      ""
             );
             $client->http_post($url,{json => 1,Referer => "https://glot.io/new/$language"},json=>\%r,sub{
