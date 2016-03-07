@@ -13,6 +13,7 @@ sub load {
     
     for my $module_name (@module_name){
         my $module_function = undef;
+        my $module;
         if(substr($module_name,0,1) eq '+'){
             substr($module_name,0,1) = "";
             $module = $module_name;
