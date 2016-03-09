@@ -148,7 +148,7 @@ sub call{
                 if ($json->{stdout}) {
                     $client->reply_message($msg,"执行<$language>结果：---->\n".encode("utf8",$json->{stdout}));
                 }else{
-                    $client->reply_message($msg,"执行<$language>出错：---->\n".encode("utf8",$json->{stdout})."--->".$json->{error}."--->".$json->{stderr});
+                    $client->reply_message($msg,"执行<$language>出错：---->\n".encode("utf8",$json->{stdout})."--->".encode("utf8",$json->{error})."--->".encode("utf8",$json->{stderr}));
                 }
             });
         }
