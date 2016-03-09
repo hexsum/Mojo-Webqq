@@ -192,8 +192,7 @@ sub timer {
 }
 sub interval{
     my $self = shift;
-    $self->ioloop->recurring(@_);
-    return $self;
+    return $self->ioloop->recurring(@_);
 }
 sub relogin{
     my $self = shift;

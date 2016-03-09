@@ -1443,6 +1443,7 @@ julia/lua/nim/ocaml/python
         ban_user    => ["坏蛋",123456], #可选，禁用该插件的用户，可以是用户的显示名称或qq号码
         command     => "猜谜",   #可选，触发关键字
         apikey      => "xxxx",   #可选，参见 http://apistore.baidu.com/apiworks/servicedetail/440.html?qq-pf-to=pcqq.c2c
+        timeout     => 30, #等待答案的超时时间，超时后会自动公布答案
     });
 
 =head2 Mojo::Webqq::Plugin::GroupManage

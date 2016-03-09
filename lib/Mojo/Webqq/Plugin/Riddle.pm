@@ -23,7 +23,7 @@ sub call{
                 $msg->reply("文曲星君题戏三界($json->{id}):\n" . encode("utf8",$json->{Title}),sub{$_[1]->msg_from("bot")}); 
 
                 $client->wait(
-                    30,#等待答案超时时间
+                    $data->{timeout} || 30,#等待答案超时时间
                     sub{#超时公布答案
                         $flag = 0;
                         $msg->reply("本题答案：$answer\n偌大的三界之中,难道就没有能懂本星君心意之人么.\n吾独徘徊于天地之间,对酒影成双,知己难求,呜呼哉!");
