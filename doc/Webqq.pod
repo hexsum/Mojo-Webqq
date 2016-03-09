@@ -1431,6 +1431,20 @@ julia/lua/nim/ocaml/python
     翻译 你好
     翻译 こんにちは
 
+=head2 Mojo::Webqq::Plugin::Riddle
+
+输入关键字进行猜谜，作者 limengyu1990 L<https://github.com/limengyu1990>
+
+    $client->load("Riddle");
+    
+    $client->load("Riddle",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        ban_user    => ["坏蛋",123456], #可选，禁用该插件的用户，可以是用户的显示名称或qq号码
+        command     => "猜谜",   #可选，触发关键字
+        apikey      => "xxxx",   #可选，参见 http://apistore.baidu.com/apiworks/servicedetail/440.html?qq-pf-to=pcqq.c2c
+    });
+
 =head2 Mojo::Webqq::Plugin::GroupManage
 
 常用群管理功能，包括 新人入群欢迎、成员离开提醒、限制发言频率、限制发图频率

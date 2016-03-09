@@ -21,6 +21,7 @@ Mojo-Webqq v1.7.3 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   ProgramCode          94       已发布      limengyu1990  通过qq消息执行代码，支持26种语言
   Translation          93       已发布      sjdy521       多国语言翻译功能
   MobileInfo           93       已发布      limengyu1990  手机号码归属地查询
+  Riddle               92       已发布      limengyu1990  输入"猜谜"关键字进行猜谜游戏
   KnowledgeBase        2        已发布      sjdy521       通过qq消息自定义问答知识库
   FuckDaShen           1        已发布      sjdy521       对消息中的"大神"关键词进行鄙视
   PostImgVerifycode    0        已发布      sjdy521       登录验证码发送到邮箱实现远程登录

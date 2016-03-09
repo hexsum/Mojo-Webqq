@@ -188,8 +188,7 @@ sub ready{
 
 sub timer {
     my $self = shift;
-    $self->ioloop->timer(@_);
-    return $self;
+    return $self->ioloop->timer(@_);
 }
 sub interval{
     my $self = shift;
@@ -442,4 +441,5 @@ sub clean_verifycode{
     $self->info("清除残留的历史验证码图片");
     unlink $self->verifycode_path or $self->warn("删除验证码图片[ ". $self->verifycode_path . " ]失败: $!");
 }
+
 1;

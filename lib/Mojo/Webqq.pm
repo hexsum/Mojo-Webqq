@@ -143,12 +143,43 @@ has model_status           => sub {+{}};
 
 sub on {
     my $self = shift;
+    my @return;
     while(@_){
         my($event,$callback) = (shift,shift);
-        $self->SUPER::on($event,$callback);
+        push @return,$self->SUPER::on($event,$callback);
     }
-    return $self;
+    return wantarray?@return:$return[0];
 }
+sub wait_once {
+    my $self = shift;
+    my($timeout,$timeout_callback,$event,$event_callback)=@_;
+    my ($timer_id, $subscribe_id);
+    $timer_id = $self->timer($timeout,sub{
+        $self->unsubscribe($event,$subscribe_id);
+        $timeout_callback->(@_) if ref $timeout_callback eq "CODE";
+    });
+    $subscribe_id = $self->once($event=>sub{
+        $self->ioloop->remove($timer_id);
+        $event_callback->(@_) if ref $event_callback eq "CODE";
+    });
+    $self;
+}
+
+sub wait {
+    my $self = shift;
+    my($timeout,$timeout_callback,$event,$event_callback)=@_;
+    my ($timer_id, $subscribe_id);
+    $timer_id = $self->timer($timeout,sub{
+        $self->unsubscribe($event,$subscribe_id);
+        $timeout_callback->(@_) if ref $timeout_callback eq "CODE";;
+    });
+    $subscribe_id = $self->on($event=>sub{
+        my $ret = ref $event_callback eq "CODE"?$event_callback->(@_):0;
+        if($ret){ $self->ioloop->remove($timer_id);$self->unsubscribe($event,$subscribe_id); }
+    });
+    $self;
+}
+
 
 sub new {
     my $class = shift;
