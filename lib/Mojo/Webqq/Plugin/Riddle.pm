@@ -1,6 +1,7 @@
 package Mojo::Webqq::Plugin::Riddle;
 our $PRIORITY = 92;
 use Encode;
+use List::Util qw(first);
 sub call{
     my $client = shift;
     my $data   = shift;
