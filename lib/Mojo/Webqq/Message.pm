@@ -177,6 +177,7 @@ sub send_message{
             receiver    => $friend,
             content     => $content,
             raw_content => $self->face_parse($content),
+            msg_from    => 'code',
         });    
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -214,6 +215,7 @@ sub send_group_message{
             group       => $group,
             content     => $content,
             raw_content => $self->face_parse($content),
+            msg_from    => 'code',
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -250,7 +252,8 @@ sub send_discuss_message{
             sender      => $sender,
             discuss     => $discuss,
             content     => $content,
-            raw_content => $self->face_parse($content),
+            raw_content => $self->face_parse($content), 
+            msg_from    => 'code',
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -294,6 +297,7 @@ sub send_sess_message{
             raw_content => $self->face_parse($content),
             via         => "group",
             sess_sig    => $self->_get_sess_sig($member->gid,$member->id,0),
+            msg_from    => 'code',
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -316,6 +320,7 @@ sub send_sess_message{
             raw_content => $self->face_parse($content),
             via         => "discuss",
             sess_sig    => $self->_get_sess_sig($member->did,$member->id,1),
+            msg_from    => 'code',
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
