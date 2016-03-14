@@ -1,3 +1,10 @@
+2016-03-14 Mojo::Webqq v1.7.4
+1）github issue fix：#26、#27
+   https://github.com/sjdy521/Mojo-Webqq/issues/26
+   https://github.com/sjdy521/Mojo-Webqq/issues/27
+2）SmartReply插件增加 ban_user 参数，用于屏蔽不想生效的用户 感谢　＠丶Seven　的建议
+3）增加 Riddle 插件，猜谜游戏 感谢作者 @limengyu1990
+
 2016-03-02 Mojo::Webqq v1.7.3
 1）修复 KnowledgeBase 的bug
 2）Openqq插件支持利用消息上报接口返回的内容来回复消息
