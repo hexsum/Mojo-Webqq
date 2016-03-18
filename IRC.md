@@ -24,7 +24,11 @@
 
 ###操作步骤
 
-1.代码中指定加载IRCShell插件，代码如下：
+1.先安装 IRC 依赖模块
+
+```$ cpanm -v Mojo::IRC::Server::Chinese```
+
+2.代码中指定加载IRCShell插件，代码如下：
 
 ```
 #!/usr/bin/env perl
@@ -36,11 +40,11 @@ $client->load("ShowMsg");
 $client->load("IRCShell"); #加载IRCShell插件
 $client->run();
 ```
-2.将上述代码保存成 `xxxx.pl` 文件（必须UTF8编码），使用perl解释器运行
+3.将上述代码保存成 `xxxx.pl` 文件（必须UTF8编码），使用perl解释器运行
 
 ```perl xxxx.pl```  #执行的结果是完成QQ的登录、同时本机启动一个监听6667端口的IRC Server
 
-3.使用任意支持IRC协议的客户端连接127.0.0.1:6667的IRC Server即可开始聊天
+4.使用任意支持IRC协议的客户端连接127.0.0.1:6667的IRC Server即可开始聊天
 
 常见的irc客户端有weecht、irssi等，这里以irssi为例
 
