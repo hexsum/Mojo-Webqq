@@ -5,10 +5,10 @@
 实现原理：
 
 ```
-+-------------------+                         +---------------+  
-|  Tencent          |                         | Any IRC Client|
-|  SmartQQ Server   |                         | wechat、irssi |
-+---v-----------^---+                         +--v----------^-+     
++-------------------+                         +----------------+  
+|  Tencent          |                         | Any IRC Client |
+|  SmartQQ Server   |                         | wechat、irssi  |
++---v-----------^---+                         +--v-----------^-+     
     |             |                             |            |
     | QQ Protocol |                             |IRC Protocol|
 +-- |--  - -  --  | - - -   --   -  -   ---  -- | ---  ---   | --+
