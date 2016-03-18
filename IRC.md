@@ -61,3 +61,5 @@ IRC客户端常用操作命令
 /part                     #退出该QQ群
 ```
 更多irc的使用方就不一一列举了，自行百度即可
+
+5.更多插件自定义参数，参见[IRCShell插件文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::IRCShell)
