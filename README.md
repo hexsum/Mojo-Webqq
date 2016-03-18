@@ -53,10 +53,10 @@ Mojo-Webqq v1.7.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 ###通过irc客户端在linux终端上使用QQ
 
 ```
-+-------------------+                         +---------------+  
-|  Tencent          |                         | Any IRC Client|
-|  SmartQQ Server   |                         | wechat、irssi |
-+---v-----------^---+                         +--v----------^-+     
++-------------------+                         +----------------+  
+|  Tencent          |                         | Any IRC Client |
+|  SmartQQ Server   |                         | wechat、irssi  |
++---v-----------^---+                         +--v-----------^-+     
     |             |                             |            |
     | QQ Protocol |                             |IRC Protocol|
 +-- |--  - -  --  | - - -   --   -  -   ---  -- | ---  ---   | --+
