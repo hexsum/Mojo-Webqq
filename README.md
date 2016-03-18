@@ -52,6 +52,24 @@ Mojo-Webqq v1.7.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 ```
 ###通过irc客户端在linux终端上使用QQ
 
+```
++-------------------+                      +---------------+  
+|  Tencent          |                      | Any IRC Client|
+|  SmartQQ Server   |                      | wechat、irssi |
++---v-----------^---+                      +--v----------^-+     
+    |           |                             |           |
+    | QQ协议交互|                             |IRC协议交互|
++-- |--  - -  --| - - -   --   -  -   ---  -- | ---  ---  |  ----+
+|	+---v-----------^---+                  +--v-----------^----+ |   
+|	|                   <——————————————————<  IRC Server       | |
+|	|   SmartQQ Client  | QQ和IRC协议转换  |  监听本机6667端口 | |
+|	|                   >——————————————————>                   | | 
+|   +-------------------+                  +-------------------+ |
+|                                                                |
+|                                我们的程序实现的部分            | 
++---  - - - -  -- - --  ----  ------  -------  ------  ---	  ---+
+```
+
 ![IRCShell](screenshot/IRCShell.png)
 
 ###安装方法
@@ -169,12 +187,8 @@ Mojo-Webqq v1.7.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     更多接口参数说明参加[Openqq插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
     
 3.  *我是一个极客，我只想能够在命令行上通过  IRC 的方式来玩转 QQ 聊天*
-            
-        $ cpanm -v Mojo::IRC::Server::Chinese #先安装 IRC 依赖模块
 
-        $ perl -MMojo::Webqq -e 'Mojo::Webqq->new(qq=>$ARGV[0])->login->load(["ShowMsg","IRCShell"])->run()' xxxx #我的QQ号码作为命令第一个参数
-    
-    使用weechat、irssi、mIRC 等任意支持IRC的客户端来连接本机的6667端口，即可像普通的IRC一样的方式来使用QQ
+    请阅读[IRCShell插件使用步骤](IRC.md)
 
 4. *我是一个 QQ 群主或管理员，我想给自己的群加个机器人群管理功能*
 
