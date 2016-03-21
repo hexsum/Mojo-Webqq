@@ -1446,6 +1446,21 @@ julia/lua/nim/ocaml/python
         timeout     => 30, #等待答案的超时时间，超时后会自动公布答案
     });
 
+=head2 Mojo::Webqq::Plugin::GasPrice
+
+输入关键字进行猜谜，作者 hyvinlam L<https://github.com/hyvinlam>
+
+    $client->load("GasPrice");
+    
+    $client->load("GasPrice",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        command     => "油价",   #可选，触发关键字
+        apikey      => "xxxx",   #可选，参见 http://apistore.baidu.com/apiworks/servicedetail/710.html
+        msg_tail    => "消息尾巴", #可选
+        is_need_at  => 0, #是否需要艾特,默认值为0
+    });
+
 =head2 Mojo::Webqq::Plugin::GroupManage
 
 常用群管理功能，包括 新人入群欢迎、成员离开提醒、限制发言频率、限制发图频率

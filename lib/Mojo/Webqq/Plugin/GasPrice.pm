@@ -1,9 +1,10 @@
 package Mojo::Webqq::Plugin::GasPrice;
+use strict;
 use POSIX qw(strftime);
 use Encode;
-use URI::Escape;
+use Mojo::Util qw(url_escape);
 use List::Util qw(first);
-our $PRIORITY = 99;
+our $PRIORITY = 91;
 my $API = 'http://apis.baidu.com/showapi_open_bus/oil_price/find?prov=';
 
 sub call{
@@ -13,12 +14,12 @@ sub call{
     my $data   = shift;
 
 	#如果参数有传是否需要@才进行回复，如果么有，则默认需要@才回复
-	my $is_need_at = defined $data->{is_need_at} ? $data->{is_need_at}:1;
-	my $key_word   = defined $data->{key_word} ? $data->{key_word}:'油价';
+	my $is_need_at = defined $data->{is_need_at} ? $data->{is_need_at}:0;
+	my $key_word   = defined $data->{command} ? $data->{command}:'油价';
 	my $msg_tail   = defined $data->{msg_tail} ? $data->{msg_tail}:'';
 
 	my $callBack = sub{
-		my($qqClient,$msg)=@_;
+		my($client,$msg)=@_;
 
 		#如果消息中设定不允许插件处理，则直接返回
 		return if( not $msg->allow_plugin );
@@ -43,14 +44,14 @@ sub call{
         $input=~s/\@\Q$user_nick\E ?|\[[^\[\]]+\]\x01|\[[^\[\]]+\]//g;
 		#如果去掉昵称后，收到的消息内容为空，则不用处理，直接返回
         return unless $input;
-		@ARGVS = split(/\s+/,$input);
+		my @ARGVS = split(/\s+/,$input);
 
         #这里设置需要获取的关键字，如果得到的不是所需关键字，则不处理，直接返回
         return if($ARGVS[0] ne $key_word);
 		#如果匹配了关键字，即属于该插件处理的消息，设置该消息不允许其他插件处理
 		$msg->allow_plugin(0);
 
-        my $prov = $ARGVS[1] ? uri_escape($ARGVS[1]) : uri_escape("广东");
+        my $prov = $ARGVS[1] ? url_escape($ARGVS[1]) : url_escape("广东");
 
 		my $headers = {
         	apikey => '4febc94b54b90f8cc8090af772c25a21',#api key
@@ -58,7 +59,7 @@ sub call{
     	};
 
 		#使用http_get从API获取所需信息
-		$qqClient->http_get($API.$prov,$headers,sub{
+		$client->http_get($API.$prov,$headers,sub{
 			my $json = shift;
             return unless defined $json;
 			my $resultArray = $json->{showapi_res_body}->{list};
@@ -75,7 +76,7 @@ sub call{
 						. "93#:".$p93."\n\t"
 						. "97#:".$p97;
 			$reply  = "\@$sender_nick " . $reply  if $msg->type eq 'group_message';
-			$qqClient->reply_message($msg,$reply,sub{
+			$client->reply_message($msg,$reply,sub{
 				my($client,$msg) = @_;
     			my $content = $msg->content;
     			$content .= $msg_tail;

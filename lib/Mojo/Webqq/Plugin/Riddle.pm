@@ -16,6 +16,7 @@ sub call{
         return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
         
         if($flag == 0  and $msg->content eq $command){
+            $msg->allow_plugin(0);
             $client->steps(
                 sub{
                     my $delay =shift;

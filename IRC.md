@@ -48,7 +48,7 @@ $client->run();
 
 4.使用任意支持IRC协议的客户端连接127.0.0.1:6667的IRC Server即可开始聊天
 
-常见的irc客户端有weecht、irssi等，这里以irssi为例
+常见的irc客户端有weechat、irssi等，这里以irssi为例
 
 ```
 #建立服务端
