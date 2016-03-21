@@ -16,6 +16,18 @@ has [qw(
     gmarkname    
 )];
 has member => sub{[]};
+sub id {
+    my $self = shift;
+    return @_?$self->gid(@_):$self->gid;
+}
+sub name{
+    my $self = shift;
+    return @_?$self->gname(@_):$self->gname;
+}
+sub markname{
+    my $self = shift;
+    return @_?$self->gmarkname(@_):$self->gmarkname;
+}
 sub displayname {
     my $self = shift;
     return defined $self->gmarkname?$self->gmarkname:$self->gname;

@@ -9,6 +9,18 @@ has [qw(
     downer
 )];
 has member => sub{[]};
+sub owner{
+    my $self = shift;
+    return @_?$self->downer(@_):$self->downer;
+}
+sub id {
+    my $self = shift;
+    return @_?$self->did(@_):$self->did; 
+}
+sub name{
+    my $self = shift;
+    return @_?$self->dname(@_):$self->dname;
+}
 sub displayname {
     my $self = shift;
     return $self->dname;

@@ -6,6 +6,7 @@ sub has { Mojo::Base::attr( __PACKAGE__, @_ ) };
 
 has type         => "state_message";
 has msg_class    => "recv";
+has msg_from     => "none";
 has allow_plugin => 1;
 has [qw(id state client_type)];
 

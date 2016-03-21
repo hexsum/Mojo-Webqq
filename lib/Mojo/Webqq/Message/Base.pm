@@ -121,4 +121,22 @@ sub reply {
     $self->{_client}->reply_message($self,@_);
 }
 
+#部分属性最开始设计的是msg_开头，比如msg_class/msg_from，这些属性在Mojo::Weixin里变成了class/from
+#为了和Mojo::Weixin对象属性保持一致，便于插件移植，因此添加如下代码
+sub class {
+    my $self = shift;
+    return @_?$self->msg_class(@_):$self->msg_class;
+}
+sub from {
+    my $self = shift;
+    return @_?$self->msg_from(@_):$self->msg_from;
+}
+sub id{
+    my $self = shift;
+    return @_?$self->msg_id(@_):$self->msg_id;
+}
+sub time{
+    my $self = shift;
+    return @_?$self->msg_time(@_):$self->msg_time;
+}
 1;
