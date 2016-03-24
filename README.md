@@ -27,6 +27,7 @@ Mojo-Webqq v1.7.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   FuckDaShen           1        已发布      sjdy521       对消息中的"大神"关键词进行鄙视
   PostImgVerifycode    0        已发布      sjdy521       登录验证码发送到邮箱实现远程登录
   PostQRcode           0        已发布      sjdy521       登录二维码发送到邮箱实现远程扫码
+  ShowQRcode           0        已发布      autodataming  调用系统图片查看程序来示二维码（仅支持win）
   SmartReply           0        已发布      sjdy521       智能聊天回复
 ```
 ###效果展示

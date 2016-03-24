@@ -122,7 +122,7 @@ sub search_cookie{
     else{
         @cookies = @tmp;
     }
-    my $c = first  { $_->name eq $cookie} @cookies;
+    my $c = first  { defined $_ and $_->name eq $cookie} @cookies;
     return defined $c?$c->value:undef;
 }
 1;

@@ -1446,6 +1446,12 @@ julia/lua/nim/ocaml/python
         timeout     => 30, #等待答案的超时时间，超时后会自动公布答案
     });
 
+=head2 Mojo::Webqq::Plugin::ShowQRcode
+
+调用系统的图片查看程序来展示二维码图片，方便扫描，作者 autodataming L<https://github.com/autodataming>
+
+    $client->load("ShowQRcode");#当前仅支持win
+    
 =head2 Mojo::Webqq::Plugin::GasPrice
 
 输入关键字进行猜谜，作者 hyvinlam L<https://github.com/hyvinlam>

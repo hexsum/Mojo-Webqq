@@ -1,4 +1,4 @@
-package Mojo::Webqq::Plugin::ReadQR;
+package Mojo::Webqq::Plugin::ShowQRcode;
 our $PRIORITY = 0;
 our $CALL_ON_LOAD=1;
 
@@ -9,18 +9,14 @@ $client->on(input_qrcode=>sub
                {
                  my($client,$qrcode_path) = @_;
                  my $command;
-                 if($^O=~/Win/)
+                 if($^O=~/win/i)
                  {
    	                $command="start $qrcode_path";
-   	                print "command is ready to run\n";
    	                eval(system($command));
+                    $self->error($@) if $@;
                  }
-                 elsif($^O=~/linux/)
+                 elsif($^O=~/linux/i)
                  {
-                 	$command="open $qrcode_path";
-   	                print "command is ready to run\n";
-   	                eval(system($command));
-                 	
                  }
               }
         );
