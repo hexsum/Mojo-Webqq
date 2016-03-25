@@ -150,7 +150,7 @@ Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 2. *我是对Perl不熟悉，是一个其他语言的开发者，只对提供的消息发送/接收接口感兴趣*
 
-    可以直接把如下代码保存成一个源码文件，使用 perl 解释器来运行
+    可以直接把如下代码保存成一个源码文件（必须是UTF-8编码），使用 perl 解释器来运行
     
         #!/usr/bin/env perl
         use Mojo::Webqq;
