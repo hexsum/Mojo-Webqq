@@ -18,7 +18,7 @@ sub Mojo::Webqq::Message::_send_sess_message{
     my $callback = sub{
         my $json = shift;
         my $status = $self->parse_send_status_msg( $json );
-        if(defined $status and !$status->is_success and $status->code != -3 and $msg->ttl > 0){
+        if(defined $status and !$status->is_success and $msg->ttl > 0){
             $self->debug("消息[ " .$msg->msg_id . " ]发送失败，尝试重新发送，当前TTL: " . $msg->ttl);
             $self->message_queue->put($msg);
             #$self->send_sess_message($msg);

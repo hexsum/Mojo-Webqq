@@ -341,7 +341,7 @@ sub parse_send_status_msg{
                 return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif(exists $json->{errMsg} and $json->{errMsg} eq "ERROR"){
-                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'发送异常');
+                return $self->new_send_status(code=>-5,msg=>"发送失败",info=>'发送异常');
             }
             else{
                 return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
@@ -352,7 +352,7 @@ sub parse_send_status_msg{
                 return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif($json->{retcode}==1202){
-                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'登录超时');
+                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'疑似登录超时');
             }
             else{
                 return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
