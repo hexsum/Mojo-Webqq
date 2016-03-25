@@ -1,6 +1,6 @@
 Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
 ========================
-使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10.1+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
+使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.14+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
 
 ###郑重声明
 
@@ -79,9 +79,27 @@ Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###安装方法
 
-推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
+推荐使用[cpanm](https://metacpan.org/pod/distribution/App-cpanminus/bin/cpanm)在线安装或升级[Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)模块 
 
-1. *安装cpanm工具*
+1. *安装perl*
+  
+    安装之前请先确认下你的系统是否已经安装了Perl，因为除了windows，其他大部分的平台默认都可能已经预装过
+
+    [Perl官网下载页面](https://www.perl.org/get.html) 有包含Unix/Linux、Mac OS X、Windows多平台比较全面详细的安装说明
+
+    建议大家尽量选择**Binaries**（二进制预编译）的版本，安装即可使用，比较方便
+
+  |平台   |推荐选择|下载地址
+  |-------|--------|-------------|
+  |Windows|1. **StrawberryPerl**<br>2. ActivePerl<br>|[StrawberryPerl下载地址](http://strawberryperl.com/)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)|
+  |Linux  |1. **ActivePerl**<br>2. 官方源码<br>3. yum/apt等包管理器<br>4. MojoActivePerl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[MojoActivePerl下载地址](https://github.com/sjdy521/MojoActivePerl)|
+  |Mac    |1. **ActivePerl**|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)
+  
+    注意：[MojoActivePerl](https://github.com/sjdy521/MojoActivePerl)是我基于ActivePerl打包的而成
+  
+    已经包含perl-5.22+cpanm+Mojo-Webqq+Mojo-Weixin的完整运行环境，适用于linux x86_64系统，并且系统glibc 2.15+
+
+2. *安装cpanm包管理工具*（如果系统已经安装了cpanm可以忽略此步骤）
 
     方法a： 通过cpan安装cpanm
 
@@ -91,11 +109,11 @@ Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
         $ curl -kL http://cpanmin.us | perl - App::cpanminus
 
-2. *使用cpanm在线安装 Mojo::Webqq 模块*
+3. *使用cpanm在线安装 Mojo::Webqq 模块*（如果系统已经安装了该模块，执行此步骤会对模块进行升级）
 
         $ cpanm -v Mojo::Webqq
 
-3. *安装失败可能有帮助的解决方法*
+4. *安装失败可能有帮助的解决方法*
         
     如果你运气不佳，通过cpanm没有一次性安装成功，这里提供了一些可能有用的信息
 
@@ -118,20 +136,6 @@ Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     Ubuntu:
 
         $ sudo apt-get install libssl-dev
-
-    Window:
-        
-    这里以 strawberryperl 为例
-
-    安装 [Strawberry Perl](http://strawberryperl.com/)，这是一个已经包含 [Mojo::Webqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod) 所需核心依赖的较全面的Windows Perl运行环境 
-    
-    [32位系统安装包](http://strawberryperl.com/download/5.22.1.3/strawberry-perl-5.22.1.3-32bit.msi)
-        
-    [64位系统安装包](http://strawberryperl.com/download/5.22.1.3/strawberry-perl-5.22.1.3-64bit.msi)
-        
-    或者自己到 [Strawberry Perl官网](http://strawberryperl.com/) 下载适合自己的最新版本
-    
-    安装前最好先卸载系统中已经安装的其他Perl版本以免互相影响
     
     搞定了编译和运行环境之后，再重新回到 步骤2 安装Mojo::Webqq即可
         
