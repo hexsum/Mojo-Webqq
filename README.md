@@ -95,7 +95,7 @@ Mojo-Webqq v1.7.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   |Linux  |1. **ActivePerl**<br>2. 官方源码<br>3. yum/apt等包管理器<br>4. Mojo-ActivePerl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[Mojo-ActivePerl下载地址](https://github.com/sjdy521/Mojo-ActivePerl)|
   |Mac    |1. **ActivePerl**|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)
   
-    注意：[Mojo-ActivePerl](https://github.com/sjdy521/MojoActivePerl)是我基于ActivePerl打包的而成
+    注意：[Mojo-ActivePerl](https://github.com/sjdy521/Mojo-ActivePerl)是我基于ActivePerl打包的而成
   
     已经包含perl-5.22+cpanm+Mojo-Webqq+Mojo-Weixin的完整运行环境，适用于linux x86_64系统，并且系统glibc 2.15+
 
