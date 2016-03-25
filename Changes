@@ -1,3 +1,10 @@
+2016-03-25 Mojo::Webqq v1.7.5
+1）Riddle插件原有api不可用，更新其他api接口 感谢 @Perling 的反馈
+2）新增 GasPrice 插件，查询油价 感谢 @hyvinlam
+3）为了和Mojo::Weixin对象属性保持一致，便于二者插件的移植，因此为Mojo::Webqq对象添加更多和Mojo::Weixin对象一致的属性名称
+4）新增 ShowQRcode 插件，window尝试调用本地图片查看程序直接打开二维码图片 感谢 @autodataming
+5）针对部分发送失败的请求进行重新尝试
+
 2016-03-14 Mojo::Webqq v1.7.4
 1）github issue fix：#26、#27
    https://github.com/sjdy521/Mojo-Webqq/issues/26
