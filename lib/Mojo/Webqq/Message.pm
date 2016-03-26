@@ -178,6 +178,7 @@ sub send_message{
             content     => $content,
             raw_content => $self->face_parse($content),
             msg_from    => 'code',
+            ttl         => $self->msg_ttl,
         });    
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -216,6 +217,7 @@ sub send_group_message{
             content     => $content,
             raw_content => $self->face_parse($content),
             msg_from    => 'code',
+            ttl         => $self->msg_ttl,
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -254,6 +256,7 @@ sub send_discuss_message{
             content     => $content,
             raw_content => $self->face_parse($content), 
             msg_from    => 'code',
+            ttl         => $self->msg_ttl,
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -298,6 +301,7 @@ sub send_sess_message{
             via         => "group",
             sess_sig    => $self->_get_sess_sig($member->gid,$member->id,0),
             msg_from    => 'code',
+            ttl         => $self->msg_ttl,
         });
         $cb->($self,$msg) if ref $cb eq "CODE";
         $self->emit(before_send_message=>$msg);
@@ -341,7 +345,7 @@ sub parse_send_status_msg{
                 return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif(exists $json->{errMsg} and $json->{errMsg} eq "ERROR"){
-                return $self->new_send_status(code=>-5,msg=>"发送失败",info=>'发送异常');
+                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'发送异常');
             }
             else{
                 return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));
@@ -352,7 +356,7 @@ sub parse_send_status_msg{
                 return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif($json->{retcode}==1202){
-                return $self->new_send_status(code=>-3,msg=>"发送失败",info=>'疑似登录超时');
+                return $self->new_send_status(code=>0,msg=>"发送成功",info=>'无法确定发送状态');
             }
             else{
                 return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));

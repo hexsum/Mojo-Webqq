@@ -43,6 +43,7 @@ has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
 has max_recent          => 20;
+has msg_ttl             => 5;
 
 has version => $Mojo::Webqq::VERSION;
 has user    => sub {+{}};
