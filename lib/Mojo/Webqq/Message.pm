@@ -356,7 +356,7 @@ sub parse_send_status_msg{
                 return $self->new_send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
             elsif($json->{retcode}==1202){
-                return $self->new_send_status(code=>0,msg=>"发送成功",info=>'无法确定发送状态');
+                return $self->new_send_status(code=>0,msg=>"发送成功",info=>'无法判断是否发送成功');
             }
             else{
                 return $self->new_send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . encode_json($json));

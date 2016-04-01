@@ -47,7 +47,15 @@ sub call{
         },
         send_message=>sub{
             my($client,$msg,$status)=@_;
-            my $attach = $status->is_success?"":"[发送失败".(defined $status->info?"(".$status->info.")":"") . "]";
+            my $attach = '';
+            if($status->is_success){
+                if(defined $status->info and $status->info ne "发送正常" ){
+                    $attach = "[" . $status->info . "]";
+                }
+            }
+            else{
+                $attach = "[发送失败".(defined $status->info?"(".$status->info.")":"") . "]";
+            }
             if($msg->type eq 'message'){
                 my $sender_nick = "我";
                 my $receiver_nick = $msg->receiver->displayname;

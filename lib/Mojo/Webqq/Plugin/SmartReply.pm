@@ -2,6 +2,7 @@ package Mojo::Webqq::Plugin::SmartReply;
 use POSIX qw(strftime);
 use Encode;
 use List::Util qw(first);
+use Mojo::Util;
 my $api = 'http://www.tuling123.com/openapi/api';
 my %ban;
 my @limit_reply = (
@@ -80,7 +81,9 @@ sub call{
                 $reply = encode("utf8","$json->{text}$json->{url}");
             }
             else{return}
-
+            $reply=~s#<br(\s*/)?>#\n#g;
+            eval{$reply= Mojo::Util::html_unescape($reply);};
+            $client->warn("html entities unescape fail: $@") if $@;
             $reply  = "\@$sender_nick " . $reply  if $msg->type eq 'group_message' and rand(100)>20;
             $reply = $client->truncate($reply,max_bytes=>500,max_lines=>10) if ($msg->type eq 'group_message' and $data->{is_truncate_reply});   
             $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;

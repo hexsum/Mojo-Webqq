@@ -111,7 +111,7 @@ Mojo-Webqq v1.7.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 3. *使用cpanm在线安装 Mojo::Webqq 模块*（如果系统已经安装了该模块，执行此步骤会对模块进行升级）
 
-        $ cpanm -v Mojo::Webqq
+        $ cpanm Mojo::Webqq
 
 4. *安装失败可能有帮助的解决方法*
         
