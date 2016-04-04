@@ -193,7 +193,7 @@ Mojo-Webqq v1.7.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         
         {"status":"发送成功","msg_id":23910327,"code":0}
     
-    更多接口参数说明参加[Openqq插件使用文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
+    更多接口参数说明参见[API说明文档](API.md)
     
 3.  *我是一个极客，我只想能够在命令行上通过  IRC 的方式来玩转 QQ 聊天*
 
