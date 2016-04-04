@@ -4,7 +4,9 @@ use File::Temp qw/tempfile/;
 use File::Path qw/mkpath rmtree/;
 use POSIX qw(strftime);
 use Term::ANSIColor;
+use Storable;
 BEGIN{
+    Storable::nfreeze({}); #这一句是为了 提前加载 auto/Storable/nfreeze.al 防止chroot后再加载导致报错
     eval{require BSD::Resource};
     our $is_hold_bsd_resource = 1 unless $@; 
 }

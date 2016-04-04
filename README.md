@@ -178,7 +178,7 @@ Mojo-Webqq v1.7.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         * About to connect() to 127.0.0.1 port 5000 (#0)
         *   Trying 127.0.0.1...
         * Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
-        > GET /openqq/send_message?qq=>xxxxx&content=hello HTTP/1.1
+        > GET /openqq/send_message?qq=xxxxx&content=hello HTTP/1.1
         > User-Agent: curl/7.29.0
         > Host: 127.0.0.1:5000
         > Accept: */*
