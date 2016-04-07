@@ -1,7 +1,7 @@
 ### 1. 获取用户数据
 |   API  |获取用户数据
 |--------|:------------------------------------------|
-|url     |/openqq/get_user_info|
+|uri     |/openqq/get_user_info|
 |请求方法|GET\|POST|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_user_info|
@@ -37,7 +37,7 @@
 ### 2. 获取好友数据
 |   API  |获取好友数据
 |--------|:------------------------------------------|
-|url     |/openqq/get_friend_info|
+|uri     |/openqq/get_friend_info|
 |请求方法|GET\|POST|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_friend_info|
@@ -77,7 +77,7 @@
 ### 3. 获取群组数据
 |   API  |获取群组数据
 |--------|:------------------------------------------|
-|url     |/openqq/get_group_info|
+|uri     |/openqq/get_group_info|
 |请求方法|GET\|POST|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_info|
@@ -137,7 +137,7 @@
 ### 4. 获取讨论组数据
 |   API  |获取讨论组数据
 |--------|:------------------------------------------|
-|url     |/openqq/get_discuss_info|
+|uri     |/openqq/get_discuss_info|
 |请求方法|GET\|POST|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_discuss_info|
@@ -185,7 +185,7 @@
 ### 5. 发送好友消息
 |   API  |发送好友消息
 |--------|:------------------------------------------|
-|url     |/openqq/send_message|
+|uri     |/openqq/send_message|
 |请求方法|GET\|POST|
 |请求参数|**id**: 好友的id（每次扫描登录可能会变化）<br>**qq**: 好友的QQ号<br>**content**: 发送的消息(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
@@ -211,7 +211,7 @@
 ### 7. 发送讨论组消息
 |   API  |发送讨论组消息
 |--------|:------------------------------------------|
-|url     |/openqq/send_discuss_message|
+|uri     |/openqq/send_discuss_message|
 |请求方法|GET\|POST|
 |请求参数|**did**: 讨论组的id（每次扫描登录可能会变化）<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
@@ -224,7 +224,7 @@
 ### 8. 发送群临时消息(已被腾讯屏蔽)
 |   API  |发送群临时消息
 |--------|:------------------------------------------|
-|url     |/openqq/send_sess_message|
+|uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
 |请求参数|**gid**: 群的id（每次扫描登录可能会变化）<br>**gnumber**: 群的号码<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**qq**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
@@ -237,7 +237,7 @@
 ### 9. 发送讨论组临时消息(已被腾讯屏蔽)
 |   API  |发送讨论组临时消息
 |--------|:------------------------------------------|
-|url     |/openqq/send_sess_message|
+|uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
 |请求参数|**did**: 讨论组的id（每次扫描登录可能会变化）<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**qq**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
@@ -250,7 +250,7 @@
 ### 10. 自定义接收消息上报地址
 |   API  |接收消息上报（支持好友消息、群消息、讨论组消息）
 |--------|:------------------------------------------|
-|url     |自定义任意支持http协议的url|
+|uri     |自定义任意支持http协议的url|
 |请求方法|POST|
 |数据格式|application/json|
 
