@@ -35,7 +35,7 @@ sub call{
             $a=~s/^\s+|\s+$//g;
             push @{ $base->{$space}{$q} }, $a;
             nstore($base,$file);
-            $client->reply_message($msg,"知识库[ $q -> $a ]添加成功",sub{$_[1]->msg_from("bot")}); 
+            $client->reply_message($msg,"知识库[ $q →  $a ]添加成功",sub{$_[1]->msg_from("bot")}); 
 
         }   
         elsif($msg->content =~ /^(?:$delete_command)
