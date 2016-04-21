@@ -1,3 +1,8 @@
+2016-04-21 Mojo::Webqq v1.7.8
+1） -> 改为 → 感谢 @影随风轻
+2）客户端的spawn方法增加一个新的参数 is_blocking 用于进行阻塞式执行命令
+3）完善add_job方法
+
 2016-04-07 Mojo::Webqq v1.7.7
 1）Perlcode插件bug修复 感谢 @路人乙
 2）发送消息失败重试的日志级别从debug改为warn
