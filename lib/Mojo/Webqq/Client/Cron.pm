@@ -1,9 +1,21 @@
 package Mojo::Webqq::Client::Cron;
 use POSIX qw(mktime);
-use Time::Piece;
-use Time::Seconds;
+BEGIN{
+    our $is_module_ok = 0;
+    eval{
+        require Time::Piece;
+        require Time::Seconds;
+        Time::Piece->import;
+        Time::Seconds->import;
+    };
+    $is_module_ok = 1 if not $@;
+}
 sub add_job{
     my $self = shift;
+    if(not $is_module_ok){
+        $self->error("调用add_job方法请先确保安装模块 Time::Piece 和 Time::Seconds");
+        return;
+    }
     my($type,$nt,$callback) = @_;
     my $t = $nt;
     if(ref $callback ne 'CODE'){ 

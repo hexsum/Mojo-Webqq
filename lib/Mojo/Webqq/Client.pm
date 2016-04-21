@@ -20,7 +20,7 @@ use Mojo::Webqq::Client::Remote::_recv_message;
 use Mojo::Webqq::Client::Remote::_relink;
 use Mojo::Webqq::Client::Remote::logout;
 
-use base qw(Mojo::Webqq::Request Mojo::Webqq::Client::Cron);
+use base qw(Mojo::Webqq::Request);
 
 sub run{
     my $self = shift;
@@ -441,6 +441,12 @@ sub clean_verifycode{
     return if not -f $self->verifycode_path;
     $self->info("清除残留的历史验证码图片");
     unlink $self->verifycode_path or $self->warn("删除验证码图片[ ". $self->verifycode_path . " ]失败: $!");
+}
+
+sub add_job {
+    my $self = shift;
+    require Mojo::Webqq::Client::Cron;
+    $self->Mojo::Webqq::Client::Cron::add_job(@_);
 }
 
 1;
