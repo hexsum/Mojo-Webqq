@@ -58,9 +58,8 @@ sub add_job{
         }        
     }    
     
-    $self->debug("[$type]下一次触发时间为：" . $next->strftime("%Y/%m/%d %H:%M:%S\n")); 
+    $self->debug("[$type]下一次触发时间为：" . $next->strftime("%Y/%m/%d %H:%M:%S")); 
     $delay = $next - $now;
-    my $rand_watcher_id = rand();
     $self->timer($delay,sub{
         eval{
             $callback->();
