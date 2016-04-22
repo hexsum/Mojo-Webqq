@@ -1452,7 +1452,7 @@ julia/lua/nim/ocaml/python
 
 调用系统的图片查看程序来展示二维码图片，方便扫描，作者 autodataming L<https://github.com/autodataming>
 
-    $client->load("ShowQRcode");#当前仅支持win,并且需要在调用$client->login()方法之前加载
+    $client->load("ShowQRcode");#当前仅支持 Windows/Mac,并且需要在调用$client->login()方法之前加载
     $client->login();
     $client->load("ShowMsg");
     ...;
