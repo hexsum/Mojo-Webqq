@@ -9,14 +9,20 @@ $client->on(input_qrcode=>sub
                {
                  my($client,$qrcode_path) = @_;
                  my $command;
-                 if($^O=~/win/i)
+                 if($^O=~/^MSWin32/i) # Windows
                  {
    	                $command="start $qrcode_path";
    	                eval(system($command));
-                    $self->error($@) if $@;
+                    $client->error($@) if $@;
                  }
-                 elsif($^O=~/linux/i)
+                 elsif($^O=~/^linux/i) # Linux
                  {
+                 }
+                 elsif($^O=~/^darwin/i) # Mac OS X
+                 {
+                    $command="open $qrcode_path";
+                    eval(system($command));
+                    $client->error($@) if $@;
                  }
               }
         );
