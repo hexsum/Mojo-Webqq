@@ -533,7 +533,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
 =head2 new()
 
-    qq              #登录的qq号，必选
+    qq              #登录的qq号，可选
     pwd             #使用帐号密码登录时，qq号对应密码的32位md5
     security        #设置该参数，将使得发送和接收消息使用https加密
     state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
@@ -673,6 +673,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 该方法实际上参考L<Mojo::Run>模块 并在该模块的基础上做了进一步完善
 
     #支持的参数：
+    is_blocking     #是否阻塞执行命令，默认0
     max_forks       #产生的最大进程数
     cmd             #要执行的命令或代码
     param           #命令的参数

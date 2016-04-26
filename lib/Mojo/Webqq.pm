@@ -87,6 +87,7 @@ has is_stop                 => 0;
 has is_ready                => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
+has is_set_qq               => 0; #是否在初始化时设置qq参数
 has login_state             => "init";#init|relogin|success|scaning|confirming
 has qrcode_count            => 0;
 has qrcode_count_max        => 10;
@@ -188,9 +189,12 @@ sub new {
     #$ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
     $self->info("当前正在使用 Mojo-Webqq v" . $self->version);
     if(not defined $self->{qq}){
-        $self->fatal("客户端初始化缺少qq参数");
-        $self->exit();
+        $self->warn("客户端初始化缺少qq参数，尝试自动检测");
+        $self->is_set_qq(0);
+    #    $self->fatal("客户端初始化缺少qq参数");
+    #    $self->exit();
     }
+    else{ $self->is_set_qq(1); }
     $self->ioloop->reactor->on(error=>sub{
         my ($reactor, $err) = @_;
         $self->error("reactor error: " . Carp::longmess($err));
