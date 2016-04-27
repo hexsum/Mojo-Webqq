@@ -12,7 +12,7 @@
 
 2. ***运行镜像***
 
-        docker run -at --env QQ=123456 --env LOG_ENCODING=utf8 --env PORT=5000 -p 5000:5000 -v /tmp:/tmp mojo-webqq 
+        docker run -at --env QQ=123456 --env LOG_ENCODING=utf8 --env PORT=5000 -p 5000:5000 -v /tmp:/tmp sjdy521/mojo-webqq 
 
   为了能够方便查看日志，获取容器中下载的二维码文件等，建议把宿主的/tmp目录挂载到docker的/tmp上，同时设置容器的端口映射
 
