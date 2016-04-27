@@ -4,7 +4,7 @@
 
   从官方仓库直接拉取
 
-        docker pull mojo-webqq
+        docker pull sjdy521/mojo-webqq
         
   或者使用Dockerfile自己build
   
