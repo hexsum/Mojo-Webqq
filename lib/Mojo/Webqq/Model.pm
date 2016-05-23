@@ -407,26 +407,17 @@ sub update_group_ext {
                 }
             }
             else{
-                if($p{is_blocking}){
-                    for my $g (@groups){
-                        my $id = $g->gname;
-                        $g->update($gext->{$id});
+                my $i = -3;
+                for my $g (@groups){
+                    my $id = $g->gname;
+                    next if not exists $gext->{$id};
+                    #$g->{gtype} = $gext->{$id}{gtype};
+                    #$g->{gnumber} = $gext->{$id}{gnumber};
+                    $g->update($gext->{$id});
+                    $self->timer($i+3,sub{
                         $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
-                    }
-                }
-                else{
-                    my $i = -3;
-                    for my $g (@groups){
-                        my $id = $g->gname;
-                        next if not exists $gext->{$id};
-                        #$g->{gtype} = $gext->{$id}{gtype};
-                        #$g->{gnumber} = $gext->{$id}{gnumber};
-                        $g->update($gext->{$id});
-                        $self->timer($i+3,sub{
-                            $self->update_group_member_ext($g,%p) if $p{is_update_group_member_ext};
-                        });
-                        $i++;
-                    }
+                    });
+                    $i++;
                 }
             }
             $self->emit("model_update","group_ext",1);
@@ -505,7 +496,7 @@ sub update_group_member {
             $self->info("更新群组[ ". $group->gname . " ]成员信息");
             if(ref $group_info->{member} eq 'ARRAY'){
                 $group->update($group_info); 
-                #$self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
+                $self->update_group_member_ext($group,%p) if $p{is_update_group_member_ext};
             }
             else{$self->debug("更新群组[ " . $group->gname . " ]成员信息无效")}
         }

@@ -155,6 +155,91 @@ sub call{
         }
         else{$c->render(json=>{msg_id=>undef,code=>105,status=>"discuss member or group member  not found"});}
     };
+    any [qw(GET POST)] => '/openqq/search_friend' => sub{
+        my $c = shift;
+        my @params = map {defined $_?Encode::encode("utf8",$_):$_} @{$c->req->params->pairs};
+        my @objects = $client->search_friend(@params);
+        if(@objects){
+            $c->render(json=>[map {$_->to_json_hash()} @objects]);
+        }
+        else{
+            $c->render(json=>{code=>100,status=>"object not found"});
+        }
+        
+    };
+    any [qw(GET POST)] => '/openqq/search_group' => sub{
+        my $c = shift;
+        my @params = map {defined $_?Encode::encode("utf8",$_):$_} @{$c->req->params->pairs};
+        my @objects = $client->search_group(@params);
+        for(@objects){$client->update_group_member($_,is_blocking=>1,is_update_group_member_ext=>1) if $_->is_empty};
+        if(@objects){
+            $c->render(json=>[map {$_->to_json_hash()} @objects]);
+        }
+        else{
+            $c->render(json=>{code=>100,status=>"object not found"});
+        }
+    };
+    any [qw(GET POST)] => '/openqq/kick_group_member' => sub{
+        my $c = shift;
+        my($gid,$gnumber,$members_id,$members_qq)=($c->param("gid"),$c->param("gnumber"),$c->param("member_id"),$c->param("member_qq"));
+        my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber,);
+        if(not defined $group){ 
+            $c->render(json=>{code=>100,status=>"object not found"});
+            return;
+        }
+
+        my @id = split /,/,(defined($members_id)?$members_id:$members_qq); 
+        if(@id){
+            my @members;
+            for(@id){
+                my $member = $group->search_group_member(defined($members_id)?(id=>$_):(qq=>$_));
+                if(not defined $member){
+                    $c->render(json=>{code=>100,status=>"member $_ not found"});
+                    return;
+                }
+                push @members,$member;
+            }
+            if($group->kick_group_member(@members)){
+                $c->render(json=>{code=>0,status=>"success"});
+            }
+            else{
+                $c->render(json=>{code=>201,status=>"failure"});
+            }   
+        }
+        else{$c->render(json=>{code=>200,status=>"member id empty"});}
+    };
+    any [qw(GET POST)] => '/openqq/shutup_group_member' => sub{
+        my $c = shift;
+        my($gid,$gnumber,$time,$members_id,$members_qq)=($c->param("gid"),$c->param("gnumber"),$c->param("time"),$c->param("member_id"),$c->param("member_qq"));
+        my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber,);
+        if(not defined $group){ 
+            $c->render(json=>{code=>100,status=>"object not found"});
+            return;
+        }
+        if(not defined $time or $time!~/^\d+$/){ 
+            $c->render(json=>{code=>400,status=>"shutup time missing or error"});
+            return;
+        }
+        my @id = split /,/,(defined($members_id)?$members_id:$members_qq); 
+        if(@id){
+            my @members;
+            for(@id){
+                my $member = $group->search_group_member(defined($members_id)?(id=>$_):(qq=>$_));
+                if(not defined $member){
+                    $c->render(json=>{code=>100,status=>"member $_ not found"});
+                    return;
+                }
+                push @members,$member;
+            }
+            if($group->shutup_group_member($time,@members)){
+                $c->render(json=>{code=>0,status=>"success"});
+            }
+            else{
+                $c->render(json=>{code=>201,status=>"failure"});
+            }   
+        }
+        else{$c->render(json=>{code=>200,status=>"member id empty"});}
+    };
     any '/*whatever'  => sub{whatever=>'',$_[0]->render(text=>"request error",status=>403)};
     package Mojo::Webqq::Plugin::Openqq;
     $server = Mojo::Webqq::Server->new();   
