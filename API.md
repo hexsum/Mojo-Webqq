@@ -313,5 +313,46 @@ Server: Mojolicious (Perl)
 
 则会直接对上报的消息进行回复，回复的内容为 "你好", 支持好友消息、群消息、讨论组消息、临时消息的上报
 
+### 11. 搜索好友
+
+|   API  |搜索好友|
+|--------|:------------------------------------------|
+|uri     |/openqq/search_friend|
+|请求方法|GET\|POST|
+|请求参数|好友对象的任意属性，中文需要做urlencode，比如：<br>**id**: 好友的id<br>**qq**: 好友的帐号<br>**markname**: 好友备注名称<br>|
+|数据格式|application/x-www-form-urlencoded|
+|调用示例|http://127.0.0.1:5000/openqq/search_friend?qq=xxxx|
+
+
+### 12. 搜索群组
+
+|   API  |搜索群组|
+|--------|:------------------------------------------|
+|uri     |/openqq/search_group|
+|请求方法|GET\|POST|
+|请求参数|群对象的任意属性，中文需要做urlencode，比如：<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|数据格式|application/x-www-form-urlencoded|
+|调用示例|http://127.0.0.1:5000/openqq/search_group?gnumber=xxxxxx|
+返回JSON数组:
+
+### 13. 群成员禁言
+
+|   API  |群成员禁言|
+|--------|:------------------------------------------|
+|uri     |/openqq/shuthup_group_member|
+|请求方法|GET\|POST|
+|请求参数|**time**: 禁言时长，最低60秒（单位：秒）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_qq**: 成员的qq（多个成员qq用逗号分割）<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|数据格式|application/x-www-form-urlencoded|
+|调用示例|http://127.0.0.1:5000/openqq/shuthup_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shuthup_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
+
+### 14. 踢除群成员
+
+|   API  |踢除群成员|
+|--------|:------------------------------------------|
+|uri     |/openqq/kick_group_member|
+|请求方法|GET\|POST|
+|请求参数|**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_qq**: 成员的qq（多个成员qq用逗号分割）<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|数据格式|application/x-www-form-urlencoded|
+|调用示例|http://127.0.0.1:5000/openqq/kick_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/kick_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
 
 ### 更多高级用法，参见[Openqq插件文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
