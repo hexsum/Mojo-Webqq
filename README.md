@@ -7,29 +7,30 @@ Mojo-Webqq v1.7.9 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 本项目完全遵循网页QQ官方提供的原始聊天功能，不包含任何破解、偷盗等行为，本项目完全开源，目的是为了促进技术交流学习，禁止任何商业盈利目的以及一切非法用途传播，否则后果自负
 
 ###插件列表
-``` 
-  名称                 优先级   当前状态    github作者    功能说明
-  ------------------------------------------------------------------------------
-  ShowMsg              100      已发布      sjdy521       打印客户端接收和发送的消息
-  GroupManage          100      已发布      sjdy521       群管理，入群欢迎、限制发图频率等
-  MsgSync              99       已发布      sjdy521       实现qq群和irc消息同步
-  IRCShell             99       已发布      sjdy521       Linux环境下通过irc客户端使用qq
-  Openqq               98       已发布      sjdy521       提供qq发送消息api接口
-  Perlcode             97       已发布      sjdy521       通过qq消息执行perl代码
-  Perldoc              96       已发布      sjdy521       通过qq消息查询perl文档
-  StockInfo            95       已发布      shalk         查询股票信息
-  ProgramCode          94       已发布      limengyu1990  通过qq消息执行代码，支持26种语言
-  Translation          93       已发布      sjdy521       多国语言翻译功能
-  MobileInfo           93       已发布      limengyu1990  手机号码归属地查询
-  Riddle               92       已发布      limengyu1990  输入"猜谜"关键字进行猜谜游戏
-  GasPrice             91       已发布      hyvinlam      输入"油价"关键字查询油价
-  KnowledgeBase        2        已发布      sjdy521       通过qq消息自定义问答知识库
-  FuckDaShen           1        已发布      sjdy521       对消息中的"大神"关键词进行鄙视
-  PostImgVerifycode    0        已发布      sjdy521       登录验证码发送到邮箱实现远程登录
-  PostQRcode           0        已发布      sjdy521       登录二维码发送到邮箱实现远程扫码
-  ShowQRcode           0        已发布      autodataming  调用系统图片查看程序来示二维码（仅支持win）
-  SmartReply           0        已发布      sjdy521       智能聊天回复
-```
+
+|名称                | 优先级  |当前状态    |github作者    | 功能说明                 
+|:-------------------|:--------|:-----------|:-------------|:----------------------------
+|[ShowMsg](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowMsg)             |100      |已发布      |sjdy521       |打印客户端接收和发送的消息
+|[GroupManage](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GroupManage)         |100      |已发布      |sjdy521       |群管理，入群欢迎、限制发图频率等
+|[MsgSync](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::MsgSync)             |99       |已发布      |sjdy521       |实现qq群和irc消息同步
+|[IRCShell](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::IRCShell)            |99       |已发布      |sjdy521       |Linux环境下通过irc客户端使用qq
+|[Openqq](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)              |98       |已发布      |sjdy521       |提供qq发送消息api接口
+|[Perlcode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Perlcode)            |97       |已发布      |sjdy521       |通过qq消息执行perl代码
+|[Perldoc](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Perldoc)             |96       |已发布      |sjdy521       |通过qq消息查询perl文档
+|[StockInfo](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::StockInfo)           |95       |已发布      |shalk         |查询股票信息
+|[ProgramCode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ProgramCode)         |94       |已发布      |limengyu1990  |通过qq消息执行代码，支持26种语言
+|[Translation](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Translation)         |93       |已发布      |sjdy521       |多国语言翻译功能
+|[MobileInfo](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::MobileInfo)          |93       |已发布      |limengyu1990  |手机号码归属地查询
+|[Riddle](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Riddle)              |92       |已发布      |limengyu1990  |输入"猜谜"关键字进行猜谜游戏
+|[GasPrice](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GasPrice)            |91       |已发布      |hyvinlam      |输入"油价"关键字查询油价
+|[KnowledgeBase](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::KnowledgeBase)       |2        |已发布      |sjdy521       |通过qq消息自定义问答知识库
+|[FuckDaShen](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::FuckDaShen)          |1        |已发布      |sjdy521       |对消息中的"大神"关键词进行鄙视
+|[PostImgVerifycode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::PostImgVerifycode)   |0        |已发布      |sjdy521       |登录验证码发送到邮箱实现远程登录
+|[PostQRcode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::PostQRcode)          |0        |已发布      |sjdy521       |登录二维码发送到邮箱实现远程扫码
+|[ShowQRcode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowQRcode)          |0        |已发布      |autodataming  |调用系统图片查看程序来示二维码（目前仅支持win）
+|[SmartReply](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::SmartReply)          |0        |已发布      |sjdy521       |智能聊天回复
+
+
 ###效果展示
 ```
 [15/09/30 15:11:59] [info] 初始化 smartqq 客户端参数...
