@@ -1,11 +1,12 @@
 package Mojo::Webqq::Plugin::Translation;
 use strict;
-use Mojo::Util qw(url_escape encode);
+use Mojo::Util qw(url_escape encode md5_sum decode);
 our $PRIORITY = 93;
 sub call {
     my ($client,$data) = @_;
-    my $api = 'http://apis.baidu.com/apistore/tranlateservice/translate';
-    my $apikey = '20d7db97e337ffa35ae0838439c9db5d';
+    my $api = 'http://api.fanyi.baidu.com/api/trans/vip/translate';
+    my $appid = $data->{appid} || '20160516000021158';
+    my $appsecret = $data->{appsecret} || '2QoSmvMuun8btJmsl446';
     my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
@@ -14,19 +15,22 @@ sub call {
             my $query = $1;
             return if not $query;
             $msg->allow_plugin(0);
-            my @query_string = (
-                query => url_escape($query),
+            my $salt = time;
+            $client->http_get($api,{json=>1},form=>{
+                q     => decode("utf8",$query),
                 from  => 'auto',
                 to    => 'auto',
-            );
-            $client->http_get($client->gen_url($api,@query_string),{apikey=>$apikey,json=>1},sub{
+                appid => $appid,
+                salt  => $salt,
+                sign  => md5_sum($appid . $query . $salt . $appsecret),
+            },sub{
                 my $json = shift;
                 if( not defined $json ){$msg->reply("翻译失败: api接口不可用")}
-                elsif(defined $json and $json->{errNum} == 0){
-                    $msg->reply( encode('utf8',join('',map {$_->{dst}} @{$json->{retData}{trans_result}}) ) ); 
+                elsif(defined $json and exists $json->{error_code}){
+                    $msg->reply("翻译失败: api接口不可用(" . encode("utf8", $json->{error_code} . " " . $json->{error_msg} ) . ")"); 
                 }
                 elsif(defined $json){
-                    $msg->reply("翻译失败: " . encode('utf8',$json->{errMsg} . "(" . $json->{errNum} . ")"));
+                    $msg->reply( encode("utf8",join " ",map {$_->{dst}} @{ $json->{trans_result} } ));
                 }
             });
         } 
