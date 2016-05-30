@@ -1,3 +1,9 @@
+2016-05-30 Mojo::Webqq v1.8.0
+1）新增Docker.md文档
+2）Makefile.PL 增加如下依赖模块 Time::Piece、Time::Seconds
+3）Openqq插件新增接口/openqq/search_friend /openqq/search_group /openqq/shuthup_group_member /openqq/kick_group_member
+4）修复Translate插件不可用的bug 感谢 @丶Seven
+
 2016-04-21 Mojo::Webqq v1.7.9
 1）ShowQRcode插件添加MacOS的支持。修改Windows的OS名称判断
 2）增加docker支持
