@@ -64,6 +64,7 @@ sub call{
     get '/openqq/get_user_info'     => sub {$_[0]->render(json=>$client->user->to_json_hash());};
     get '/openqq/get_friend_info'   => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->friend}]); };
     get '/openqq/get_group_info'    => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->group}]); };
+    get '/openqq/get_group_basic_info'    => sub {$_[0]->render(json=>[map {delete $_->{member};$_} map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_discuss_info'  => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->discuss}]); };
     get '/openqq/get_recent_info'   => sub {$_[0]->render(json=>[map {$_->to_json_hash()} @{$client->recent}]);};
     any [qw(GET POST)] => '/openqq/send_message'         => sub{
