@@ -204,6 +204,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     me                      #返回自己在群成员中的对象 (Mojo::Webqq::Group::Member)
     is_group                #判断对象是否是一个群
     dump                    #打印群对象结构，方便调试
+    qiandao                 #签到
 
     示例代码：
     my $group = $client->search_group(gname=>"PERL学习交流群"); #返回一个Mojo::Webqq::Group对象
@@ -1471,6 +1472,19 @@ julia/lua/nim/ocaml/python
         apikey      => "xxxx",   #可选，参见 http://apistore.baidu.com/apiworks/servicedetail/710.html
         msg_tail    => "消息尾巴", #可选
         is_need_at  => 0, #是否需要艾特,默认值为0
+    });
+
+=head2 Mojo::Webqq::Plugin::Qiandao 
+
+QQ群每日签到插件
+
+    $client->load("Qiandao");
+    
+    $client->load("Qiandao",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        is_qiandao_on_login => 0 ,        #可选，是否登录时进行签到，默认值为0
+        qiandao_time => "09:30" ,         #可选，每日签到的时间，默认是 09:0
     });
 
 =head2 Mojo::Webqq::Plugin::GroupManage

@@ -26,6 +26,7 @@ use Mojo::Webqq::Model::Remote::_remove_group_admin;
 use Mojo::Webqq::Model::Remote::_kick_group_member;
 use Mojo::Webqq::Model::Remote::_set_group_member_card;
 use Mojo::Webqq::Model::Remote::_shutup_group_member;
+use Mojo::Webqq::Model::Remote::_qiandao;
 
 use base qw(Mojo::Webqq::Base);
 
@@ -1061,6 +1062,26 @@ sub set_group_member_card{
         else{$self->info("取消群名片成功");}
     }
     else{$self->error("设置群名片失败")}
+    return $ret;
+}
+
+sub qiandao {
+    my $self = shift;
+    my $group = shift;
+    if ( not $self->is_support_model_ext){
+        $self->warn("无法支持获取扩展信息, 无法进行签到");
+        return;
+    }
+    $self->die("非群组对象") if not $group->is_group;
+    if(not defined $group->gnumber){
+        $self->error("未获取到群号码，无法进行签到");
+        return;
+    }
+    my $ret = $self->_qiandao($group->gnumber);
+    if($ret){
+        $self->info("群组[ ". $group->displayname ." ]签到成功");
+    }
+    else{$self->error("群组[ ". $group->displayname ." ]签到失败")}
     return $ret;
 }
 

@@ -211,4 +211,8 @@ sub set_group_member_card{
     my $card = shift;
     return $self->{_client}->set_group_member_card($self,$member,$card);
 }
+sub qiandao {
+    my $self = shift;
+    return $self->{_client}->qiandao($self);
+}
 1;
