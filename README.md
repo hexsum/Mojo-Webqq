@@ -25,6 +25,7 @@ Mojo-Webqq v1.8.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 |[GasPrice](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GasPrice)            |91       |已发布      |hyvinlam      |输入"油价"关键字查询油价
 |[KnowledgeBase](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::KnowledgeBase)       |2        |已发布      |sjdy521       |通过qq消息自定义问答知识库
 |[FuckDaShen](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::FuckDaShen)          |1        |已发布      |sjdy521       |对消息中的"大神"关键词进行鄙视
+|[Qiandao](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Qiandao)          |1        |已发布      |sjdy521       |QQ群每日签到
 |[PostImgVerifycode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::PostImgVerifycode)   |0        |已发布      |sjdy521       |登录验证码发送到邮箱实现远程登录
 |[PostQRcode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::PostQRcode)          |0        |已发布      |sjdy521       |登录二维码发送到邮箱实现远程扫码
 |[ShowQRcode](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowQRcode)          |0        |已发布      |autodataming  |调用系统图片查看程序来示二维码（目前仅支持win）
