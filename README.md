@@ -227,6 +227,14 @@ Mojo-Webqq v1.8.0 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 * [QQ群](http://jq.qq.com/?_wv=1027&k=kjVJzo)
 * [IRC](http://irc.perfi.wang/?channel=#Mojo-Webqq)
 
+###友情链接
+
+*JavaScript*
+* [webqqircd](https://github.com/MaskRay/webqqircd) 用IRC客户端控制WebQQ(SmartQQ)，类似于wechatircd
+
+*Python*
+* [SmartQQBot](https://github.com/Yinzo/SmartQQBot) 基于SmartQQ的自动机器人框架
+
 ###COPYRIGHT 和 LICENCE
 
 Copyright (C) 2014 by sjdy521
