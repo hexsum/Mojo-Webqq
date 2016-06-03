@@ -1484,7 +1484,7 @@ QQ群每日签到插件
         allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
         ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
         is_qiandao_on_login => 0 ,        #可选，是否登录时进行签到，默认值为0
-        qiandao_time => "09:30" ,         #可选，每日签到的时间，默认是 09:0
+        qiandao_time => "09:30" ,         #可选，每日签到的时间，默认是 09:30
     });
 
 =head2 Mojo::Webqq::Plugin::GroupManage
