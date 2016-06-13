@@ -49,10 +49,10 @@ sub Mojo::Webqq::Model::_get_user_friends{
                 $_->{state} = 'offline';
                 $_->{client_type} = 'unknown';
             }
-            $_->{category} = $categories{$_->{categories}}{name};
-            $_->{nick}  = $info{$uin}{nick};
+            $_->{category} = $self->xmlescape_parse($categories{$_->{categories}}{name});
+            $_->{nick}  = $self->xmlescape_parse($info{$uin}{nick});
             $_->{face} = $info{$uin}{face};
-            $_->{markname} = $marknames{$uin}{markname};
+            $_->{markname} = $self->xmlescape_parse($marknames{$uin}{markname});
             $_->{is_vip} = $vipinfo{$uin}{is_vip};
             $_->{vip_level} = $vipinfo{$uin}{vip_level};
             delete $_->{categories};

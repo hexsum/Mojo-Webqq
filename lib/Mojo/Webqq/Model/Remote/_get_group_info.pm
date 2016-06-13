@@ -20,13 +20,13 @@ sub Mojo::Webqq::Model::_get_group_info {
         
         return undef unless exists $json->{result}{ginfo};
         $json->{result}{ginfo}{gcode} = delete $json->{result}{ginfo}{code};
-        $json->{result}{ginfo}{gname} = delete $json->{result}{ginfo}{name};
+        $json->{result}{ginfo}{gname} = $self->xmlescape_parse(delete $json->{result}{ginfo}{name});
         $json->{result}{ginfo}{gmemo} = delete $json->{result}{ginfo}{memo};
         #$json->{result}{ginfo}{gclass} = delete $json->{result}{ginfo}{class};
         $json->{result}{ginfo}{gcreatetime} = delete $json->{result}{ginfo}{createtime};
         $json->{result}{ginfo}{glevel} = delete $json->{result}{ginfo}{level};
         $json->{result}{ginfo}{gowner} = delete $json->{result}{ginfo}{owner};
-        $json->{result}{ginfo}{gmarkname} = delete $json->{result}{ginfo}{markname};
+        $json->{result}{ginfo}{gmarkname} = $self->xmlescape_parse(delete $json->{result}{ginfo}{markname});
         
         delete $json->{result}{ginfo}{fingermemo};
         delete $json->{result}{ginfo}{face};
@@ -51,7 +51,8 @@ sub Mojo::Webqq::Model::_get_group_info {
                 $state{$_->{uin}}{state} = $self->code2state($_->{'stat'});
             }
             for my $m(@{ $json->{result}{minfo} }){
-                $m->{card} = $cards{$m->{uin}} if exists $cards{$m->{uin}};
+                $m->{card} = $self->xmlescape_parse($cards{$m->{uin}}) if exists $cards{$m->{uin}};
+                $m->{nick} = $self->xmlescape_parse($m->{nick});
                 if(exists $state{$m->{uin}}){
                     $m->{state} = $state{$m->{uin}}{state};
                     $m->{client_type} = $state{$m->{uin}}{client_type};

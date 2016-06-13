@@ -14,9 +14,11 @@ sub Mojo::Webqq::Message::xmlescape_parse {
     my $self = shift;
     my $data = shift;
     #$data=~s/(&lt;|&gt;|&amp;|&quot;|&#39;|&apos;|&nbsp;|&#92;)/$XML_ESCAPE_MAP{$1}/g; 
+    return $data if not defined $data;
     $data = html_unescape($data);
     if(Encode::is_utf8($data)){
-        $data=~s/\x{a0}/ /g;
+        my $unicode_space = Encode::decode("utf8"," ");
+        $data=~s/\x{a0}/$unicode_space/g;
     }
     else{
         $data=~s/\302\240/ /g;     

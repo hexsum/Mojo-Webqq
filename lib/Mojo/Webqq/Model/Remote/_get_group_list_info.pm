@@ -19,8 +19,8 @@ sub Mojo::Webqq::Model::_get_group_list_info{
             $gmarklist{$_->{gid}} = $_->{markname};
         }
         for(@{$group_list_info}){
-            $_->{gmarkname} = $gmarklist{$_->{gid}};
-            $_->{gname} = delete $_->{name};
+            $_->{gmarkname} = $self->xmlescape_parse($gmarklist{$_->{gid}});
+            $_->{gname} = $self->xmlescape_parse(delete $_->{name});
             $_->{gcode} = delete $_->{code};
             delete $_->{flag} ;
             delete $_->{class} ;
