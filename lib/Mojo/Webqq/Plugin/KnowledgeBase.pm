@@ -5,7 +5,7 @@ use Storable qw(retrieve nstore);
 sub call{
     my $client = shift;
     my $data = shift;
-    $data->{fuzzy} = 1 if not defined $data->{fuzzy};
+    $data->{mode} = 'fuzzy' if not defined $data->{mode};
     my $file = $data->{file} || './KnowledgeBase.dat';
     my $learn_command = defined $data->{learn_command}?quotemeta($data->{learn_command}):'learn|学习';
     my $delete_command = defined $data->{delete_command}?quotemeta($data->{delete_command}):'delete|del|删除';
@@ -60,7 +60,21 @@ sub call{
             $content =~s/^[a-zA-Z0-9_]+: ?// if $msg->msg_from eq "irc";
             my $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
             #return unless exists $base->{$space}{$content};
-            if($data->{fuzzy}){
+            if($data->{mode} eq 'regex'){
+                my @match_keyword;
+                for my $keyword (keys %{$base->{$space}}){
+                    next if not $content=~/$keyword/;
+                    push @match_keyword,$keyword;
+                }
+                return if @match_keyword == 0;
+                $msg->allow_plugin(0);
+                my $keyword = $match_keyword[int rand @match_keyword];
+                my $len = @{$base->{$space}{$keyword}};
+                my $reply = $base->{$space}{$keyword}->[int rand $len];
+                $reply .= "\n--匹配模式『$keyword』";
+                $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")});
+            }
+            elsif($data->{mode} eq 'fuzzy'){
                 my @match_keyword;
                 for my $keyword (keys %{$base->{$space}}){
                     next if not $content=~/\Q$keyword\E/;
