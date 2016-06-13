@@ -70,7 +70,9 @@ sub call{
                 $msg->allow_plugin(0);
                 my $keyword = $match_keyword[int rand @match_keyword];
                 my $len = @{$base->{$space}{$keyword}};
-                $client->reply_message($msg,$base->{$space}{$keyword}->[int rand $len],sub{$_[1]->msg_from("bot")});
+                my $reply = $base->{$space}{$keyword}->[int rand $len];
+                $reply .= "\n--匹配关键字『$keyword』";
+                $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")});
             }
             else{
                 return unless exists $base->{$space}{$content};
