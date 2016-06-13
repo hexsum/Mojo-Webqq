@@ -217,6 +217,13 @@ sub new {
         $self->model_status->{$type} = $status;
         $self->emit("model_update_fail") if $self->get_model_status == 0;
     });
+    $self->on(before_send_message=>sub{
+        my($self,$msg) = @_;
+        my $content = $msg->content;
+        $content =~s/>/＞/g;
+        $content =~s/</＜/g;
+        $msg->content($content);
+    });
     $self->on(send_message=>sub{
         my($self,$msg,$status)=@_;
         if($status->is_success){$self->send_failure_count(0);}

@@ -5,6 +5,7 @@ use Storable qw(retrieve nstore);
 sub call{
     my $client = shift;
     my $data = shift;
+    $data->{fuzzy} = 1 if not defined $data->{fuzzy};
     my $file = $data->{file} || './KnowledgeBase.dat';
     my $learn_command = defined $data->{learn_command}?quotemeta($data->{learn_command}):'learn|学习';
     my $delete_command = defined $data->{delete_command}?quotemeta($data->{delete_command}):'delete|del|删除';
@@ -58,10 +59,21 @@ sub call{
             my $content = $msg->content;
             $content =~s/^[a-zA-Z0-9_]+: ?// if $msg->msg_from eq "irc";
             my $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
-            return unless exists $base->{$space}{$content};
-            $msg->allow_plugin(0);
-            my $len = @{$base->{$space}{$content}};
-            $client->reply_message($msg,$base->{$space}{$content}->[int rand $len],sub{$_[1]->msg_from("bot")});
+            #return unless exists $base->{$space}{$content};
+            if($data->{fuzzy}){
+                for my $keyword (keys %{$base->{$space}}){
+                    next if not $content=~/\Q$keyword\E/;
+                    $msg->allow_plugin(0);
+                    my $len = @{$base->{$space}{$keyword}};
+                    $client->reply_message($msg,$base->{$space}{$keyword}->[int rand $len],sub{$_[1]->msg_from("bot")});
+                }
+            }
+            else{
+                return unless exists $base->{$space}{$content};
+                $msg->allow_plugin(0);
+                my $len = @{$base->{$space}{$content}};
+                $client->reply_message($msg,$base->{$space}{$content}->[int rand $len],sub{$_[1]->msg_from("bot")}); 
+            }
         }
     };
     $client->on(receive_message=>$callback);

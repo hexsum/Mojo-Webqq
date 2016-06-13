@@ -1419,6 +1419,7 @@ julia/lua/nim/ocaml/python
         delete_command =>'clear',      #自定义删除指令关键字
         learn_operator => [12345,678910], #允许学习权限的操作人qq号
         delete_operator => [12345,678910], #允许删除权限的操作人qq号
+        fuzzy       => 1, #是否进行模糊匹配，默认是 1
     });
 
 =head2 Mojo::Webqq::Plugin::FuckDaShen

@@ -112,7 +112,7 @@ sub load_cookie{
         return;
     }
     else{
-        $self->debug("客户端加载cookie[ $cookie_path ]");
+        $self->info("客户端加载cookie[ $cookie_path ]");
     }
     $self->ua->cookie_jar($cookie_jar);
 
