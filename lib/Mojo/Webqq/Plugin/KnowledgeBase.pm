@@ -61,12 +61,16 @@ sub call{
             my $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
             #return unless exists $base->{$space}{$content};
             if($data->{fuzzy}){
+                my @match_keyword;
                 for my $keyword (keys %{$base->{$space}}){
                     next if not $content=~/\Q$keyword\E/;
-                    $msg->allow_plugin(0);
-                    my $len = @{$base->{$space}{$keyword}};
-                    $client->reply_message($msg,$base->{$space}{$keyword}->[int rand $len],sub{$_[1]->msg_from("bot")});
+                    push @match_keyword,$keyword;
                 }
+                return if @match_keyword == 0;
+                $msg->allow_plugin(0);
+                my $keyword = $match_keyword[int rand @match_keyword];
+                my $len = @{$base->{$space}{$keyword}};
+                $client->reply_message($msg,$base->{$space}{$keyword}->[int rand $len],sub{$_[1]->msg_from("bot")});
             }
             else{
                 return unless exists $base->{$space}{$content};
