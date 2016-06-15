@@ -1405,9 +1405,11 @@ julia/lua/nim/ocaml/python
     learn 今天天气怎么样  天气很好
     学习  "你吃了吗"      当然吃了
     learn '哈哈 你真笨'   "就你聪明"
+    learn* "你吃了吗"      当然吃了 （指令结尾有*表示添加全局知识库，默认只添加到所在的群组或好友知识库中）
 
     del   今天天气怎么样
     删除  '哈哈 你真笨'
+    del*  今天天气怎么样  （删除全局知识库）
 
 其他更多参数设置
 
@@ -1421,6 +1423,36 @@ julia/lua/nim/ocaml/python
         delete_operator => [12345,678910], #允许删除权限的操作人qq号
         mode => 'fuzzy', # fuzzy|regex|exact 分别表示模糊|正则|精确, 默认模糊
     });
+
+=head2 Mojo::Webqq::Plugin::KnowledgeBase2
+
+使用方法和KnowledgeBase2基本完全一致，存在的差别：
+
+1）知识库采用文本文件形式，可编辑，格式如下
+    
+    分组空间（群名称)   匹配关键字（或正则表达式） 回复内容
+    __全局__            你好                       很高兴认识
+    __我的好友__        多谢                       不客气
+    我的群组1           今天天气怎么样             没有雨
+    我的群组1           今天天气怎么样             不知道
+    我的群组1           今天天气怎么样             自己百度 （相同关键字可以设置多行的回复内容，随机选取）
+    我的群组2           ^在吗(\?|)$                在呀，啥事
+    我的群组2           大(神|婶)                  大神你妹啊
+
+2）定时检查知识库变动，自动实时加载，插件中的check_time参数可以设置定时检测间隔
+
+    $client->load("KnowledgeBase",data=>{
+        allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
+        ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
+        file => './KnowledgeBase.txt', #数据库保存路径，纯文本形式，可以编辑
+        learn_command  => 'study',     #自定义学习指令关键字
+        delete_command =>'clear',      #自定义删除指令关键字
+        learn_operator => [12345,678910], #允许学习权限的操作人qq号
+        delete_operator => [12345,678910], #允许删除权限的操作人qq号
+        mode => 'fuzzy', # fuzzy|regex|exact 分别表示模糊|正则|精确, 默认模糊
+        check_time => 10, #默认10秒检查一次文件变更
+    });
+    
 
 =head2 Mojo::Webqq::Plugin::FuckDaShen
 
@@ -1589,7 +1621,8 @@ QQ群每日签到插件
         warn_limit      => 10,  #可选,达到该次数，会被警告
         ban_limit       => 12,  #可选,达到该次数会被列入黑名大不再进行回复
         period          => 600, #可选，限制周期，单位 秒
-        is_need_at       => 1,  #默认是1 是否需要艾特才触发回复
+        is_need_at      => 1,  #默认是1 是否需要艾特才触发回复
+        keyword         => [qw(小灰 小红 小猪)], #触发智能回复的关键字，使用时请设置is_need_at=>0
     });
 
 =head2 Mojo::Webqq::Plugin::Openqq

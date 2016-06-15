@@ -1,16 +1,55 @@
-package Mojo::Webqq::Plugin::KnowledgeBase;
-our $PRIORITY = 2;
+package Mojo::Webqq::Plugin::KnowledgeBase2;
+our $PRIORITY = 3;
 use List::Util qw(first);
-use Storable qw(retrieve nstore);
+sub retrieve_db {
+    my ($file) = @_;
+    my $db = {};
+    open my $fd,"<",$file or die $!;
+    while(<$fd>){
+        chomp;
+        my($space,$key,$content) = split;
+        push @{ $db->{$space}{$key} }, $content;
+    }
+    close $fd;
+    return $db;
+}
+sub store_db {
+    my($db,$file) = @_;
+    open my $fd,">",$file or die $!;
+    for my $space (keys %$db){
+        for my $key (keys %{$db->{$space}}){
+            #print $key,$space,join("|",@{$hash->{$space}{$key}});
+            for $answer (@{$db->{$space}{$key}}){
+                print $fd $space,"\t",$key,"\t",$answer,"\n";
+            }
+        }
+    }
+    close $fd;
+}
 sub call{
     my $client = shift;
     my $data = shift;
+    my ($file_size, $file_mtime);
     $data->{mode} = 'fuzzy' if not defined $data->{mode};
-    my $file = $data->{file} || './KnowledgeBase.dat';
+    my $file = $data->{file} || './KnowledgeBase.txt';
     my $learn_command = defined $data->{learn_command}?quotemeta($data->{learn_command}):'learn|学习';
     my $delete_command = defined $data->{delete_command}?quotemeta($data->{delete_command}):'delete|del|删除';
     my $base = {};
-    $base = retrieve($file) if -e $file;
+    if(-e $file){
+        ($file_size, $file_mtime) = (stat $file)[7, 9];
+        $base = retrieve_db($file);
+    }
+    $client->interval($data->{check_time} || 10,sub{
+        return if not -e $file;
+        return if not defined $file_size; 
+        return if not defined $file_mtime; 
+        my ($size, $mtime) = (stat $file)[7, 9]; 
+        if($size != $file_size or $mtime != $file_mtime){
+            $file_size = $size;
+            $file_mtime = $mtime;
+            $base = retrieve_db($file);        
+        }
+    });
     #$client->timer(120,sub{nstore $base,$file});
     my $callback = sub{
         my($client,$msg) = @_;
@@ -42,7 +81,8 @@ sub call{
             $a=~s/^\s+|\s+$//g;
             $a=~s/\\n/\n/g;
             push @{ $base->{$space}{$q} }, $a;
-            nstore($base,$file);
+            store_db($base,$file);
+            ($file_size, $file_mtime)= (stat $file)[7, 9];
             $client->reply_message($msg,"知识库[ $q →  $a ]" . ($space eq '__全局__'?"*":"") . "添加成功",sub{$_[1]->msg_from("bot")}); 
 
         }   
@@ -64,7 +104,8 @@ sub call{
                 $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
             }
             delete $base->{$space}{$q}; 
-            nstore($base,$file);
+            store_db($base,$file);
+            ($file_size, $file_mtime)= (stat $file)[7, 9];
             $client->reply_message($msg,"知识库[ $q ]". ($space eq '__全局__'?"*":"") . "删除成功"),sub{$_[1]->msg_from("bot")};
         }
         else{

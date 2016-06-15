@@ -30,6 +30,9 @@ sub call{
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
         return if $is_need_at and $msg->type eq "group_message" and !$msg->is_at;
+        if(ref $data->{keyword} eq "ARRAY"){
+            return if not first { $msg->content =~ /\Q$_\E/} @{$data->{keyword}};
+        }
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
