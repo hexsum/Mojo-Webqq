@@ -14,6 +14,8 @@ sub call{
     #$client->timer(120,sub{nstore $base,$file});
     my $callback = sub{
         my($client,$msg) = @_;
+        return if not $msg->allow_plugin;
+        return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
         return if $msg->type !~ /^message|group_message|dicsuss_message|sess_message$/;
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
@@ -68,7 +70,6 @@ sub call{
             $client->reply_message($msg,"知识库[ $q ]". ($space eq '__全局__'?"*":"") . "删除成功"),sub{$_[1]->msg_from("bot")};
         }
         else{
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $content = $msg->content;
             $content =~s/^[a-zA-Z0-9_]+: ?// if $msg->msg_from eq "irc";
             my $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;

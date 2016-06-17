@@ -2,25 +2,41 @@ package Mojo::Webqq::Plugin::KnowledgeBase2;
 our $PRIORITY = 3;
 use List::Util qw(first);
 sub retrieve_db {
-    my ($file) = @_;
-    my $db = {};
-    open my $fd,"<",$file or die $!;
+    my ($client,$db,$file) = @_;
+    my $new_db = {};
+    my $fd;
+    if(! open $fd,"<",$file){
+        $client->warn("无法加载知识库数据文件 $file : $!");
+        return;
+    }
     while(<$fd>){
-        chomp;
-        my($space,$key,$content) = split;
+        s/\r?\n$//;
+        my($space,$key,$content) = split /\s*(?<!\\)\|\s*/,$_,3;
+        next if not $space && $key && $content;
+        $content =~ s/(\\r)?\\n/\n/g;
+        $content =~ s/\\t/\t/g;
         push @{ $db->{$space}{$key} }, $content;
     }
     close $fd;
-    return $db;
+    $db = $new_db;
 }
 sub store_db {
-    my($db,$file) = @_;
-    open my $fd,">",$file or die $!;
+    my($client,$db,$file) = @_;
+    my $fd;
+    if(!open $fd,">",$file){
+        $client->warn("无法加载知识库数据文件 $file : $!");
+        return;
+    }
     for my $space (keys %$db){
         for my $key (keys %{$db->{$space}}){
             #print $key,$space,join("|",@{$hash->{$space}{$key}});
             for $answer (@{$db->{$space}{$key}}){
-                print $fd $space,"\t",$key,"\t",$answer,"\n";
+                my $key_n= $key;
+                my $answer_n = $answer;
+                $answer_n =~ s/\r?\n/\\n/g;
+                $answer_n =~ s/\t/\\t/g;
+                $answer_n =~ s/\|/\\|/g;
+                print $fd $space," | ",$key," | ",$answer_n,"\n";
             }
         }
     }
@@ -37,7 +53,7 @@ sub call{
     my $base = {};
     if(-e $file){
         ($file_size, $file_mtime) = (stat $file)[7, 9];
-        $base = retrieve_db($file);
+        retrieve_db($client,$base,$file);        
     }
     $client->interval($data->{check_time} || 10,sub{
         return if not -e $file;
@@ -47,12 +63,13 @@ sub call{
         if($size != $file_size or $mtime != $file_mtime){
             $file_size = $size;
             $file_mtime = $mtime;
-            $base = retrieve_db($file);        
+            retrieve_db($client,$base,$file);        
         }
     });
-    #$client->timer(120,sub{nstore $base,$file});
     my $callback = sub{
         my($client,$msg) = @_;
+        return if not $msg->allow_plugin;
+        return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
         return if $msg->type !~ /^message|group_message|dicsuss_message|sess_message$/;
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
@@ -81,7 +98,7 @@ sub call{
             $a=~s/^\s+|\s+$//g;
             $a=~s/\\n/\n/g;
             push @{ $base->{$space}{$q} }, $a;
-            store_db($base,$file);
+            store_db($client,$base,$file);
             ($file_size, $file_mtime)= (stat $file)[7, 9];
             $client->reply_message($msg,"知识库[ $q →  $a ]" . ($space eq '__全局__'?"*":"") . "添加成功",sub{$_[1]->msg_from("bot")}); 
 
@@ -104,12 +121,12 @@ sub call{
                 $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
             }
             delete $base->{$space}{$q}; 
-            store_db($base,$file);
+            store_db($client,$base,$file);
             ($file_size, $file_mtime)= (stat $file)[7, 9];
             $client->reply_message($msg,"知识库[ $q ]". ($space eq '__全局__'?"*":"") . "删除成功"),sub{$_[1]->msg_from("bot")};
         }
         else{
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+            #return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $content = $msg->content;
             $content =~s/^[a-zA-Z0-9_]+: ?// if $msg->msg_from eq "irc";
             my $space = $msg->type eq "message"?"__我的好友__":$msg->group->displayname;
