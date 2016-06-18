@@ -1,3 +1,11 @@
+2016-06-18 Mojo::Webqq v1.8.1
+1）Openqq插件新增/openqq/get_group_basic_info接口 感谢 @Your Vision 的建议
+2）新增群组签到的对象方法和签到插件: Qiandao
+3）README文档新增友情链接
+4）修复在某些特殊情况下（&nbsp;）无法正常获取好友和群组qq号码的问题 感谢 @Your Vision 的测试反馈
+5）对大于号小于号被转义成&gt;/&lt;的问题进行了全角替代处理
+6）知识库插件完善，支持精确|模糊|正则 三种模式，新增KnowledgeBase2插件，可编辑文本知识库
+
 2016-05-30 Mojo::Webqq v1.8.0
 1）新增Docker.md文档
 2）Makefile.PL 增加如下依赖模块 Time::Piece、Time::Seconds
