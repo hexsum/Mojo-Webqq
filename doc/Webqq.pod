@@ -1442,7 +1442,7 @@ julia/lua/nim/ocaml/python
 
 2）定时检查知识库变动，自动实时加载，插件中的check_time参数可以设置定时检测间隔
 
-    $client->load("KnowledgeBase",data=>{
+    $client->load("KnowledgeBase2",data=>{
         allow_group => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
         ban_group   => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
         file => './KnowledgeBase.txt', #数据库保存路径，纯文本形式，可以编辑
