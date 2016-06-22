@@ -232,6 +232,21 @@ sub new {
             $self->relogin();
         }
     });
+    $self->on(send_message=>sub{
+        my($self,$msg)=@_;
+        return unless $msg->type =~/^message|sess_message$/;
+        $self->add_recent($msg->receiver);
+    });
+    $self->on(receive_message=>sub{
+        my($self,$msg)=@_;
+        return unless $msg->type =~/^message|sess_message$/;
+        my $sender_id = $msg->sender->id;
+        $self->add_recent($msg->sender);
+        unless(exists $self->data->{first_talk}{$sender_id}) {
+            $self->data->{first_talk}{$sender_id}++;
+            $self->emit(first_talk=>$msg->sender,$msg);
+        }
+    });
     $self->on(new_group=>sub{
         my($self,$group)=@_;
         $self->update_group($group,is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>1);

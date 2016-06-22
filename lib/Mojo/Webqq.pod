@@ -1010,7 +1010,7 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 =head2 input_qrcode 等待扫描二维码
 
-登录需要扫描二维码，参数分别为二维码文件的本地路径，二维码原始下载地址
+登录需要扫描二维码，参数分别为二维码文件的本地路径
 
 =head2 ready 准备就绪
 

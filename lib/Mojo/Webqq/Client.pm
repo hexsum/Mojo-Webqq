@@ -72,21 +72,6 @@ sub ready{
 
     $self->relogin() if $self->get_model_status() == 0;
 
-    $self->on(send_message=>sub{
-        my($self,$msg)=@_;
-        return unless $msg->type =~/^message|sess_message$/;
-        $self->add_recent($msg->receiver);
-    });
-    $self->on(receive_message=>sub{
-        my($self,$msg)=@_;
-        return unless $msg->type =~/^message|sess_message$/;
-        my $sender_id = $msg->sender->id;
-        $self->add_recent($msg->sender);
-        unless(exists $self->data->{first_talk}{$sender_id}) {
-            $self->data->{first_talk}{$sender_id}++;
-            $self->emit(first_talk=>$msg->sender,$msg);
-        }
-    });   
     $self->interval(3600*4,sub{$self->data(+{})});
     $self->interval(900,sub{
         $self->debug("检查数据完整性...");
