@@ -11,7 +11,7 @@ sub retrieve_db {
     }
     while(<$fd>){
         s/\r?\n$//;
-        my($space,$key,$content) = split /\s*(?<!\\)\|\s*/,$_,3;
+        my($space,$key,$content) = split /\s*(?<!\\)#\s*/,$_,3;
         next if not $space && $key && $content;
         $content =~ s/(\\r)?\\n/\n/g;
         $content =~ s/\\t/\t/g;
@@ -36,7 +36,7 @@ sub store_db {
                 $answer_n =~ s/\r?\n/\\n/g;
                 $answer_n =~ s/\t/\\t/g;
                 $answer_n =~ s/\|/\\|/g;
-                print $fd $space," | ",$key," | ",$answer_n,"\n";
+                print $fd $space," # ",$key," # ",$answer_n,"\n";
             }
         }
     }
@@ -149,7 +149,7 @@ sub call{
                 my $keyword = $match_keyword[int rand @match_keyword];
                 my $len = @{$base->{$space}{$keyword}};
                 my $reply = $base->{$space}{$keyword}->[int rand $len];
-                $reply .= "\n--匹配模式『$keyword』" . ($space eq '__全局__'?"*":"");
+                $reply .= "\n--匹配模式『$keyword』" . ($space eq '__全局__'?"*":"") if $data->{show_keyword};
                 $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")});
             }
             elsif($data->{mode} eq 'fuzzy'){
@@ -170,7 +170,7 @@ sub call{
                 my $keyword = $match_keyword[int rand @match_keyword];
                 my $len = @{$base->{$space}{$keyword}};
                 my $reply = $base->{$space}{$keyword}->[int rand $len];
-                $reply .= "\n--匹配关键字『$keyword』" . ($space eq '__全局__'?"*":"");
+                $reply .= "\n--匹配关键字『$keyword』" . ($space eq '__全局__'?"*":"") if $data->{show_keyword};
                 $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")});
             }
             else{
