@@ -299,7 +299,8 @@ sub login {
             $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
             $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if $self->is_init_discuss;
             $self->update_recent(is_blocking=>1) if $self->is_init_recent;
-            $self->emit("login");
+            #$self->emit("login");
+            $delay?$self->emit("login"):$self->once(after_load_plugin=>sub{$self->emit("login")});
         }
     };
     $delay?$self->on(after_load_plugin=>$callback):$callback->();

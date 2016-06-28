@@ -9,9 +9,11 @@ sub decode_json{
     };
     if($@){
         $self->warn($@);
+        $self->warn(__PACKAGE__ . "::decode_json return undef value");
         return undef;
     }
     else{
+        $self->warn(__PACKAGE__ . "::decode_json return undef value") if not defined $r;
         return $r;
     }
 }
@@ -22,13 +24,14 @@ sub encode_json{
     };
     if($@){
         $self->warn($@);
+        $self->warn(__PACKAGE__ . "encode_json return undef value") if not defined $r;
         return undef;
     }
     else{
+        $self->warn(__PACKAGE__ . "encode_json return undef value") if not defined $r;
         return $r;
     }
 }
-
 sub truncate {
     my $self = shift;
     my $out_and_err = shift || '';

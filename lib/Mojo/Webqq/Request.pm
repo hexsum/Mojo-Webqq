@@ -47,15 +47,11 @@ sub _http_request{
             }
             $self->save_cookie();
             if(defined $tx and $tx->success){
-                my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
-                if($@){
-                    $self->warn($@);
-                    $cb->(undef,$ua,$tx);
-                }
-                else{$cb->($r,$ua,$tx);}
+                my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;
+                $cb->($r,$ua,$tx);
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $tx->error->{message});
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . encode("utf8",$tx->error->{message}));
                 $cb->(undef,$ua,$tx);
             }
         });
@@ -77,21 +73,15 @@ sub _http_request{
             }
             $self->save_cookie();
             if(defined $tx and $tx->success){
-                my $r = eval{$opt{json}?$tx->res->json:$tx->res->body;};
-                if($@){
-                    $self->warn($@);
-                    next;
-                }
-                else{
-                    return wantarray?($r,$self->ua,$tx):$r;
-                }
+                my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;
+                return wantarray?($r,$self->ua,$tx):$r;
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . $tx->error->{message});
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . encode("utf8",$tx->error->{message}));
                 next;
             }
         }
-        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $tx->error->{message}) if defined $tx;
+        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . encode("utf8",$tx->error->{message})) if defined $tx;
         return wantarray?(undef,$self->ua,$tx):undef;
     }
 }

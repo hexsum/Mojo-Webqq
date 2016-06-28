@@ -1426,7 +1426,7 @@ julia/lua/nim/ocaml/python
 
 =head2 Mojo::Webqq::Plugin::KnowledgeBase2
 
-使用方法和KnowledgeBase2基本完全一致，存在的差别：
+使用方法和KnowledgeBase基本完全一致，存在的差别：
 
 1）知识库采用文本文件形式，可编辑，格式如下：
 
