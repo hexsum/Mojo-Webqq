@@ -237,6 +237,9 @@ Mojo-Webqq v1.8.1 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 *Python*
 * [SmartQQBot](https://github.com/Yinzo/SmartQQBot) 基于SmartQQ的自动机器人框架
 
+*Java*
+* [smartqq](https://github.com/ScienJus/smartqq) SmartQQ（WebQQ）的Api ，你可以用它实现自己的QQ 机器人
+
 ###COPYRIGHT 和 LICENCE
 
 Copyright (C) 2014 by sjdy521
