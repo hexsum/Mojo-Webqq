@@ -1,5 +1,6 @@
 Mojo-Webqq v1.8.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq)
 ========================
+
 使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
 
 ###郑重声明
@@ -234,6 +235,9 @@ Mojo-Webqq v1.8.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 *Python*
 * [SmartQQBot](https://github.com/Yinzo/SmartQQBot) 基于SmartQQ的自动机器人框架
+
+*Java*
+* [smartqq](https://github.com/ScienJus/smartqq) SmartQQ（WebQQ）的Api ，你可以用它实现自己的QQ 机器人
 
 ###COPYRIGHT 和 LICENCE
 
