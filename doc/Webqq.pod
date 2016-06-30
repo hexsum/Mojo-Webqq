@@ -39,9 +39,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
         login_type  =>  "qrlogin", #"qrlogin"表示二维码登录，"login"表示帐号密码登录
     );
     #注意: 腾讯可能已经关闭了帐号密码的登录方式，这种情况下只能使用二维码扫描登录
-
-    #客户端进行登录
-    $client->login(); #请关闭帐号的密保功能，不支持密保登录
+    #请关闭帐号的密保功能，不支持密保登录
 
     #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
     $client->load("ShowMsg");
@@ -593,7 +591,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     
     delay  可选,0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录,默认值为0
 
-注意：如果使用帐号密码的登录方式，需要依赖L<Webqq::Encryption>模块
+注意：程序会自动调用该方法，一般情况下你不需要自己调用，如果使用帐号密码的登录方式，需要依赖L<Webqq::Encryption>模块
 
 推荐安装L<Crypt::RSA> 或者 L<Crypt::OpenSSL::RSA> + L<Crypt::OpenSSL::Bignum>模块
 
@@ -637,8 +635,8 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     my $client1 = Mojo::Webqq->new(qq=>xxx1);
     my $client2 = Mojo::Webqq->new(qq=>xxx2);
     
-    $client1->login();
-    $client2->login();
+    $client1->load("ShowMsg");
+    $client2->load("ShowMsg");
     
     $client1->ready;
     $client2->ready;
@@ -1492,10 +1490,7 @@ julia/lua/nim/ocaml/python
 
 调用系统的图片查看程序来展示二维码图片，方便扫描，作者 autodataming L<https://github.com/autodataming>
 
-    $client->load("ShowQRcode");#当前仅支持win,并且需要在调用$client->login()方法之前加载
-    $client->login();
-    $client->load("ShowMsg");
-    ...;
+    $client->load("ShowQRcode");#当前仅支持win
     
 =head2 Mojo::Webqq::Plugin::GasPrice
 
@@ -1564,8 +1559,6 @@ QQ群每日签到插件
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到login()方法执行过程中触发的input_qrcode事件，因此需要在login()执行之前加载
-    #插件自身设置了call_on_load=>1，因此会在加载后马上执行
     $client->load("PostQRcode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
@@ -1574,8 +1567,6 @@ QQ群每日签到插件
         user    =>  'xxxx', #smtp登录帐号
         pass    =>  'xxxx', #smtp登录密码
     });
-    $client->login();
-    ...;
 
     收到的邮件内容如下：
 
@@ -1590,8 +1581,6 @@ QQ群每日签到插件
 
 注意： 由于需要发送邮件附件，依赖模块 L<Mojo::SMTP::Client> L<MIME::Lite>，需要单独安装
 
-    #插件需要使用到login()方法执行过程中触发的input_img_verifycode事件，因此需要在login()执行之前加载
-    #插件自身设置了call_on_load=>1，因此会在加载后马上执行
     $client->load("PostImgVerifycode",data=>{
         smtp    =>  'xxxx', #邮箱的smtp地址  
         port    =>  'xxxx', #smtp服务器端口，默认25
@@ -1602,8 +1591,6 @@ QQ群每日签到插件
         post_host => 'xxx.xxx.xxx.xxx' , #本机公网IP地址，需要远程访问
         post_port => 'xxxx'            , #提交验证码的链接地址中使用的端口，默认1987
     });
-    $client->login();
-    ...;
 
     收到的邮件内容如下：
 

@@ -27,9 +27,6 @@ my $client=Mojo::Webqq->new(
 );
 #注意: 腾讯可能已经关闭了帐号密码的登录方式，这种情况下只能使用二维码扫描登录
 
-#客户端进行登录
-$client->login();
-
 #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
 $client->load("ShowMsg");
 

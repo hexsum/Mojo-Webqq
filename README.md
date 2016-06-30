@@ -171,7 +171,6 @@ Mojo-Webqq v1.8.1 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         #$post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
         
         my $client = Mojo::Webqq->new(qq=>$qq);
-        $client->login();
         $client->load("ShowMsg");
         $client->load("Openqq",data=>{listen=>[{host=>$host,port=>$port}], post_api=>$post_api});
         $client->run();

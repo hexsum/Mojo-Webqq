@@ -39,9 +39,6 @@ user    =>  'xxx@xxx.com', #smtp登录帐号
 pass    =>  'xxxxx', #smtp登录密码
 });
 
-#客户端进行登录
-$client->login();
-
 #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
 $client->load("ShowMsg");
 

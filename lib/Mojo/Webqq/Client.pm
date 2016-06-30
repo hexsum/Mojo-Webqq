@@ -69,7 +69,7 @@ sub ready{
         $self->call($_);
     }
     $self->emit("after_load_plugin");
-
+    $self->login() if $self->login_state ne 'success';
     $self->relogin() if $self->get_model_status() == 0;
 
     $self->interval(3600*4,sub{$self->data(+{})});
@@ -217,7 +217,9 @@ sub relink {
 }
 sub login {
     my $self = shift;
+    return if $self->login_state eq 'success';
     my %p = @_;
+    my $is_scan  = 0;
     $self->qq($p{qq}) if defined $p{qq};
     $self->pwd($p{pwd}) if defined $p{pwd};
     my $delay = defined $p{delay}?$p{delay}:0;
@@ -227,83 +229,81 @@ sub login {
     elsif($self->is_first_login == 1){
         $self->is_first_login(0);
     }
-    my $callback = sub{
-        if($self->is_first_login){
-            $self->load_cookie();
-            my $ptwebqq = $self->search_cookie("ptwebqq");
-            my $skey = $self->search_cookie("skey");
-            $self->ptwebqq($ptwebqq) if defined $ptwebqq;
-            $self->skey($skey) if defined $skey;
+    if($self->is_first_login){
+        $self->load_cookie();
+        my $ptwebqq = $self->search_cookie("ptwebqq");
+        my $skey = $self->search_cookie("skey");
+        $self->ptwebqq($ptwebqq) if defined $ptwebqq;
+        $self->skey($skey) if defined $skey;
+    }
+    if(defined $self->ptwebqq and defined $self->skey){
+        $self->info("检测到最近登录活动，尝试直接恢复登录...");
+        if(not $self->_get_vfwebqq() && $self->_login2()){
+            $self->relogin();
+            return;
         }
-        if(defined $self->ptwebqq and defined $self->skey){
-            $self->info("检测到最近登录活动，尝试直接恢复登录...");
-            if(not $self->_get_vfwebqq() && $self->_login2()){
+        $is_scan = 0;
+    } 
+    elsif(
+        $self->_prepare_for_login()    
+        && $self->_check_verify_code()     
+        && $self->_get_img_verify_code()
+        && $self->_get_qrlogin_pic()
+
+    ){
+        while(1){
+            my $ret = $self->_login1();
+            if($ret == -1){#验证码输入错误
+                $self->_get_img_verify_code();
+                next;
+            }
+            elsif($ret == -2){#帐号或密码错误
+                $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
+                $self->encrypt_method("js");
                 $self->relogin();
                 return;
             }
-        } 
-        elsif(
-            $self->_prepare_for_login()    
-            && $self->_check_verify_code()     
-            && $self->_get_img_verify_code()
-            && $self->_get_qrlogin_pic()
-
-        ){
-            while(1){
-                my $ret = $self->_login1();
-                if($ret == -1){#验证码输入错误
-                    $self->_get_img_verify_code();
-                    next;
-                }
-                elsif($ret == -2){#帐号或密码错误
-                    $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
-                    $self->encrypt_method("js");
-                    $self->relogin();
-                    return;
-                }
-                elsif($ret == -4 ){#等待二维码扫描
-                    sleep 3;
-                    next;
-                }
-                elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
-                    sleep 3;
-                    next;
-                }
-                elsif($ret == -6){#二维码已经过期，重新下载二维码
-                    $self->emit("qrcode_expire");
-                    $self->_get_qrlogin_pic();
-                    next;
-                }
-                elsif($ret == 1){#登录成功
-                    $self->_check_sig() 
-                    && $self->_get_vfwebqq()
-                    && $self->_login2();
-                    last;
-                }
-                else{
-                    last;
-                }
+            elsif($ret == -4 ){#等待二维码扫描
+                sleep 3;
+                next;
+            }
+            elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
+                sleep 3;
+                next;
+            }
+            elsif($ret == -6){#二维码已经过期，重新下载二维码
+                $self->emit("qrcode_expire");
+                $self->_get_qrlogin_pic();
+                next;
+            }
+            elsif($ret == 1){#登录成功
+                $is_scan = 1;
+                $self->_check_sig() 
+                && $self->_get_vfwebqq()
+                && $self->_login2();
+                last;
+            }
+            else{
+                last;
             }
         }
+    }
 
-        #登录不成功，客户端退出运行
-        if($self->login_state ne 'success'){
-            $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）");
-            $self->stop();
-        }
-        else{
-            $self->qrcode_count(0);
-            $self->info("帐号(" . $self->qq . ")登录成功");
-            $self->update_user;
-            $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
-            $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
-            $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if $self->is_init_discuss;
-            $self->update_recent(is_blocking=>1) if $self->is_init_recent;
-            #$self->emit("login");
-            $delay?$self->emit("login"):$self->once(after_load_plugin=>sub{$self->emit("login")});
-        }
-    };
-    $delay?$self->on(after_load_plugin=>$callback):$callback->();
+    #登录不成功，客户端退出运行
+    if($self->login_state ne 'success'){
+        $self->fatal("登录失败，客户端退出（可能网络不稳定，请多尝试几次）");
+        $self->stop();
+    }
+    else{
+        $self->qrcode_count(0);
+        $self->info("帐号(" . $self->qq . ")登录成功");
+        $self->update_user;
+        $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
+        $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
+        $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if $self->is_init_discuss;
+        $self->update_recent(is_blocking=>1) if $self->is_init_recent;
+        $self->emit("login",$is_scan);
+    }
     return $self;
 }
 

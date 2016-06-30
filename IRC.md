@@ -37,7 +37,6 @@
 use Mojo::Webqq;
 my $qq = 12345678;    #修改为你自己的实际QQ号码
 my $client = Mojo::Webqq->new(qq=>$qq);
-$client->login();
 $client->load("ShowMsg");
 $client->load("IRCShell"); #加载IRCShell插件
 $client->run();

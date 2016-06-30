@@ -23,6 +23,6 @@ sub call {
         for(@groups){$_->qiandao()}
     };
     $client->on(login=>$callback) if $data->{is_qiandao_on_login};
-    $client->add_job("QQ群每日签到",$data->{qiandao_time} || "09:30",$callback);
+    $client->add_job("Qiandao",$data->{qiandao_time} || "09:30",$callback);
 }
 1;
