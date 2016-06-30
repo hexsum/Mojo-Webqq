@@ -1,3 +1,11 @@
+2016-06-30 Mojo::Webqq v1.8.2
+1）取消input_qrcode事件中的二维码原始url参数，因为直接访问这个url获取到的二维码是无效的 感谢 @尘 的反馈
+2）修复文档错误 感谢 @蓝海 反馈
+3）FuckDaShen插件去掉"你妹啊"的不文明用语 感谢 @mu 反馈
+4）KnowledgeBase2插件的知识库分隔符改为井号'#'，现在show_keyword参数用于控制是否打印触发的关键字信息 感谢@hzz1989 @尘
+5）对于http获取json数据失败给与警告信息
+6）去掉显式的login方法调用
+
 2016-06-18 Mojo::Webqq v1.8.1
 1）Openqq插件新增/openqq/get_group_basic_info接口 感谢 @Your Vision 的建议
 2）新增群组签到的对象方法和签到插件: Qiandao

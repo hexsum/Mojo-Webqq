@@ -22,7 +22,7 @@ sub call{
             $client->stop();
             return 
         }
-        $data->{subject} = "QQ帐号 " . $client->qq . " 扫描二维码" if not defined $data->{subject};
+        $data->{subject} = "QQ帐号" . (defined $client->qq?$client->qq:'') . "扫描二维码" if not defined $data->{subject};
         my $mime = MIME::Lite->new(
             Type    => 'multipart/mixed',
             From    => $data->{from},

@@ -587,9 +587,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
 客户端登录
 
-    $client->login([delay=>0|1]);    
-    
-    delay  可选,0表示不延迟，立即登录 1表示在after_load_plugin事件触发后登录，即全部插件加载完毕后再执行登录,默认值为0
+    $client->login();    
 
 注意：程序会自动调用该方法，一般情况下你不需要自己调用，如果使用帐号密码的登录方式，需要依赖L<Webqq::Encryption>模块
 
@@ -996,7 +994,13 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 =head2 login 登录成功事件
 
-登录完成时触发事件，无额外的回调参数
+登录完成时触发事件
+
+    $client->on(login=>sub{
+        my($client,$is_scan) = @_;
+        #$is_scan   值为1表示本次登录是扫描二维码登录的 好友，群组对象的id可能会发生变化
+        #           值为0表示本次登录是使用cookie直接恢复登录，未经过二维码扫描，对象id一般不会发生变化
+    });
 
 =head2 relogin 重新登录成功事件
 
