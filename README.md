@@ -36,7 +36,7 @@ Mojo-Webqq v1.8.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###效果展示
 
-敲一行命令就能启动一个智能聊天机器人，Perl 和你都如此优雅
+敲一行命令就能启动一个智能聊天机器人，Perl 和你都如此优雅. Enjoy!
 
     perl -MMojo::Webqq -e "Mojo::Webqq->new->load('ShowMsg')->load('SmartReply')->run()"
 
