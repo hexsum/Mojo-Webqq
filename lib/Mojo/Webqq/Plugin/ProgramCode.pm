@@ -140,9 +140,10 @@ sub call{
             }
             my %r = (
                 files   =>      [{name=>decode("utf8",$filename),content=>decode("utf8",$code)}],
-                command =>      ""
+                command =>      "",
+                stdin   =>      "",
             );
-            $client->http_post($url,{json => 1,Referer => "https://glot.io/new/$language"},json=>\%r,sub{
+            $client->http_post($url,{json => 1,Referer => "https://glot.io/run/$language?version=latest"},json=>\%r,sub{
                 my $json = shift;
                 return unless defined $json;
                 if ($json->{stdout}) {
