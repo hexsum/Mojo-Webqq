@@ -95,7 +95,7 @@ Mojo-Webqq v1.8.2 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ![IRCShell](screenshot/IRCShell.png)
 
-###IT男装逼利器：如何像黑客一样聊天
+###IT男装逼利器：如何像黑客一样聊天（图片来自 @動感光波）
 
 ![如何像黑客一样聊天](screenshot/How_to_chat_like_a_hacker.jpg)
 
