@@ -1,3 +1,8 @@
+2016-07-07 Mojo::Webqq v1.8.3
+1）new方法中新增ignore_1202参数，对发送消息返回状态码1202添加配置项进行选择性处理
+2）修复ProgramCode不可用的错误
+3）修复 “undefined subroutine &Mojo::Webqq::Request::encode” 的bug
+
 2016-06-30 Mojo::Webqq v1.8.2
 1）取消input_qrcode事件中的二维码原始url参数，因为直接访问这个url获取到的二维码是无效的 感谢 @尘 的反馈
 2）修复文档错误 感谢 @蓝海 反馈
