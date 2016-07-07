@@ -23,6 +23,7 @@ has log_level           => 'info';     #debug|info|warn|error|fatal
 has log_path            => undef;
 has log_encoding        => undef;      #utf8|gbk|...
 has email               => undef;
+has ignore_1202         => 1;           #对发送消息返回状态码1202是否认为发送失败
 
 has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
 has is_init_group          => 1;                            #是否在首次登录时初始化群组信息
