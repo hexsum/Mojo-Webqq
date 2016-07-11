@@ -569,6 +569,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     is_update_group     #是否定期更新群组信息，默认值 1
     is_update_friend    #是否定期更新好友信息，默认值 1
     is_update_discuss   #是否定期更新讨论组信息，默认值 1
+    update_interval     #定时更新群组、好友、讨论组等信息的时间间隔，默认600秒
 
     msg_ttl             #发送失败的消息，重试次数，默认是5
 
