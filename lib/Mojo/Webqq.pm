@@ -34,6 +34,7 @@ has is_update_user          => 0;                            #是否定期更新
 has is_update_group         => 1;                            #是否定期更新群组信息
 has is_update_friend        => 1;                            #是否定期更新好友信息
 has is_update_discuss       => 1;                            #是否定期更新讨论组信息
+has update_interval         => 600;                          #定期更新的时间间隔
 
 has encrypt_method      => "perl";     #perl|js
 has tmpdir              => sub {File::Spec->tmpdir();};

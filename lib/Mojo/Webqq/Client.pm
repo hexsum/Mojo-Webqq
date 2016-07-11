@@ -133,14 +133,14 @@ sub ready{
         }
         
     });
-    $self->interval(600,sub{
+    $self->interval($self->update_interval || 600,sub{
         return if $self->is_stop;
         return if not $self->is_update_group;
         $self->update_group(is_blocking=>0,is_update_group_ext=>0,is_update_group_member=>1,is_update_group_member_ext=>0);
     });
 
     $self->timer(60,sub{
-        $self->interval(600,sub{
+        $self->interval($self->update_interval || 600,sub{
             return if $self->is_stop;
             return if not $self->is_update_discuss;
             $self->update_discuss(is_blocking=>0,is_update_discuss_member=>1);    
@@ -148,7 +148,7 @@ sub ready{
     });
 
     $self->timer(60+60,sub{
-        $self->interval(600,sub{
+        $self->interval($self->update_interval || 600,sub{
             return if $self->is_stop;
             return if not $self->is_update_friend;
             $self->update_friend(is_blocking=>0,is_update_friend_ext=>0);
@@ -156,7 +156,7 @@ sub ready{
     });
 
     $self->timer(60+60+60,sub{
-        $self->interval(600,sub{
+        $self->interval($self->update_interval || 600,sub{
             return if $self->is_stop;
             return if not $self->is_update_user;
             $self->update_user(is_blocking=>0);
