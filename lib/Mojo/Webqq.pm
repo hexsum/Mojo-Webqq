@@ -100,9 +100,11 @@ has poll_failure_count_max  => 3;
 has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
     require Mojo::UserAgent;
+    require Mojo::UserAgent::Proxy;
     #local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug; 
     require Storable if $_[0]->keep_cookie;
     Mojo::UserAgent->new(
+        proxy              => sub{ my $proxy = Mojo::UserAgent::Proxy->new;$proxy->detect;$proxy}->(),
         max_redirects      => 7,
         request_timeout    => 120,
         inactivity_timeout => 120,
