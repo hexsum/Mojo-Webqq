@@ -37,7 +37,7 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
     my $filename_for_log = encode("utf8",decode(locale_fs,$self->qrcode_path));
     #$self->info("二维码已下载到本地[ $filename_for_log ]\n二维码原始下载地址[ $url ]");
     $self->info("二维码已下载到本地[ $filename_for_log ]");
-    $self->emit(input_qrcode=>$self->qrcode_path,$url);
+    $self->emit(input_qrcode=>$self->qrcode_path,$data);
     return 1;
 }
 1;
