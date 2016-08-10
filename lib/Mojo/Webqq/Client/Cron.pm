@@ -33,6 +33,7 @@ sub add_job{
         $second = 0 if not defined $second ;
         $time = {hour => $hour,minute => $minute,second=> $second};
     }
+    $self->debug("计划任务[$type]添加成功，时间设定: " . join(":",map {$_!=0?$_:"00"} ($time->{hour},$time->{minute},$time->{second})) );
     my $delay;
     #my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     my @now = localtime;
@@ -70,7 +71,7 @@ sub add_job{
         }        
     }    
     
-    $self->debug("[$type]下一次触发时间为：" . $next->strftime("%Y/%m/%d %H:%M:%S")); 
+    $self->debug("计划任务[$type]下一次触发时间为：" . $next->strftime("%Y/%m/%d %H:%M:%S")); 
     $delay = $next - $now;
     $self->timer($delay,sub{
         eval{

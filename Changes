@@ -1,3 +1,8 @@
+2016-08-10 Mojo::Webqq v1.8.4
+1）new方法增加update_interval参数 默认600秒，用于控制客户端定时更新频率
+2）支持自动检测系统的代理设置（通过环境变量 HTTP_PROXY/HTTPS_PROXY) 感谢 @linux0ne 反馈
+3）input_qrcode事件参数中增加原始二维码数据
+
 2016-07-07 Mojo::Webqq v1.8.3
 1）new方法中新增ignore_1202参数，对发送消息返回状态码1202添加配置项进行选择性处理
 2）修复ProgramCode不可用的错误
