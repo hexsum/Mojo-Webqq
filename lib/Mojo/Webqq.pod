@@ -1295,16 +1295,20 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 需要依赖模块 L<Mojo::IRC::Server::Chinese>
 
-    $client->load("IRCShell",data=>{listen=>[ {host=>"127.0.0.1",port=>6667} ] } );#开启本地的irc server
+    $client->load("IRCShell",data=>{
+        listen=>[ {host=>"127.0.0.1",port=>6667},], #可选，IRC服务器监听的地址+端口，默认0.0.0.0:6667
+        load_friend => 1, #默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
+    });
     #支持的参数包括：
-    host                #默认0.0.0.0
-    port                #默认6667
+    listen              #监听的地址和端口，数组的形式来支持多个地址
+                        # listen=>[ {host=>"127.0.0.1",port=>6667}, {host=>"127.0.0.1",port=>6668}]
+                        # 表示监听127.0.0.1:6667和 127.0.0.1:6668两个端口
     master_irc_user     #和qq匹配的irc user帐号，默认按照和qq号相同的user或者客户端ip是本机地址作为识别规则
     load_friend         #0|1 默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
     image_api           #兼容elimage图床api地址，将qq图片转为连接，方便在irc上查看图片，默认没有启用
                         #推荐依云的elimage http://img.vim-cn.com/
 
-qq好友会默认加入到irc的 '#我的好友' 频道中
+当设置了 load_friend =>1 参数，qq好友会默认加入到irc的 '#我的好友' 频道中
 
 每个qq群也会在irc上创建对应的频道，比如qq群[PERL学习交流]对应的irc频道为'#PERL学习交流'
 
