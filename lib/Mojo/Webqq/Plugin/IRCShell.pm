@@ -136,6 +136,7 @@ sub call{
         $ircd->remove_channel($_) for values %delete_channel;
     };
     $client->on(ready=>sub{
+        $master_irc_user = $data->{master_irc_user} || $client->qq;
         $callback->();
         $client->on(login=>$callback);
     });
