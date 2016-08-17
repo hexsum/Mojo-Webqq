@@ -259,6 +259,12 @@ Mojo-Webqq v1.8.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 *Java*
 * [smartqq](https://github.com/ScienJus/smartqq) SmartQQ（WebQQ）的Api ，你可以用它实现自己的QQ 机器人
 
+###捐赠奖励
+
+可以通过扫描支付宝付款二维码进行捐助，感谢您的支持和鼓励
+
+![donate](screenshot/donate.png)
+
 ###COPYRIGHT 和 LICENCE
 
 Copyright (C) 2014 by sjdy521
