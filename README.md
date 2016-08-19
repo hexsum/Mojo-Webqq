@@ -125,7 +125,7 @@ Mojo-Webqq v1.8.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   
     已经包含perl-5.22+cpanm+Mojo-Webqq+Mojo-Weixin的完整运行环境，适用于linux x86_64系统，并且系统glibc 2.15+
     
-    [Mojo-StrawberryPerl](https://github.com/sjdy521/Mojo-StrawberryPerl)是 **@那谁** 基于StrawberryPerl精简打包而成
+    [Mojo-StrawberryPerl](https://github.com/sjdy521/Mojo-StrawberryPerl)是网友 **@那谁** 基于StrawberryPerl精简打包而成
     
     已经包含perl-5.24+cpanm+Mojo-Webqq+Mojo-Weixin的完整运行环境，适用于windows 32位/64位系统
     
