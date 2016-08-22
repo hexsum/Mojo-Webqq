@@ -165,7 +165,7 @@ sub ready{
 
     #接收消息
     $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
-    $self->info("开始接收消息...\n");
+    $self->info("开始接收消息...");
     $self->_recv_message();
     $self->is_ready(1);
     $self->emit("ready");
@@ -182,6 +182,14 @@ sub interval{
 sub relogin{
     my $self = shift;
     $self->info("正在重新登录...\n");
+    if(defined $self->poll_connection_id){
+        eval{
+            $self->ioloop->remove($self->poll_connection_id);
+            $self->is_polling(0);
+            $self->info("停止接收消息...");
+        };
+        $self->info("停止接收消息失败: $@") if $@;
+    }
     $self->logout();
     $self->login_state("relogin");
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
@@ -202,6 +210,8 @@ sub relogin{
     $self->model_status(+{});
 
     $self->login(delay=>0);
+    $self->info("重新开始接收消息...");
+    $self->_recv_message();
     $self->emit("relogin");
 }
 sub relink {

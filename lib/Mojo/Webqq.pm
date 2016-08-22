@@ -87,6 +87,7 @@ has id_to_qq_cache => sub {Mojo::Webqq::Cache->new};
 
 has is_stop                 => 0;
 has is_ready                => 0;
+has is_polling              => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
 has is_set_qq               => 0; #是否在初始化时设置qq参数
@@ -97,6 +98,7 @@ has send_failure_count      => 0;
 has send_failure_count_max  => 5;
 has poll_failure_count      => 0;
 has poll_failure_count_max  => 3;
+has poll_connection_id      => undef;
 has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
     require Mojo::UserAgent;

@@ -33,14 +33,14 @@ sub _http_request{
     }
     if(ref $_[-1] eq "CODE"){
         my $cb = pop;
-        $self->ua->$method(@_,sub{
+        return $self->ua->$method(@_,sub{
             my($ua,$tx) = @_;
             if($self->ua_debug){
                 $self->print("-- Non-blocking request (@{[$tx->req->url->to_abs]})\n");
                 $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
                 my $content_type = eval {$tx->res->headers->content_type};
-                if(defined $content_type and $content_type =~m#^image/|^application/octet-stream#){
-                    $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n");
+                if(defined $content_type and $content_type =~m#^(image|video|auido)/|^application/octet-stream#){
+                    $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[binary data not shown]");
                 }
                 else{
                     $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n");
@@ -65,8 +65,8 @@ sub _http_request{
                 $self->print("-- Blocking request (@{[$tx->req->url->to_abs]})\n");
                 $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
                 my $content_type = eval {$tx->res->headers->content_type};
-                if(defined $content_type and $content_type =~m#^image/|^application/octet-stream#){
-                    $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n");
+                if(defined $content_type and $content_type =~m#^(image|video|audio)/|^application/octet-stream#){
+                    $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[binary data not shown]");
                 }
                 else{
                     $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n");
