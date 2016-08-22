@@ -258,9 +258,12 @@ Mojo-Webqq v1.8.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 *JavaScript*
 * [webqqircd](https://github.com/MaskRay/webqqircd) 用IRC客户端控制WebQQ(SmartQQ)，类似于wechatircd
+* [qqbot](https://github.com/floatinghotpot/qqbot) SmartQQ Robot and API Server, powered by node.js
+* [qqbot](https://github.com/ScienJus/qqbot) 基于SmartQQ（WebQQ）的QQ机器人 / a qq robot based on smartqq(webqq) api
 
 *Python*
 * [SmartQQBot](https://github.com/Yinzo/SmartQQBot) 基于SmartQQ的自动机器人框架
+* [qqbot](https://github.com/pandolia/qqbot) A conversation robot base on Tencent's SmartQQ
 
 *Java*
 * [smartqq](https://github.com/ScienJus/smartqq) SmartQQ（WebQQ）的Api ，你可以用它实现自己的QQ 机器人
