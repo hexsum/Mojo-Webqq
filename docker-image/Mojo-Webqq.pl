@@ -16,4 +16,5 @@ my $client = Mojo::Webqq->new(
 );
 $client->load("ShowMsg");
 $client->load("Openqq",data=>{listen=>[{host=>$host,port=>$port}], post_api=>$post_api});
+$client->load("UploadQRcode");
 $client->run();

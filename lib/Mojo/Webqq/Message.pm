@@ -551,7 +551,7 @@ sub parse_receive_msg {
     }
 
     #未重新登录
-    elsif ( $json->{retcode} == 100 ) {
+    elsif ( $json->{retcode} == 100 or $json->{retcode} == 103) {
         $self->warn("因网络或其他原因与服务器失去联系，客户端需要重新登录...\n");
         $self->relogin();
     }
