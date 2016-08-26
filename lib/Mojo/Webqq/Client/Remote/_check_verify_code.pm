@@ -7,7 +7,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
 
     my $query_string_ul = 'http%3A%2F%2Fw.qq.com%2Fproxy.html';
     my @query_string = (
-        pt_tea      =>  1,
+        pt_tea      =>  ($self->login_type eq "qrlogin"?2:1),
         uin         =>  $self->qq,
         appid       =>  $self->g_appid,
         js_ver      =>  $self->g_pt_version,

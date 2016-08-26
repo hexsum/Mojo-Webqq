@@ -27,4 +27,5 @@ sub encode_utf8{
     my $self = shift;
     return Mojo::Util::encode("utf8",@_);
 }
+
 1;

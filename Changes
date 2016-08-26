@@ -1,3 +1,11 @@
+2016-08-23 Mojo::Webqq v1.8.5
+1）修复IRCShell插件无法正常获取到 master_irc_user 的BUG
+2）添加捐赠信息
+3）新增插件 FuckAndroid
+4）尝试修复扫描二维码登录成功后又要重新扫码登录的问题
+5）新增UploadQRcode插件，可以将二维码上传至云存储获取到url地址
+6）登录成功后删除残留的二维码文件
+
 2016-08-10 Mojo::Webqq v1.8.4
 1）new方法增加update_interval参数 默认600秒，用于控制客户端定时更新频率
 2）支持自动检测系统的代理设置（通过环境变量 HTTP_PROXY/HTTPS_PROXY) 感谢 @linux0ne 反馈

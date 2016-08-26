@@ -36,7 +36,7 @@ sub upload {
     my $sign = Mojo::Util::b64_encode($signtemp . $orignal,"");
 
     my $json = $client->http_post("http://web.file.myqcloud.com/files/v1/$appid/$bucket/$name",
-        { Authorization=>$sign, json=>1 },
+        { Authorization=>$sign, json=>1 ,ua_debug_req_body=>0},
         form=>{
             op=>'upload',
             insertOnly=>1,
