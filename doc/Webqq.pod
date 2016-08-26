@@ -1562,6 +1562,12 @@ QQ群每日签到插件
         },
     });
 
+=head2 Mojo::Webqq::Plugin::UploadQRcode
+
+将二维码图片上传至腾讯云对象存储，获取到公网可以访问的url地址
+
+    $client->load("UploadQRcode");
+
 =head2 Mojo::Webqq::Plugin::PostQRcode
 
 登录过程如果需要手机扫描二维码，会将二维码以邮件附件的形式发送到指定邮箱，再通过手机QQ扫描二维码
