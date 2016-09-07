@@ -26,6 +26,7 @@ sub http_post{
 
 sub _ua_debug {
     my ($self,$ua,$tx,$opt,$is_blocking) = @_;
+    return if not $opt->{ua_debug};
     $self->print("-- " . ($is_blocking?"Blocking":"Non-blocking"). " request (@{[$tx->req->url->to_abs]})\n");
 
     $opt->{ua_debug_req_body}?$self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n"):$self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->build_start_line . $tx->req->build_headers]}\n[body data skipped]\n");
@@ -41,10 +42,17 @@ sub _ua_debug {
 sub _http_request{
     my $self = shift;
     my $method = shift;    #$method eq [get|post]
-    my %opt = (json=>0,retry_times=>$self->ua_retry_times,ua_debug_res_body=>$self->ua_debug_res_body,ua_debug_req_body=>$self->ua_debug_req_body);
+    my %opt = (
+        json                =>  0,
+        retry_times         =>  $self->ua_retry_times,
+        ua_debug            =>  $self->ua_debug,
+        ua_debug_res_body   =>  $self->ua_debug_res_body,
+        ua_debug_req_body   =>  $self->ua_debug_req_body
+    );
     if(ref $_[1] eq "HASH"){#with header or option
         $opt{json} = delete $_[1]->{json} if defined $_[1]->{json};
         $opt{retry_times} = delete $_[1]->{retry_times} if defined $_[1]->{retry_times};
+        $opt{ua_debug}          = delete $_[1]->{ua_debug} if defined $_[1]->{ua_debug};
         $opt{ua_debug_res_body} = delete $_[1]->{ua_debug_res_body} if defined $_[1]->{ua_debug_res_body};
         $opt{ua_debug_req_body} = delete $_[1]->{ua_debug_req_body} if defined $_[1]->{ua_debug_req_body};
     }
@@ -52,7 +60,7 @@ sub _http_request{
         my $cb = pop;
         return $self->ua->$method(@_,sub{
             my($ua,$tx) = @_;
-            _ua_debug($self,$ua,$tx,\%opt,0) if $self->ua_debug;
+            _ua_debug($self,$ua,$tx,\%opt,0) if $opt{ua_debug};
             $self->save_cookie();
             if(defined $tx and $tx->success){
                 my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;
@@ -68,7 +76,7 @@ sub _http_request{
         my $tx;
         for(my $i=0;$i<=$opt{retry_times};$i++){
             $tx = $self->ua->$method(@_);   #$method eq [get|post]
-            _ua_debug($self,$ua,$tx,\%opt,1) if $self->ua_debug;
+            _ua_debug($self,$ua,$tx,\%opt,1) if $opt{ua_debug};
             $self->save_cookie();
             if(defined $tx and $tx->success){
                 my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;

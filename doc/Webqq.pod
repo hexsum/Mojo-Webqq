@@ -1298,6 +1298,7 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
     $client->load("IRCShell",data=>{
         listen=>[ {host=>"127.0.0.1",port=>6667},], #可选，IRC服务器监听的地址+端口，默认0.0.0.0:6667
         load_friend => 1, #默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
+        master_irc_user => "你的QQ号码", #用于识别哪个irc用户是你自己
     });
     #支持的参数包括：
     listen              #监听的地址和端口，数组的形式来支持多个地址
