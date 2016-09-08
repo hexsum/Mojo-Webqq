@@ -348,15 +348,16 @@ sub mail{
         $self->error("发送邮件，请先安装模块 Mojo::SMTP::Client");
         return;
     }
-    my @new = (
+    my %new = (
         address => $opt{smtp},
         port    => $opt{port} || 25,
         autodie => $is_blocking,
     ); 
     for(qw(tls tls_ca tls_cert tls_key)){
-        push @new, ($_,$opt{$_}) if defined $opt{$_}; 
+        $new{$_} = $opt{$_} if defined $opt{$_}; 
     }
-    my $smtp = Mojo::SMTP::Client->new(@new);
+    $new{tls} = 1 if($new{port} == 465 and !defined $new{tls});
+    my $smtp = Mojo::SMTP::Client->new(%new);
     unless(defined $smtp){
         $self->error("Mojo::SMTP::Client客户端初始化失败");
         return;
