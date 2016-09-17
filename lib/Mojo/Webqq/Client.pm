@@ -165,10 +165,10 @@ sub ready{
 
     #接收消息
     $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
-    $self->info("开始接收消息...");
-    $self->_recv_message();
+    $self->on(run=>sub{my $self = $_[0]; $self->info("开始接收消息..."); $self->_recv_message();});
     $self->is_ready(1);
     $self->emit("ready");
+    return $self;
 }
 
 sub timer {
