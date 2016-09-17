@@ -210,7 +210,7 @@
 |请求方法|GET\|POST|
 |请求参数|**gid**: 群组的id（每次扫描登录可能会变化）<br>**gnumber**: 群号码<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_group_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_group_message?gnumber=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_group_message?gid=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_group_message?gnumber=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
 ```
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
