@@ -15,7 +15,7 @@ use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq:
 has qq                  => undef;
 has pwd                 => undef;
 has security            => 0;
-has state               => 'online';   #online|away|busy|silent|hidden|offline,
+has state               => 'online';   #online|away|busy|silent|hidden|offline|callme,
 has type                => 'smartqq';  #smartqq
 has login_type          => 'qrlogin';    #qrlogin|login
 has ua_debug            => 0;

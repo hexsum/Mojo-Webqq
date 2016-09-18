@@ -535,7 +535,7 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
     qq              #登录的qq号，可选
     pwd             #使用帐号密码登录时，qq号对应密码的32位md5
     security        #设置该参数，将使得发送和接收消息使用https加密
-    state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline
+    state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline|callme
     ua_debug        #设置该参数，打印调试信息
     keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
 
@@ -1582,6 +1582,8 @@ QQ群每日签到插件
         to      =>  'xxxx', #收件人
         user    =>  'xxxx', #smtp登录帐号
         pass    =>  'xxxx', #smtp登录密码
+        tls     =>  0,      #可选，是否使用SMTPS协议，默认为0
+                            #在没有设置的情况下，如果使用的端口为465，则该选项会自动被设置为1
     });
 
     收到的邮件内容如下：
