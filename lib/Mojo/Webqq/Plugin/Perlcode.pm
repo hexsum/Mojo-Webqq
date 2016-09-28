@@ -17,7 +17,8 @@ sub call{
     my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
-        if($msg->content=~/^(?:>>>)(.*?)(?:__END__|$)/s or $msg->content =~/perl\s+-e\s+'([^']+)'/s){
+        my $content = $msg->content; $content=~s/＞/>/g;
+        if($content=~/^(?:>>>)(.*?)(?:__END__|$)/s or $content =~/perl\s+-e\s+'([^']+)'/s){
             $msg->allow_plugin(0);
             return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
             my $doc = '';
@@ -56,12 +57,12 @@ sub call{
                 stderr_cb => sub {
                     my ($pid, $chunk) = @_;
                     $stderr_buf.=$chunk if defined $chunk;
-                    if(count_lines($stderr_buf) > 10){
+                    if(count_lines($stderr_buf) > 20){
                         $run->kill($pid);
                         $stderr_buf  = join "\n",(split /\r?\n/,$stderr_buf,11)[0..9];
                         $stderr_buf .= "(已截断)";
                     }
-                    elsif(length($stderr_buf) > 200){
+                    elsif(length($stderr_buf) > 350){
                         $run->kill($pid);
                         $stderr_buf = substr($stderr_buf,0,500);
                         $stderr_buf .= "(已截断)";

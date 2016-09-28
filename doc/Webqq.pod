@@ -1215,13 +1215,13 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
     $client->call("plugin",[可选参数]);
 
-客户端实现了一个简单的插件管理机制，插件是一个简单的call函数，包名默认是Mojo:Webqq::Plugin::
+客户端实现了一个简单的插件管理机制，插件是一个简单的call函数，包名默认是Mojo::Webqq::Plugin::
 
 比如，我编写一个简单的hello world插件，效果是对接收到的任意消息回复一个"hello world"
 
-编写一个包 Mojo:Webqq::Plugin::HelloWorld
+编写一个包 Mojo::Webqq::Plugin::HelloWorld
 
-    package Mojo:Webqq::Plugin::HelloWorld;
+    package Mojo::Webqq::Plugin::HelloWorld;
     our $PRIORITY = 10; #可省略，除了在load中使用priority设置优先级，也可以通过包变量设置
     our $AUTO_CALL = 1; #可省略，通过包变量设置插件是否默认加载后立刻执行
     sub call{
@@ -1463,7 +1463,7 @@ julia/lua/nim/ocaml/python
         delete_operator => [12345,678910], #允许删除权限的操作人qq号
         mode => 'fuzzy', # fuzzy|regex|exact 分别表示模糊|正则|精确, 默认模糊
         check_time => 10, #默认10秒检查一次文件变更
-        show_keyword => 1, #消息是否包含触发关键字信息，默认开启
+        show_keyword => 1, #消息是否包含触发关键字信息，默认为0
     });
     
 
