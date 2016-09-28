@@ -1,4 +1,4 @@
-Mojo-Webqq v1.8.5 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq) [![Join the chat at https://gitter.im/sjdy521/Mojo-Webqq](https://badges.gitter.im/sjdy521/Mojo-Webqq.svg)](https://gitter.im/sjdy521/Mojo-Webqq?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Mojo-Webqq v1.8.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq) [![Join the chat at https://gitter.im/sjdy521/Mojo-Webqq](https://badges.gitter.im/sjdy521/Mojo-Webqq.svg)](https://gitter.im/sjdy521/Mojo-Webqq?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ========================
 
 使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
