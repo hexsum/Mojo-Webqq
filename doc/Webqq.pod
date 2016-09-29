@@ -573,6 +573,9 @@ msg_class 是常量"send"，你可以通过每个消息的msg_class属性来判�
 
     msg_ttl             #发送失败的消息，重试次数，默认是5
 
+    qrcode_count_max    #每个二维码都有一个过期时间，过期后会重新下载一个二维码继续等待扫描
+                        #如果等待扫码次数超过 qrcode_count_max 客户端会停止运行，默认10次
+
     $client->new(ua_debug=>0,qq=>xxxxxx,login_type=>"qrlogin");
     $client->new(ua_debug=>0,qq=>xxxxxx,pwd=>xxxxx,login_type=>"login");
 
