@@ -1761,6 +1761,19 @@ QQ群每日签到插件
     http://127.0.0.1:5000/openqq/send_message?id=xxx&content=hello 
     http://127.0.0.1:5000/openqq/send_message?id=xxx&content=%e4%bd%a0%e5%a5%bd (中文需要utf8编码并进行urlencode)
 
+
+=head2 Mojo::Webqq::Plugin::Pu
+
+输入关键字 "周易","占卜","算命","八卦" 发送占卜消息 作者L<https://github.com/bollwarm>
+
+    $client->load("Pu");
+
+=head2 Mojo::Webqq::Plugin::ZiYue
+
+输入关键字 "子曰","论语","之乎者也" 发送论语语句 作者L<https://github.com/bollwarm>
+
+    $client->load("ZiYue");
+
 =head1 SEE ALSO
 
 L<Weixin::Client>
