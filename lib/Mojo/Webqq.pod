@@ -1698,15 +1698,19 @@ QQ群每日签到插件
     Content-Length: xxx
     Content-Type: application/json
     
-    {   "receiver":"小灰",
+    {
         "msg_time":"1442542632",
         "content":"测试一下",
         "msg_class":"recv",
+        "sender":"灰灰",
         "sender_id":"2372835507",
+        "sender_qq":"456789",
+        "receiver":"小灰",
         "receiver_id":"4072574066",
+        "receiver_qq":"123456",
         "group":"PERL学习交流",
         "group_id":"2617047292",
-        "sender":"灰灰",
+        "gnumber":"67890",
         "msg_id":"10856",
         "type":"group_message"
     }
