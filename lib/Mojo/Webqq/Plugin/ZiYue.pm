@@ -99,6 +99,7 @@ sub call {
         return if not $msg->allow_plugin;
         return if $msg->type eq "group_message" and $msg->group->gname eq "Mojolicious";
         return if $msg->content !~ /(子\s*曰|论\s*语|者\s*也)/;
+        $msg->allow_plugin(0);
         my $key_word = $1;$key_word=~s/\s+//;
         my $reply = $reply[int rand($#reply+1)];
         $reply=~s/%/$key_word/g;
