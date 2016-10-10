@@ -15,10 +15,10 @@ sub retrieve_db {
         next if not $space && $key && $content;
         $content =~ s/(\\r)?\\n/\n/g;
         $content =~ s/\\t/\t/g;
-        push @{ $db->{$space}{$key} }, $content;
+        push @{ $new_db->{$space}{$key} }, $content;
     }
     close $fd;
-    $db = $new_db;
+    %$db = %$new_db;
 }
 sub store_db {
     my($client,$db,$file) = @_;
