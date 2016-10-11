@@ -44,6 +44,7 @@ has pic_dir             => sub {$_[0]->tmpdir};
 has cookie_dir          => sub{return $_[0]->tmpdir;};
 has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->qq || 'default','.jpg'))};
 has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->qq || 'default','.png'))};
+has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_pid_',$_[0]->qq || 'default','.pid'))};
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
 has max_recent          => 20;
@@ -212,6 +213,12 @@ sub new {
         my ($self, $err) = @_;
         $self->error(Carp::longmess($err));
     });
+    $self->check_pid();
+    $SIG{INT} = $SIG{KILL} = $SIG{TERM} = sub{
+        $self->clean_qrcode();
+        $self->clean_pid();
+        $self->stop();
+    };
     $self->on(qrcode_expire=>sub{
         my($self) = @_;
         my $count = $self->qrcode_count;

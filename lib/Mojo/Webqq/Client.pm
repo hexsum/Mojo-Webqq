@@ -447,4 +447,35 @@ sub add_job {
     $self->Mojo::Webqq::Client::Cron::add_job(@_);
 }
 
+sub check_pid {
+    my $self = shift;
+    return if not $self->pid_path;
+    eval{
+        if(not -f $self->pid_path){
+            $self->spurt($$,$self->pid_path);
+        }
+        else{
+            my $pid = $self->slurp($self->pid_path);
+            if( $pid=~/^\d+$/ and kill(0, $pid) ){
+                $self->warn("检测到该账号有其他运行中的客户端(pid:$pid), 请先将其关闭");
+                $self->stop();
+            }
+            else{
+                $self->spurt($$,$self->pid_path);
+            }
+        }
+    };
+    $self->warn("进程检测遇到异常: $@") if $@;
+    
+}
+
+
+sub clean_pid {
+    my $self = shift;
+    return if not defined $self->pid_path;
+    return if not -f $self->pid_path;
+    $self->info("清除残留的pid文件");
+    unlink $self->pid_path or $self->warn("删除pid文件[ " . $self->pid_path . " ]失败: $!");
+}
+
 1;

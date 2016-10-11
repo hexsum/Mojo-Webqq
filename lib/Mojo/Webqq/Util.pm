@@ -14,6 +14,10 @@ sub slurp {
     my $self = shift;
     return Mojo::Util::slurp(@_);
 }
+sub spurt {
+    my $self = shift;
+    return Mojo::Util::spurt(@_);
+}
 sub encode{
     my $self = shift;
     return Mojo::Util::encode(@_);
