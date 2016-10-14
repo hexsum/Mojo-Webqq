@@ -277,6 +277,8 @@ Mojo-Webqq v1.8.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ![donate](screenshot/donate.jpg)
 
+特别致谢[那些曾经捐赠的小伙伴们](https://github.com/sjdy521/Donor-Thanks)
+
 ###COPYRIGHT 和 LICENCE
 
 Copyright (C) 2014 by sjdy521
