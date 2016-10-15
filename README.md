@@ -273,11 +273,11 @@ Mojo-Webqq v1.8.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###捐赠奖励
 
-可以通过扫描支付宝付款二维码进行捐助，感谢您的支持和鼓励
+可以通过扫描支付宝付款二维码进行捐赠，感谢您的支持和鼓励
 
 ![donate](screenshot/donate.jpg)
 
-特别致谢[那些曾经捐赠的小伙伴们](https://github.com/sjdy521/Donor-Thanks)
+特别致谢 [那些曾经捐赠的小伙伴们](https://github.com/sjdy521/Donor-Thanks)
 
 ###COPYRIGHT 和 LICENCE
 
