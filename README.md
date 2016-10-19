@@ -140,7 +140,11 @@ Mojo-Webqq v1.8.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     方法b： 直接在线安装cpanm
 
-        $ curl -kL http://cpanmin.us | perl - App::cpanminus
+        $ curl -kL https://cpanmin.us | perl - App::cpanminus
+        
+        官方服务器在国外，如果无法访问，可以选择下面的命令：
+        
+        $ curl http://share-10066126.cos.myqcloud.com/cpanm.pl|perl - App::cpanminus
 
 3. *使用cpanm在线安装 Mojo::Webqq 模块*（如果系统已经安装了该模块，执行此步骤会对模块进行升级）
 
