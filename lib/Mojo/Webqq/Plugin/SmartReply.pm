@@ -18,6 +18,7 @@ sub call{
     my $notice_limit = $data->{notice_limit} || 8;
     my $warn_limit = $data->{warn_limit} || 10;
     my $ban_limit = $data->{ban_limit} || 12;
+    my $ban_time = $data->{ban_time} || 1200;
     my $is_need_at = defined $data->{is_need_at}?$data->{is_need_at}:1;
 
     my $counter = $client->new_counter(id=>'SmartReply',period=>$data->{period} || 600);
@@ -43,7 +44,7 @@ sub call{
                 $ban{$msg->sender->id} = 1;
                 $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，$ban_time秒内提问无视",sub{$_[1]->msg_from("bot")});
                 $counter->clear($msg->group->gid ."|" .$msg->sender->id);
-                $client->timer($data->{ban_time} || 1200,sub{delete $ban{$msg->sender->id};});
+                $client->timer($ban_time ,sub{delete $ban{$msg->sender->id};});
                 return;
             }
             if($is_need_at and $limit >= $warn_limit){
