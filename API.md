@@ -350,11 +350,11 @@ Server: Mojolicious (Perl)
 
 |   API  |群成员禁言|
 |--------|:------------------------------------------|
-|uri     |/openqq/shuthup_group_member|
+|uri     |/openqq/shutup_group_member|
 |请求方法|GET\|POST|
 |请求参数|**time**: 禁言时长，最低60秒（单位：秒）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_qq**: 成员的qq（多个成员qq用逗号分割）<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/shuthup_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shuthup_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
+|调用示例|http://127.0.0.1:5000/openqq/shutup_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shutup_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
 
 ### 15. 踢除群成员
 
