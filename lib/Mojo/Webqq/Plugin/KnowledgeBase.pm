@@ -16,7 +16,7 @@ sub call{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
         return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
-        return if $msg->type !~ /^message|group_message|dicsuss_message|sess_message$/;
+        return if $msg->type !~ /^message|group_message|discuss_message|sess_message$/;
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
