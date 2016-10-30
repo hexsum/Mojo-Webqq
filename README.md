@@ -5,7 +5,7 @@ Mojo-Webqq v1.8.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ###郑重声明
 
-本项目完全遵循网页QQ官方提供的原始聊天功能，不包含任何破解、盗号等行为，本项目完全开源，目的是为了促进技术交流学习，禁止任何商业盈利目的以及一切非法用途传播，否则后果自负
+本项目完全遵循QQ官方提供的原始功能，不包含任何破坏、盗号等行为，本项目完全开源，目的是为了促进技术交流学习，禁止任何对国家、企业、个人等构成危害的非法用途，否则后果自负
 
 ###特色功能
 
@@ -290,4 +290,3 @@ Copyright (C) 2014 by sjdy521
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.10.1 or,
 at your option, any later version of Perl 5 you may have available.
-
