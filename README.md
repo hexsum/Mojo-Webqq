@@ -73,7 +73,8 @@ Mojo-Webqq v1.8.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 [15/09/30 14:09:20] [群消息] 小灰|PERL学习交流 : Mojo::Webqq不错哦
 [15/09/30 14:10:20] [群消息] 我->PERL学习交流 : 多谢多谢
 ```
-###通过irc客户端在linux终端上使用QQ
+
+####通过irc客户端在linux终端上使用QQ
 
 ```
 
@@ -98,11 +99,11 @@ Mojo-Webqq v1.8.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ![IRCShell](screenshot/IRCShell.png)
 
-###IT男装逼利器：如何像黑客一样聊天（图片来自 @動感光波）
+####IT男装逼利器：如何像黑客一样聊天（图片来自 @動感光波）
 
 ![如何像黑客一样聊天](screenshot/How_to_chat_like_a_hacker.jpg)
 
-更多应用效果 请参见[Mojo-Webqq作品展](Collection.md)
+####更多应用效果 请参见[Mojo-Webqq作品展](Collection.md)
 
 ###安装方法
 
