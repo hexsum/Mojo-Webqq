@@ -215,6 +215,8 @@ sub new {
     });
     $self->check_pid();
     $SIG{INT} = $SIG{KILL} = $SIG{TERM} = sub{
+        return if $^O ne 'MSWin32' and $_[0] eq 'INT' and !-t;
+        $self->info("捕获到停止信号[$_[0]]，准备停止...");
         $self->clean_qrcode();
         $self->clean_pid();
         $self->stop();
