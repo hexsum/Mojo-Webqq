@@ -206,7 +206,7 @@ Mojo-Webqq v1.8.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         $port = 5000;      #发送消息接口监听端口，修改为自己希望监听的端口
         #$post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
         
-        my $client = Mojo::Webqq->new(qq=>$qq);
+        my $client = Mojo::Webqq->new();
         $client->load("ShowMsg");
         $client->load("Openqq",data=>{listen=>[{host=>$host,port=>$port}], post_api=>$post_api});
         $client->run();
