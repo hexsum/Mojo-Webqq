@@ -200,10 +200,9 @@ Mojo-Webqq v1.8.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
         #!/usr/bin/env perl
         use Mojo::Webqq;
-        my ($qq,$host,$port,$post_api);
+        my ($host,$port,$post_api);
         
-        $qq = 12345678;    #修改为你自己的实际QQ号码
-        $host = "0.0.0.0"; #发送消息接口监听地址，修改为自己希望监听的地址
+        $host = "0.0.0.0"; #发送消息接口监听地址，没有特殊需要请不要修改
         $port = 5000;      #发送消息接口监听端口，修改为自己希望监听的端口
         #$post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
         

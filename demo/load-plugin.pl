@@ -16,14 +16,12 @@ use Mojo::Webqq;
 
 #推荐手机安装[QQ安全中心]APP，方便随时掌握自己帐号的情况
 
-my $qq = 123456;
-
 #初始化一个客户端对象，设置登录的qq号
 
 my $client=Mojo::Webqq->new(
 ua_debug    =>  0,         #是否打印详细的debug信息
 log_level   => "info",     #日志打印级别
-qq          =>  $qq,       #登录的qq帐号
+#qq         =>  123456,    #可选，登录的qq帐号，默认自动识别
 login_type  =>  "qrlogin", #"qrlogin"表示二维码登录
 );
 
@@ -87,7 +85,7 @@ $client->load("StockInfo");
 #提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息
 #以及通过接口发送和接收好友消息、群消息、群临时消息和讨论组临时消息
 $client->load("Openqq",data=>{
-    listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
+    listen => [ {host=>"0.0.0.0",port=>5000}, ] , #监听的地址和端口，支持多个
     #auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
     #post_api => 'http://xxxx',                      #可选，设置接收消息的上报接口
 });

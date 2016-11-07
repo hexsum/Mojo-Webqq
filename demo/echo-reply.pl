@@ -16,13 +16,11 @@ use Mojo::Webqq;
 
 #推荐手机安装[QQ安全中心]APP，方便随时掌握自己帐号的情况
 
-my $qq = 12345678;
-
 #初始化一个客户端对象，设置登录的qq号
 my $client=Mojo::Webqq->new(
     ua_debug    =>  0,         #是否打印详细的debug信息
     log_level   => "info",     #日志打印级别
-    qq          =>  $qq,       #登录的qq帐号
+    #qq         =>  1234567,   #可选，登录的qq帐号，默认自动识别
     login_type  =>  "qrlogin", #"qrlogin"表示二维码登录
 );
 #注意: 腾讯可能已经关闭了帐号密码的登录方式，这种情况下只能使用二维码扫描登录
