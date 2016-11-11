@@ -11,7 +11,7 @@ has format => sub { \&_format };
 has handle => sub {
  
   # STDERR
-  return \*STDERR unless my $path = shift->path;
+  return \*STDOUT unless my $path = shift->path;
  
   # File
   croak qq{Can't open log file "$path": $!} unless open my $file, '>>', $path;
