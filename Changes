@@ -1,3 +1,10 @@
+2016-11-11 Mojo::Webqq v1.8.8
+1）更新郑重声明
+2）新增Collection.md文档，收集基于项目的第三方优秀作品
+3）完善退出信号处理 感谢 @hzz1989 反馈
+4）修复Openqq插件经常出现 can't call method "res" on an undefined value的警告信息
+5）日志默认输出改为STDOUT
+
 2016-10-20 Mojo::Webqq v1.8.7
 1）新增Pu和ZiYue两个插件
 2）修复 KnowledgeBase2 插件会导致知识库文件出现重复记录的问题 感谢 @时光盒子 的反馈
