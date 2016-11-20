@@ -87,6 +87,7 @@
     {#第1个群
         "gmarkname": "xxx",
         "gid": "",
+        "gnumber": "552603",
         "gcode": "",
         "gname": "",
         "gtype": "",
