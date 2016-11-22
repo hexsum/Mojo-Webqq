@@ -119,11 +119,11 @@ Mojo-Webqq v1.8.8 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
     建议大家尽量选择**Binaries**（二进制预编译）的版本，安装即可使用，比较方便
 
-  |平台   |推荐选择|下载地址
-  |-------|--------|-------------|
-  |Windows|1. **StrawberryPerl**<br>2. ActivePerl<br>3. **Mojo-StrawberryPerl**|[StrawberryPerl下载地址](http://strawberryperl.com/)<br>[Mojo-StrawberryPerl下载地址](https://github.com/sjdy521/Mojo-StrawberryPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>|
-  |Linux  |1. **系统自带**<br>2. **yum/apt等包管理器**<br>3. **官方源码**<br>4.**Mojo-CentosPerl**<br>5. ActivePerl<br>6. Mojo-ActivePerl|[Mojo-CentosPerl下载地址](https://github.com/sjdy521/Mojo-CentosPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[Mojo-ActivePerl下载地址](https://github.com/sjdy521/Mojo-ActivePerl)|
-  |Mac    |1. **系统自带**<br>2. ActivePerl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)
+    |平台    |推荐选择  |下载地址         |
+    |:-------|:--------|:---------------|
+    |Windows |1. **StrawberryPerl**<br>2. ActivePerl<br>3. **Mojo-StrawberryPerl**|[StrawberryPerl下载地址](http://strawberryperl.com/)<br>[Mojo-StrawberryPerl下载地址](https://github.com/sjdy521/Mojo-StrawberryPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>|
+    |Linux   |1. **系统自带**<br>2. **yum/apt等包管理器**<br>3. 官方源码编译<br>4. **Mojo-CentosPerl**<br>5. ActivePerl<br>6. Mojo-ActivePerl<br>7. DWIM-Perl|[Mojo-CentosPerl下载地址](https://github.com/sjdy521/Mojo-CentosPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[Mojo-ActivePerl下载地址](https://github.com/sjdy521/Mojo-ActivePerl)<br>[DWIM-Perl下载地址](http://dwimperl.com/linux.html)|
+    |Mac     |1. **系统自带**<br>2. ActivePerl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)|
   
     注意：
     
@@ -281,7 +281,7 @@ Mojo-Webqq v1.8.8 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 ![donate](screenshot/donate.jpg)
 
-特别致谢 [那些曾经捐赠的小伙伴们](https://github.com/sjdy521/Donor-Thanks)
+特别致谢 [那些曾经捐赠的小伙伴们](https://github.com/sjdy521/Mojo-Thanks)
 
 ###COPYRIGHT 和 LICENCE
 
