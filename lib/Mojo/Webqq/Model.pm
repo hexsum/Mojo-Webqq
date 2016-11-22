@@ -36,28 +36,28 @@ sub hash {
     my $uin = shift;
 
     $uin .= "";
-    my @N;
-    for(my $T =0;$T<length($ptwebqq);$T++){
-        $N[$T % 4] ^= ord(substr($ptwebqq,$T,1));
+    my @ptb;
+    for(my $i =0;$i<length($ptwebqq);$i++){
+        $ptb[$i % 4] ^= ord(substr($ptwebqq,$i,1));
     }
-    my @U = ("EC", "OK");
-    my @V;
-    $V[0] =  $uin >> 24 & 255 ^ ord(substr($U[0],0,1));
-    $V[1] =  $uin >> 16 & 255 ^ ord(substr($U[0],1,1));
-    $V[2] =  $uin >> 8  & 255 ^ ord(substr($U[1],0,1));
-    $V[3] =  $uin       & 255 ^ ord(substr($U[1],1,1));
-    @U = ();
-    for(my $T=0;$T<8;$T++){
-        $U[$T] = $T%2==0?$N[$T>>1]:$V[$T>>1]; 
+    my @salt = ("EC", "OK");
+    my @uinByte;
+    $uinByte[0] =  $uin >> 24 & 0xFF ^ ord(substr($salt[0],0,1));
+    $uinByte[1] =  $uin >> 16 & 0xFF ^ ord(substr($salt[0],1,1));
+    $uinByte[2] =  $uin >> 8  & 0xFF ^ ord(substr($salt[1],0,1));
+    $uinByte[3] =  $uin       & 0xFF ^ ord(substr($salt[1],1,1));
+    my @result;
+    for(my $i=0;$i<8;$i++){
+        $result[$i] = $i%2==0?$ptb[$i>>1]:$uinByte[$i>>1]; 
     }
-    @N = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F");
-    my $V = "";
-    for(my $T=0;$T<@U;$T++){
-        $V .= $N[$U[$T] >> 4 & 15];
-        $V .= $N[$U[$T] & 15];
+    my @hex = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F");
+    my $buf = "";
+    for(my $i=0;$i<@result;$i++){
+        $buf .= $hex[$result[$i] >> 4 & 0xF];
+        $buf .= $hex[$result[$i] & 0xF];
     }
 
-    return $V;
+    return $buf;
 }
 
 sub is_support_model_ext {

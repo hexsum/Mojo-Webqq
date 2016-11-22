@@ -93,7 +93,7 @@ sub Mojo::Webqq::Client::_login1{
             fp              =>  'loginerroralert',
             action          =>  $query_string_action,
             mibao_css       =>  $self->g_mibao_css,
-            t               =>  1,
+            t               =>  'undefined',
             g               =>  1,
             js_type         =>  0,
             js_ver          =>  $self->g_pt_version,
