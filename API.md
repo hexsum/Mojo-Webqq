@@ -1,4 +1,51 @@
-### 1. 获取用户数据
+### API列表汇总
+
+|API地址                      |API说明        |
+|:----------------------------|:--------------|
+|基础信息获取相关              |              |
+|[/openqq/get_user_info](API.md#获取用户数据)   |获取登录用户数据 |
+|[/openqq/get_friend_info](API.md#获取好友数据) |获取好友数据 |
+|[/openqq/get_group_info](API.md#获取群组数据)   |获取群组数据 |
+|[/openqq/get_group_basic_info](API.md#获取群组基础数据)  |获取群组基础数据(不包含群成员)|
+|[/openqq/get_discuss_info](API.md#获取讨论组数据)  |获取讨论组数据|
+|消息发送相关||
+|[/openqq/send_message](API.md#发送好友消息)  |发送好友消息|
+|[/openqq/send_group_message](API.md#发送群组消息)  |发送群组消息|
+|[/openqq/send_discuss_message](API.md#发送讨论组消息)  |发送讨论组消息|
+|[/openqq/send_sess_message](API.md#发送群临时消息)  |发送群临时消息(已被腾讯屏蔽)|
+|[/openqq/send_sess_message](API.md#发送讨论组临时消息)  |发送讨论组临时消息(已被腾讯屏蔽)|
+|消息获取相关||
+|[自定义消息上报地址](API.md#自定义消息上报地址)  |支持好友消息、群消息、讨论组消息上报|
+|数据搜索相关||
+|[/openqq/search_friend](API.md#搜索好友)  |搜索好友|
+|[/openqq/search_group](API.md#搜索群组)  |搜索群组|
+|群组管理相关||
+|[/openqq/shutup_group_member](API.md#群成员禁言)  |群成员禁言|
+|[/openqq/kick_group_member](API.md#踢除群成员)  |踢除群成员|
+
+
+### 首先启动一个API Server
+
+可以直接把如下代码保存成一个源码文件（必须是UTF-8编码），使用 perl 解释器来运行
+
+    #!/usr/bin/env perl
+    use Mojo::Webqq;
+    my ($host,$port,$post_api);
+
+    $host = "0.0.0.0"; #发送消息接口监听地址，没有特殊需要请不要修改
+    $port = 5000;      #发送消息接口监听端口，修改为自己希望监听的端口
+    #$post_api = 'http://xxxx';  #接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
+
+    my $client = Mojo::Webqq->new();
+    $client->load("ShowMsg");
+    $client->load("Openqq",data=>{listen=>[{host=>$host,port=>$port}], post_api=>$post_api});
+    $client->run();
+
+上述代码保存成 xxxx.pl 文件，然后使用 perl 来运行，就会完成 QQ 登录并在本机产生一个监听指定地址端口的 http server
+
+    $ perl xxxx.pl
+
+### 获取用户数据
 |   API  |获取用户数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_user_info|
@@ -34,7 +81,7 @@
 
 ```
 
-### 2. 获取好友数据
+### 获取好友数据
 |   API  |获取好友数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_friend_info|
@@ -74,7 +121,7 @@
 ]
 ```
 
-### 3. 获取群组数据
+### 获取群组数据
 |   API  |获取群组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_info|
@@ -135,15 +182,15 @@
 ]
 ```
 
-### 4. 获取群组基础数据(不包含群成员)
-|   API  |获取群组数据
+### 获取群组基础数据
+|   API  |获取群组数据(不包含群成员)
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_basic_info|
 |请求方法|GET\|POST|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_basic_info|
 
-### 5. 获取讨论组数据
+### 获取讨论组数据
 |   API  |获取讨论组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_discuss_info|
@@ -191,7 +238,7 @@
 
 ```
 
-### 6. 发送好友消息
+### 发送好友消息
 |   API  |发送好友消息
 |--------|:------------------------------------------|
 |uri     |/openqq/send_message|
@@ -204,7 +251,7 @@
 ```
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
 ```
-### 7. 发送群组消息
+### 发送群组消息
 |   API  |发送群组消息
 |--------|:------------------------------------------|
 |url     |/openqq/send_group_message|
@@ -217,7 +264,7 @@
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
-### 8. 发送讨论组消息
+### 发送讨论组消息
 |   API  |发送讨论组消息
 |--------|:------------------------------------------|
 |uri     |/openqq/send_discuss_message|
@@ -230,8 +277,8 @@
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
-### 9. 发送群临时消息(已被腾讯屏蔽)
-|   API  |发送群临时消息
+### 发送群临时消息
+|   API  |发送群临时消息(已被腾讯屏蔽)
 |--------|:------------------------------------------|
 |uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
@@ -243,8 +290,8 @@
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
-### 10. 发送讨论组临时消息(已被腾讯屏蔽)
-|   API  |发送讨论组临时消息
+### 发送讨论组临时消息
+|   API  |发送讨论组临时消息(已被腾讯屏蔽)
 |--------|:------------------------------------------|
 |uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
@@ -256,7 +303,7 @@
 {"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
-### 11. 自定义接收消息上报地址
+### 自定义消息上报地址
 |   API  |接收消息上报（支持好友消息、群消息、讨论组消息）
 |--------|:------------------------------------------|
 |uri     |自定义任意支持http协议的url|
@@ -325,7 +372,7 @@ Server: Mojolicious (Perl)
 
 则会直接对上报的消息进行回复，回复的内容为 "你好", 支持好友消息、群消息、讨论组消息、临时消息的上报
 
-### 12. 搜索好友
+### 搜索好友
 
 |   API  |搜索好友|
 |--------|:------------------------------------------|
@@ -336,7 +383,7 @@ Server: Mojolicious (Perl)
 |调用示例|http://127.0.0.1:5000/openqq/search_friend?qq=xxxx|
 
 
-### 13. 搜索群组
+### 搜索群组
 
 |   API  |搜索群组|
 |--------|:------------------------------------------|
@@ -347,7 +394,7 @@ Server: Mojolicious (Perl)
 |调用示例|http://127.0.0.1:5000/openqq/search_group?gnumber=xxxxxx|
 返回JSON数组:
 
-### 14. 群成员禁言
+### 群成员禁言
 
 |   API  |群成员禁言|
 |--------|:------------------------------------------|
@@ -357,7 +404,7 @@ Server: Mojolicious (Perl)
 |数据格式|application/x-www-form-urlencoded|
 |调用示例|http://127.0.0.1:5000/openqq/shutup_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shutup_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
 
-### 15. 踢除群成员
+### 踢除群成员
 
 |   API  |踢除群成员|
 |--------|:------------------------------------------|
