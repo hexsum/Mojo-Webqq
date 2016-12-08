@@ -1,7 +1,7 @@
 package Mojo::Webqq;
 use strict;
 use Carp ();
-$Mojo::Webqq::VERSION = "1.8.8";
+$Mojo::Webqq::VERSION = "1.8.9";
 use base qw(Mojo::Base);
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -145,7 +145,7 @@ has g_style                => 16;
 has g_mibao_css            => 'm_webqq';
 has g_daid                 => 164;
 has g_appid                => 501004106;
-has g_pt_version           => 10137;
+has g_pt_version           => 10179;
 has rc                     => 1;
 has csrf_token             => undef;
 has model_ext              => 0;

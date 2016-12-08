@@ -1,5 +1,5 @@
-package IPwhere;
-$Mojo::Webqq::Plugin::Pu::PRIORITY = 1;
+package Mojo::Webqq::Plugin::IPwhere;
+our $PRIORITY = 1;
 use IP::IPwhere;
 #use IP::QQWry; #使用纯真库注释掉本行
 use Encode;

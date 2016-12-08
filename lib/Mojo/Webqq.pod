@@ -1285,10 +1285,10 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
 该插件功能不够强大，体验也不够好，完全可以被插件 Mojo::Webqq::Plugin::IRCShell 取代了
 
     $client->load("MsgSync",data=>{
-        irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",server=>"irc.perfi.wang"},
+        irc=>{nick=>"xxxx",user=>"xxxx",pass=>"xxxx",server=>"irc.freenode.net"},
         pairs=>[
-            ["#ChinaPerl",$m->search_group(gname=>"PERL学习交流")],
-            ["#Mojolicious",$m->search_group(gname=>"Mojolicious")],
+            ["#ChinaPerl",$client->search_group(gname=>"PERL学习交流")],
+            ["#Mojolicious",$client->search_group(gname=>"Mojolicious")],
         ]
     });    
 
