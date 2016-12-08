@@ -27,6 +27,10 @@ qqwry 166.111.166.100:清华大学学生宿舍14号楼
 下载地址:
 
 https://github.com/bollwarm/ipwhere/blob/master/QQWry.Dat
+
+oschina同步更新，如果github太慢通过osc下载
+
+https://git.oschina.net/ijz/ipwhere/raw/master/QQWry.Dat
 安装库可以简单通过cpanm IP::IPwhere IP::QQWry
 
 并把下面部分注释掉。
