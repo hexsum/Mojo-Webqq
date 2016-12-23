@@ -49,7 +49,7 @@
 |   API  |获取用户数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_user_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_user_info|
 
@@ -85,7 +85,7 @@
 |   API  |获取好友数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_friend_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_friend_info|
 返回JSON数组:
@@ -125,7 +125,7 @@
 |   API  |获取群组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_info|
 返回JSON数组:
@@ -186,7 +186,7 @@
 |   API  |获取群组数据(不包含群成员)
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_basic_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_basic_info|
 
@@ -194,7 +194,7 @@
 |   API  |获取讨论组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_discuss_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_discuss_info|
 返回JSON数组:
@@ -341,7 +341,7 @@ Content-Type: application/json
     "group_id":"2617047292",
     "gnumber":"67890",
     "msg_id":"10856",
-    "type":"group_message"
+    "type":"group_message" //分别为message｜group_message|discuss_message|sess_message(已被屏障)四种类别
 }
 
 ```
