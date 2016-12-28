@@ -1,7 +1,6 @@
 package Mojo::Webqq::Request;
 use Mojo::Util ();
 use List::Util qw(first);
-use File::Spec ();
 sub gen_url{
     my $self = shift;
     my ($url,@query_string) = @_;

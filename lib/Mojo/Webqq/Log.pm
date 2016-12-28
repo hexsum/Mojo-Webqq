@@ -22,7 +22,7 @@ has handle => sub {
 };
 has history => sub { [] };
 has level => 'debug';
-has head => undef;
+has head => '';
 has encoding => undef;
 has disable_color   => 0;
 has console_output  => 0;

@@ -93,7 +93,6 @@ sub call{
     get '/openqq/get_group_info'    => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_group_basic_info'    => sub {$_[0]->safe_render(json=>[map {delete $_->{member};$_} map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_discuss_info'  => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->discuss}]); };
-    get '/openqq/get_recent_info'   => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->recent}]);};
     any [qw(GET POST)] => '/openqq/send_friend_message'         => sub{
         my $c = shift;
         my $p = $c->params;

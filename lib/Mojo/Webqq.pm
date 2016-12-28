@@ -150,7 +150,7 @@ has g_pt_version           => 10179;
 has rc                     => 1;
 has csrf_token             => undef;
 has model_ext              => 0;
-#{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0,recent=>0}
+#{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0}
 has model_status           => sub {+{}}; 
 
 sub on {
