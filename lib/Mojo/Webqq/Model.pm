@@ -455,15 +455,10 @@ sub update_group_member_ext {
             for(@$unique_member){
                 my $id = $_->name . (defined($_->card)?$_->card:"");
                 next if not exists $mext->{$id};
-                #$_->{qage} = $mext->{$id}{qage};
-                #$_->{level} = $mext->{$id}{level};
-                #$_->{bad_record} = $mext->{$id}{bad_record};
-                #$_->{uid} = $mext->{$id}{uid};
-                #$_->{role} = $mext->{$id}{role};
-                #$_->{join_time} = $mext->{$id}{join_time};
-                #$_->{last_speak_time} = $mext->{$id}{last_speak_time};
                 $_->update($mext->{$id});
             }
+            $group->{max_member} //= $group_info_ext->{max_member};
+            $group->{max_admin} //= $group_info_ext->{max_admin};
             $self->emit("model_update","group_member_ext",1);
         }
         else{$self->warn("更新群组[ " . $group->name . " ]成员扩展信息失败");}
