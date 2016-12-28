@@ -232,7 +232,7 @@
 ### 发送好友消息
 |   API  |发送好友消息
 |--------|:------------------------------------------|
-|uri     |/openqq/send_message|
+|uri     |/openqq/send_friend_message|
 |请求方法|GET\|POST|
 |请求参数|**id**: 好友的id（每次扫描登录可能会变化）<br>**uid**: 好友的QQ号<br>**content**: 发送的消息(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
@@ -247,7 +247,7 @@
 |--------|:------------------------------------------|
 |url     |/openqq/send_group_message|
 |请求方法|GET\|POST|
-|请求参数|**gid**: 群组的id（每次扫描登录可能会变化）<br>**uid**: 群号码<br>**content**:消息内容(中文需要做urlencode)|
+|请求参数|**id**: 群组的id（每次扫描登录可能会变化）<br>**uid**: 群号码<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
 |调用示例|http://127.0.0.1:5000/openqq/send_group_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_group_message?uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
