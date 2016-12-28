@@ -13,11 +13,10 @@ sub Mojo::Webqq::Model::_get_group_list_info_ext {
         for my $t (qw(join manage create)){
             for(@{$json->{$t}}){
                 my $group = {};
-                $group->{gname} = $self->xmlescape_parse($_->{gn});
-                $group->{gnumber} = $_->{gc};
-                $group->{gowner} = $_->{owner};
-                $group->{gtype} = $t eq "join"?"attend":$t;
-                $self->reform_hash($group); 
+                $group->{name} = $self->xmlescape_parse($_->{gn});
+                $group->{uid} = $_->{gc};
+                $group->{owner_uid} = $_->{owner};
+                $group->{role} = $t eq "join"?"attend":$t;
                 push @result,$group;
             }
         }

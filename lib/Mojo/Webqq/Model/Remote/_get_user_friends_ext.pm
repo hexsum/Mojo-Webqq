@@ -1,5 +1,4 @@
 use strict;
-use Encode;
 sub Mojo::Webqq::Model::_get_user_friends_ext {
     my $self = shift;
     my $callback = shift;
@@ -12,15 +11,14 @@ sub Mojo::Webqq::Model::_get_user_friends_ext {
         #{"ec":0,"result":{"0":{"mems":[{"name":"卖茶叶和眼镜per","uin":744891290}]},"1":{"gname":"朋友"},"2":{"gname":"家人"},"3":{"gname":"同学"}}}
         my @result;
         for my $category_index (keys %{$json->{result}}){
-            my $category = ($category_index==0 and !defined $json->{result}{$category_index}{gname})?decode("utf8","我的好友"):($json->{result}{$category_index}{gname});
+            my $category = ($category_index==0 and !defined $json->{result}{$category_index}{gname})?"我的好友":($json->{result}{$category_index}{gname});
             next if ref $json->{result}{$category_index}{mems} ne "ARRAY";
             for my $f (@{ $json->{result}{$category_index}{mems} }){
                 my $friend = {
                     category    =>  $self->xmlescape_parse($category),
                     displayname =>  $self->xmlescape_parse($f->{name}),
-                    qq          =>  $f->{uin},
+                    uid          =>  $f->{uin},
                 } ;
-                $self->reform_hash($friend);
                 push @result,$friend;
             }
         } 

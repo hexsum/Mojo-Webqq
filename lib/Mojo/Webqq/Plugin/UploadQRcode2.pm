@@ -1,9 +1,9 @@
 package Mojo::Webqq::Plugin::UploadQRcode2;
 our $CALL_ON_LOAD=1;
 use strict;
+use Mojo::Util ();
 use Time::HiRes ();
 use Digest::SHA ();
-use Mojo::Util ();
 sub call{
     my $client = shift;
     my $data = shift;
@@ -48,7 +48,7 @@ sub upload {
         return;
     }
     elsif(defined $json and $json->{code} != 0 ){
-        $client->warn("二维码图片上传云存储失败: " . $client->encode_ut8($json->{message}));
+        $client->warn("二维码图片上传云存储失败: " . $json->{message});
         return;
     }
     

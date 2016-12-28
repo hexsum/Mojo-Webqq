@@ -5,7 +5,7 @@ our $PRIORITY = 100;
 use POSIX ();
 sub do_speak_limit{
     my($client,$data,$speak_counter,$msg) = @_;
-    my $gid = $msg->group->gid;
+    my $gid = $msg->group->id;
     my $sender_id = $msg->sender->id;
 
     my $warn_limit = $data->{speak_limit}{warn_limit};
@@ -16,7 +16,7 @@ sub do_speak_limit{
 
     my $kick_limit = $data->{speak_limit}{kick_limit};
 
-    my $count = $speak_counter->check($gid . "|" . $sender_id,$msg->msg_time);
+    my $count = $speak_counter->check($gid . "|" . $sender_id,$msg->time);
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->group->kick_group_member($msg->sender);
         $speak_counter->clear($gid . "|" . $sender_id);
@@ -31,7 +31,7 @@ sub do_speak_limit{
 }
 sub do_pic_limit{
     my($client,$data,$pic_counter,$msg) = @_;
-    my $gid = $msg->group->gid;
+    my $gid = $msg->group->id;
     my $sender_id = $msg->sender->id;
     return if not first {$_->{type} eq 'cface'} @{$msg->raw_content};    
 
@@ -45,7 +45,7 @@ sub do_pic_limit{
 
     for(@{$msg->raw_content}){
         if($_->{type} eq 'cface'){
-            $pic_counter->count($gid . "|" . $sender_id,$msg->msg_time);
+            $pic_counter->count($gid . "|" . $sender_id,$msg->time);
         }
     }
     my $count = $pic_counter->look($gid . "|" . $sender_id);
@@ -63,7 +63,7 @@ sub do_pic_limit{
 }
 sub do_keyword_limit {
     my($client,$data,$keyword_counter,$msg) = @_;
-    my $gid = $msg->group->gid;
+    my $gid = $msg->group->id;
     my $sender_id = $msg->sender->id;
     my @keywords = ref $data->{keyword_limit}{keyword} eq "ARRAY"?@{$data->{keyword_limit}{keyword}}:();
     return if @keywords == 0;
@@ -76,7 +76,7 @@ sub do_keyword_limit {
 
     my $kick_limit = $data->{keyword_limit}{kick_limit};
 
-    my $count = $keyword_counter->check($gid  . "|" . $sender_id,$msg->msg_time);
+    my $count = $keyword_counter->check($gid  . "|" . $sender_id,$msg->time);
 
     if(defined $kick_limit and $count >= $kick_limit){
         $msg->sender->group->kick_group_member($msg->sender);
@@ -102,8 +102,8 @@ sub call {
             my($client,$msg) = @_;
             return if $msg->type ne "group_message";
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}};
             #说话频率限制
             do_speak_limit($client,$data,$speak_counter,$msg);
             #发图数量限制
@@ -113,8 +113,8 @@ sub call {
         },
         new_group           => sub {
             my $group = $_[1];
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
             $group->send($data->{new_group} || "大家好，初来咋到，请多关照");
             
         },
@@ -122,8 +122,8 @@ sub call {
         new_group_member    => sub {
             my $member = $_[1];
             my $group = $member->group;
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
             my $displayname = $member->displayname;
             return if $displayname eq "昵称未知";
             $group->send(
@@ -133,8 +133,8 @@ sub call {
         lose_group_member   => sub {
             my $member = $_[1];
             my $group = $member->group;
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
             my $displayname = $member->displayname;
             return if $displayname eq "昵称未知";
             $group->send(
@@ -148,12 +148,12 @@ sub call {
         group_member_property_change => sub {
             my($client,$member,$property,$old,$new)=@_;
             my $group = $member->group;
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->gnumber eq $_:$group->gname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
             return if $property ne "card";
             return if not defined($new);
             return if not defined($old);
-            $group->send('@' . (defined($old)?$old:$member->nick) . " 修改群名片为: $new");
+            $group->send('@' . (defined($old)?$old:$member->name) . " 修改群名片为: $new");
         }
     );
 }

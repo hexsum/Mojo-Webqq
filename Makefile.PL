@@ -12,6 +12,7 @@ WriteMakefile(
         "Time::Piece"           => 0,
         "Time::Seconds"         => 0,
         "Digest::MD5"           => 0,
+        #"Term::ANSIColor"       => 0,
         "Encode::Locale"        => 0,
         "IO::Socket::SSL"       => '1.94',
         "Mojolicious"           => '6.11',

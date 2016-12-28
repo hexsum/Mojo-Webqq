@@ -1,7 +1,6 @@
 package Mojo::Webqq::User;
 use strict;
-use base qw(Mojo::Base Mojo::Webqq::Model::Base);
-sub has { Mojo::Base::attr(__PACKAGE__, @_) };
+use Mojo::Webqq::Base 'Mojo::Webqq::Model::Base';
 has [qw(
     face
     birthday
@@ -9,8 +8,9 @@ has [qw(
     occupation
     allow
     college 
-    qq
     id
+    uid
+    sex
     blood
     constel
     homepage
@@ -18,20 +18,20 @@ has [qw(
     country
     city
     personal
-    nick
+    name
     shengxiao
     email
     token
     client_type
     province
-    gender
     mobile
     signature
 )];
-
+sub qq {$_[0]->uid}
+sub nick {$_[0]->name}
 sub displayname {
     my $self = shift;
-    return $self->nick;
+    return $self->name;
 }
 
 1;

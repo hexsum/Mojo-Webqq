@@ -1,8 +1,6 @@
 package Mojo::Webqq::Run;
 use List::Util qw(first);
-use base qw(Mojo::Base);
-sub has { Mojo::Base::attr(__PACKAGE__, @_) }
-
+use Mojo::Webqq::Base -base;
 use bytes;
 use Carp;
 use Errno;

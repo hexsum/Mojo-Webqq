@@ -8,25 +8,25 @@ sub call{
     $client->on(
         receive_message=>sub{
             my($client,$msg)=@_; 
-            if($msg->type eq 'message'){
+            if($msg->type eq 'friend_message'){
                 my $sender_nick = $msg->sender->displayname;
                 my $sender_category = $msg->sender->category || "好友";
                 #my $receiver_nick = $msg->receiver->nick;
                 my $receiver_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick|$sender_category :"},$msg->content);
+                $client->msg({time=>$msg->time,level_color=>'yellow',level=>"好友消息",title_color=>'yellow',title=>"$sender_nick|$sender_category :",content_color=>'yellow'},$msg->content);
                 
             }
             elsif($msg->type eq 'group_message'){
-                my $gname = $msg->group->gname;
+                my $gname = $msg->group->name;
                 my $sender_nick = $msg->sender->displayname;
-                return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$gname eq $_} @{$data->{ban_group}};
-                return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$gname eq $_} @{$data->{allow_group}};
-                $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick|$gname :"},$msg->content);
+                return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$gname eq $_} @{$data->{ban_group}};
+                return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$gname eq $_} @{$data->{allow_group}};
+                $client->msg({time=>$msg->time,level_color=>'cyan',level=>"群消息",title_color=>'cyan',title=>"$sender_nick|$gname :",content_color=>'cyan'},$msg->content);
             }
             elsif($msg->type eq 'discuss_message'){
-                my $dname = $msg->discuss->dname;
+                my $dname = $msg->discuss->name;
                 my $sender_nick = $msg->sender->displayname;
-                $client->info({time=>$msg->msg_time,level=>"讨论组消息",title=>"$sender_nick|$dname :"},$msg->content);
+                $client->msg({time=>$msg->time,level_color=>'magenta',level=>"讨论组消息",title_color=>'magenta',title=>"$sender_nick|$dname :",content_color=>'magenta'},$msg->content);
             }
             elsif($msg->type eq 'sess_message'){
                 my $sender_nick;
@@ -35,41 +35,41 @@ sub call{
                 my $dname;
                 if($msg->via eq "group"){
                     $sender_nick = $msg->sender->displayname;
-                    $gname = $msg->group->gname;
-                    $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick|$gname :"},$msg->content);
+                    $gname = $msg->group->name;
+                    $client->msg({time=>$msg->time,level_color=>'green',level=>"群临时消息",title_color=>'green',title=>"$sender_nick|$gname :",content_color=>'green'},$msg->content);
                 }
                 elsif($msg->via eq "discuss"){
                     $sender_nick = $msg->sender->displayname;
-                    $dname = $msg->discuss->dname;
-                    $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick|$dname :"},$msg->content);
+                    $dname = $msg->discuss->name;
+                    $client->msg({time=>$msg->time,level_color=>'green',level=>"讨论组临时消息",title_color=>'green',title=>"$sender_nick|$dname :",content_color=>'green'},$msg->content);
                 }
             }
         },
         send_message=>sub{
-            my($client,$msg,$status)=@_;
+            my($client,$msg)=@_;
             my $attach = '';
-            if($status->is_success){
-                if(defined $status->info and $status->info ne "发送正常" ){
-                    $attach = "[" . $status->info . "]";
+            if($msg->is_success){
+                if(defined $msg->info and $msg->info ne "发送正常" ){
+                    $attach = "[" . $msg->info . "]";
                 }
             }
             else{
-                $attach = "[发送失败".(defined $status->info?"(".$status->info.")":"") . "]";
+                $attach = "[发送失败".(defined $msg->info?"(".$msg->info.")":"") . "]";
             }
-            if($msg->type eq 'message'){
+            if($msg->type eq 'friend_message'){
                 my $sender_nick = "我";
                 my $receiver_nick = $msg->receiver->displayname;
-                $client->info({time=>$msg->msg_time,level=>"好友消息",title=>"$sender_nick->$receiver_nick :"},$msg->content . $attach);
+                $client->msg({time=>$msg->time,level_color=>'yellow',level=>"好友消息",title_color=>'yellow',title=>"$sender_nick->$receiver_nick :",content_color=>'yellow'},$msg->content . $attach);
             }
             elsif($msg->type eq 'group_message'){
-                my $gname = $msg->group->gname;
+                my $gname = $msg->group->name;
                 my $sender_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"群消息",title=>"$sender_nick->$gname :"},$msg->content . $attach);
+                $client->msg({time=>$msg->time,level_color=>'cyan',level=>"群消息",title_color=>'cyan',title=>"$sender_nick->$gname :",content_color=>'cyan'},$msg->content . $attach);
             }
             elsif($msg->type eq 'discuss_message'){
-                my $dname = $msg->discuss->dname;
+                my $dname = $msg->discuss->name;
                 my $sender_nick = "我";
-                $client->info({time=>$msg->msg_time,level=>"讨论组消息",title=>"$sender_nick->$dname :"},$msg->content . $attach);
+                $client->msg({time=>$msg->time,level_color=>'magenta',level=>"讨论组消息",title_color=>'magenta',title=>"$sender_nick->$dname :",content_color=>'magenta'},$msg->content . $attach);
             }
             elsif($msg->type eq 'sess_message'){
                 my $sender_nick = "我";
@@ -78,17 +78,17 @@ sub call{
                 my $dname;
                 if($msg->via eq "group"){
                     $receiver_nick = $msg->receiver->displayname;
-                    $gname = $msg->group->gname;
-                    $client->info({time=>$msg->msg_time,level=>"群临时消息",title=>"$sender_nick->$receiver_nick|$gname :"},$msg->content . $attach);
+                    $gname = $msg->group->name;
+                    $client->msg({time=>$msg->time,level_color=>'green',level=>"群临时消息",title_color=>'green',title=>"$sender_nick->$receiver_nick|$gname :",content_color=>'green'},$msg->content . $attach);
                 }
                 elsif($msg->via eq "discuss"){
                     $receiver_nick = $msg->receiver->displayname;
-                    $dname = $msg->discuss->dname;
-                    $client->info({time=>$msg->msg_time,level=>"讨论组临时消息",title=>"$sender_nick->$receiver_nick|$dname :"},$msg->content . $attach);
+                    $dname = $msg->discuss->name;
+                    $client->msg({time=>$msg->time,level_color=>'green',level=>"讨论组临时消息",title_color=>'green',title=>"$sender_nick->$receiver_nick|$dname :",content_color=>'green'},$msg->content . $attach);
                 }
             }
         }
     );
 }
 
-1
+1;

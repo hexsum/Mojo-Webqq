@@ -10,10 +10,10 @@ sub call{
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         if($msg->type eq "group_message"){
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}}
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}}
         }
-        return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
+        return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
         
         if($flag == 0  and $msg->content eq $command){
             $msg->allow_plugin(0);
@@ -34,9 +34,9 @@ sub call{
                         return if not defined $json;
                         return if $json->{status} != 0;
                         return if ref $json->{data} ne "ARRAY";
-                        my $answer = encode("utf8",$json->{data}[0]{body});
+                        my $answer = $json->{data}[0]{body};
                         $flag = 1; 
-                        $msg->reply("文曲星君题戏三界($json->{data}[0]{id}):\n" . encode("utf8",$json->{data}[0]{title}),sub{$_[1]->msg_from("bot")}); 
+                        $msg->reply("文曲星君题戏三界($json->{data}[0]{id}):\n" . $json->{data}[0]{title},sub{$_[1]->from("bot")}); 
 
                         $client->wait(
                             $data->{timeout} || 30,#等待答案超时时间

@@ -18,10 +18,11 @@ sub Mojo::Webqq::Model::_get_discuss_list_info {
         my $json = shift;
         return unless defined $json;
         return undef if $json->{retcode}!=0;  
+        #{"retcode":0,"result":{"dnamelist":[{"name":"test","did":612950676}]}}
         for(@{ $json->{result}{dnamelist} }){
-            $_->{dname} = delete $_->{name};
-            $self->reform_hash($_);
+            $_->{id} = delete $_->{did};
         } 
+        
         return $json->{result}{dnamelist};
     };
     if($is_blocking){

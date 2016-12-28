@@ -1,7 +1,6 @@
 package Mojo::Webqq::Recent::Friend;
 use strict;
-use base qw(Mojo::Base Mojo::Webqq::Model::Base);
-sub has { Mojo::Base::attr(__PACKAGE__, @_) };
+use Mojo::Webqq::Base 'Mojo::Webqq::Model::Base';
 has [qw(
     id
     type

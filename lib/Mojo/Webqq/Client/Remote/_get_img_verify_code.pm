@@ -1,4 +1,4 @@
-use Encode;
+use Encode ();
 use Encode::Locale;
 sub Mojo::Webqq::Client::_get_img_verify_code{
     my $self = shift;
@@ -10,7 +10,7 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
     my @query_string = (
         aid        => $self->g_appid,
         r          => rand(),
-        uin        => $self->qq, 
+        uin        => $self->uid, 
         cap_cd     => $self->cap_cd,
     );    
 
@@ -37,7 +37,7 @@ sub Mojo::Webqq::Client::_get_img_verify_code{
         else{$self->fatal("无法从回调函数中获取有效的验证码");$self->stop();return 0;}
     }
     elsif(-t STDIN){
-        my $filename_for_console = encode("utf8",decode(locale_fs,$self->verifycode_path));
+        my $filename_for_console = Encode::encode("utf8",Encode::decode(locale_fs,$self->verifycode_path));
         my $info = $self->log->format->(time,"info","请输入图片验证码 [ $filename_for_console ]: ");
         chomp($info);
         $self->log->append($info);

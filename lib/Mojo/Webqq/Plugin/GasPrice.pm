@@ -1,7 +1,6 @@
 package Mojo::Webqq::Plugin::GasPrice;
 use strict;
 use POSIX qw(strftime);
-use Encode;
 use Mojo::Util qw(url_escape);
 use List::Util qw(first);
 our $PRIORITY = 91;
@@ -34,8 +33,8 @@ sub call{
 
 		#如果是群消息，则判断是否有设置禁止群和允许群（设置是由load插件的时候传入的参数设置）
 		if($msg->type eq 'group_message'){
-			return if( ref $data->{ban_group} eq "ARRAY" and first { $_ =~ /^\d+$/ ? $msg->group->gnumber eq $_ : $msg->group->gname eq $_} @{$data->{ban_group}} );
-            return if( ref $data->{allow_group} eq "ARRAY" and !first { $_ =~ /^\d+$/ ? $msg->group->gnumber eq $_ : $msg->group->gname eq $_} @{$data->{allow_group}} );
+			return if( ref $data->{ban_group} eq "ARRAY" and first { $_ =~ /^\d+$/ ? $msg->group->uid eq $_ : $msg->group->name eq $_} @{$data->{ban_group}} );
+            return if( ref $data->{allow_group} eq "ARRAY" and !first { $_ =~ /^\d+$/ ? $msg->group->uid eq $_ : $msg->group->name eq $_} @{$data->{allow_group}} );
 		}
 
 		#获取接受消息的内容
@@ -64,12 +63,12 @@ sub call{
             return unless defined $json;
 			my $resultArray = $json->{showapi_res_body}->{list};
 			return if scalar(@$resultArray) <= 0 ;
-            my $ct = encode("utf8",$resultArray->[0]->{ct});
-            my $p0 = encode("utf8",$resultArray->[0]->{p0});
-            my $p90 = encode("utf8",$resultArray->[0]->{p90});
-            my $p93 = encode("utf8",$resultArray->[0]->{p93});
-            my $p97 = encode("utf8",$resultArray->[0]->{p97});
-            my $prov = encode("utf8",$resultArray->[0]->{prov});
+            my $ct = $resultArray->[0]->{ct};
+            my $p0 = $resultArray->[0]->{p0};
+            my $p90 =$resultArray->[0]->{p90};
+            my $p93 = $resultArray->[0]->{p93};
+            my $p97 = $resultArray->[0]->{p97};
+            my $prov = $resultArray->[0]->{prov};
             my $reply = "您好！".$prov."的油价情况如下:\n\t发布时间:".$ct."\n\t"
 						. "0#:".$p0."\n\t"
 						. "90#:".$p90."\n\t"
@@ -81,7 +80,7 @@ sub call{
     			my $content = $msg->content;
     			$content .= $msg_tail;
     			$msg->content($content);
-				$msg->msg_from("bot");}) if $reply;
+				$msg->from("bot");}) if $reply;
         });
 	};
 	$client->on(receive_message=>$callBack);

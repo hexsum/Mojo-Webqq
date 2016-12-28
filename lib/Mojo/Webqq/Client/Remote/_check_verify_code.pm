@@ -8,7 +8,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
     my $query_string_ul = 'http%3A%2F%2Fw.qq.com%2Fproxy.html';
     my @query_string = (
         pt_tea      =>  ($self->login_type eq "qrlogin"?2:1),
-        uin         =>  $self->qq,
+        uin         =>  $self->uid,
         appid       =>  $self->g_appid,
         js_ver      =>  $self->g_pt_version,
         js_type     =>  0,
@@ -20,7 +20,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
     $self->ua->cookie_jar->add(
         Mojo::Cookie::Response->new(
             name   => "chkuin",
-            value  => $self->qq,
+            value  => $self->uid,
             domain => "ptlogin2.qq.com", 
             path   => "/",
         )

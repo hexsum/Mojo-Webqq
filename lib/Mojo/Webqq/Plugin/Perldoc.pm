@@ -14,7 +14,7 @@ sub call{
         return if not $msg->allow_plugin;
         if($msg->content =~ /perldoc\s+-(v|f)\s+([^ ]+)/){
             $msg->allow_plugin(0);
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+            return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
             my($p,$v) = ("-$1",$2);
             $client->spawn(
                 cmd  =>sub{
@@ -27,7 +27,7 @@ sub call{
                     my($pid,$res)=@_;
                     my $reply;
                     if($res->{exit_status}==0){
-                        $reply = $client->truncate($res->{stdout},max_lines=>10,max_bytes=>2000); 
+                        $reply = $client->truncate($res->{stdout},max_lines=>8,max_bytes=>2000); 
                         $reply .= "\n查看更多内容: http://perldoc.perl.org/functions/$v.html" if $p eq "-f";
                         $reply .= "\n查看更多内容: http://perldoc.perl.org/perlvar.html" if $p eq "-v";
                     }
@@ -43,7 +43,7 @@ sub call{
         }
         elsif($msg->content =~ /perldoc\s+((\w+::)*\w+)/){
             $msg->allow_plugin(0);
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+            return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
             my $module = $1;
             my $cache  = $metacpan_cache->retrieve($module);
             if(defined $cache){
@@ -81,7 +81,7 @@ sub call{
                         if($SYNOPSIS){
                             $doc .= "用法概要: $SYNOPSIS\n" ;
                             $doc=~s/\n+$//;
-                            $doc  = $client->truncate($doc,max_bytes=>1000,max_lines=>30);
+                            $doc  = $client->truncate($doc,max_bytes=>1000,max_lines=>8);
                         }
                         $metacpan_cache->store($module,{code=>$code,doc=>$doc},604800);
                         $client->reply_message($msg,$doc); 

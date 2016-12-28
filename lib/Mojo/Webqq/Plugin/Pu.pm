@@ -16,7 +16,7 @@ sub call {
         my $reply;
         eval{$reply = Mojo::Util::encode("utf8",ZHOUYI::ZhanPu::pu()); };
         $client->error( __PACKAGE__ . $@);
-        $msg->reply($reply,sub{$_[1]->msg_from("bot")}) if $reply;
+        $msg->reply($reply,sub{$_[1]->from("bot")}) if $reply;
     });
 }
 1;

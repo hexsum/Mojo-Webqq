@@ -19,14 +19,14 @@ sub Mojo::Webqq::Model::_get_group_info {
         my $minfo_status = ref $json->{result}{minfo} eq "ARRAY"?"[minfo-ok]":"[minfo-not-ok]";
         
         return undef unless exists $json->{result}{ginfo};
-        $json->{result}{ginfo}{gcode} = delete $json->{result}{ginfo}{code};
-        $json->{result}{ginfo}{gname} = $self->xmlescape_parse(delete $json->{result}{ginfo}{name});
-        $json->{result}{ginfo}{gmemo} = delete $json->{result}{ginfo}{memo};
-        #$json->{result}{ginfo}{gclass} = delete $json->{result}{ginfo}{class};
-        $json->{result}{ginfo}{gcreatetime} = delete $json->{result}{ginfo}{createtime};
-        $json->{result}{ginfo}{glevel} = delete $json->{result}{ginfo}{level};
-        $json->{result}{ginfo}{gowner} = delete $json->{result}{ginfo}{owner};
-        $json->{result}{ginfo}{gmarkname} = $self->xmlescape_parse(delete $json->{result}{ginfo}{markname});
+        $json->{result}{ginfo}{id} = delete $json->{result}{ginfo}{gid};
+        $json->{result}{ginfo}{code} = delete $json->{result}{ginfo}{code};
+        $json->{result}{ginfo}{name} = $self->xmlescape_parse($json->{result}{ginfo}{name});
+        $json->{result}{ginfo}{memo} = delete $json->{result}{ginfo}{memo};
+        $json->{result}{ginfo}{createtime} = delete $json->{result}{ginfo}{createtime};
+        $json->{result}{ginfo}{level} = delete $json->{result}{ginfo}{level};
+        $json->{result}{ginfo}{owner_id} = delete $json->{result}{ginfo}{owner};
+        $json->{result}{ginfo}{markname} = $self->xmlescape_parse($json->{result}{ginfo}{markname});
         
         delete $json->{result}{ginfo}{fingermemo};
         delete $json->{result}{ginfo}{face};
@@ -34,8 +34,6 @@ sub Mojo::Webqq::Model::_get_group_info {
         delete $json->{result}{ginfo}{class};
         delete $json->{result}{ginfo}{flag};
         delete $json->{result}{ginfo}{members}; 
-        
-        $self->reform_hash($json->{result}{ginfo});
 
         #retcode等于0说明包含完整的ginfo和minfo
         if(exists $json->{result}{minfo} and ref $json->{result}{minfo} eq "ARRAY"){
@@ -52,7 +50,7 @@ sub Mojo::Webqq::Model::_get_group_info {
             }
             for my $m(@{ $json->{result}{minfo} }){
                 $m->{card} = $self->xmlescape_parse($cards{$m->{uin}}) if exists $cards{$m->{uin}};
-                $m->{nick} = $self->xmlescape_parse($m->{nick});
+                $m->{name} = $self->xmlescape_parse(delete $m->{nick});
                 if(exists $state{$m->{uin}}){
                     $m->{state} = $state{$m->{uin}}{state};
                     $m->{client_type} = $state{$m->{uin}}{client_type};
@@ -61,17 +59,9 @@ sub Mojo::Webqq::Model::_get_group_info {
                     $m->{state} = 'offline';
                     $m->{client_type} = 'unknown';
                 }
-                $m->{gid} = $json->{result}{ginfo}{gid};
-                $m->{gcode} = $json->{result}{ginfo}{gcode};
-                $m->{gname} = $json->{result}{ginfo}{gname};
-                #$m->{gmemo} = $json->{result}{ginfo}{gmemo};
-                #$m->{gclass} = $json->{result}{ginfo}{gclass};
-                $m->{gcreatetime} = $json->{result}{ginfo}{gcreatetime};
-                $m->{glevel} = $json->{result}{ginfo}{glevel};
-                $m->{gowner} = $json->{result}{ginfo}{gowner};
-                $m->{gmarkname} = $json->{result}{ginfo}{gmarkname};
+                $m->{_group_id} = $json->{result}{ginfo}{id};
                 $m->{id}    = delete $m->{uin};
-                $self->reform_hash($m);
+                $m->{sex}    = delete $m->{gender};
             }
             $json->{result}{ginfo}{member} = delete $json->{result}{minfo};
         }

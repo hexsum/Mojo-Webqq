@@ -17,7 +17,7 @@ sub Mojo::Webqq::Client::change_state{
     return undef unless defined $json;
     return undef if $json->{retcode} !=0;
     $self->state($state);
-    $self->info("登录状态已修改为：$state\n");
+    $self->info("登录状态已修改为：$state");
     return $state;
 }
 1;

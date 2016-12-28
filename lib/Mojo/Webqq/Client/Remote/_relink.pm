@@ -12,7 +12,7 @@ sub Mojo::Webqq::Client::_relink{
         psessionid  =>  $self->psessionid,
     );    
     
-    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)});
+    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)});
     unless(defined $data){
         $self->relogin();
         return 0;

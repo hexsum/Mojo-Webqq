@@ -1,5 +1,4 @@
 use strict;
-use Encode;
 use Mojo::Webqq::Server;
 package Mojo::Webqq::Plugin::Openqq;
 $Mojo::Webqq::Plugin::Openqq::PRIORITY = 98;
@@ -12,20 +11,20 @@ sub call{
     if(defined $post_api){
         $client->on(receive_message=>sub{
             my($client,$msg) = @_;
-            return if $msg->type !~ /^message|group_message|discuss_message|sess_message$/;
+            return if $msg->type !~ /^friend_message|group_message|discuss_message|sess_message$/;
             $client->http_post($post_api,json=>$msg->to_json_hash,sub{
                 my($data,$ua,$tx) = @_;
                 if($tx->success){
-                    $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->msg_id."]上报成功");
+                    $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->id."]上报成功");
                     if($tx->res->headers->content_type =~m#text/json|application/json#){
                         #文本类的返回结果必须是json字符串
                         my $json;
-                        eval{$json = $tx->res->json};
+                        eval{$json = $client->from_json($tx->res->body)};
                         if($@){$client->warn($@);return}
                         if(defined $json){
                             #{code=>0,reply=>"回复的消息",format=>"text"}
                             if((!defined $json->{format}) or (defined $json->{format} and $json->{format} eq "text")){
-                                $msg->reply(Encode::encode("utf8",$json->{reply})) if defined $json->{reply}; 
+                                $msg->reply($json->{reply}) if defined $json->{reply}; 
                             } 
                             if($msg->type eq "group_message" and defined $json->{shutup} and $json->{shutup} == 1){
                                 $msg->sender->shutup($json->{shutup_time} || 60);
@@ -37,24 +36,48 @@ sub call{
                     #}
                 }
                 else{
-                    $client->warn("插件[".__PACKAGE__ . "]接收消息[".$msg->msg_id."]上报失败: ".$tx->error->{message}); 
+                    $client->warn("插件[".__PACKAGE__ . "]接收消息[".$msg->id."]上报失败: ". $client->encode_utf8($tx->error->{message})); 
                 }
             });
         });
     }
 
+    package Mojo::Webqq::Plugin::Openqq::App::Controller;
+    use Mojo::JSON ();
+    use Mojo::Util ();
+    use base qw(Mojolicious::Controller);
+    sub render{
+        my $self = shift;
+        if($_[0] eq 'json'){
+            $self->res->headers->content_type('application/json');
+            $self->SUPER::render(data=>Mojo::JSON::to_json($_[1]),@_[2..$#_]);
+        }
+        else{$self->SUPER::render(@_)}
+    }
+    sub safe_render{
+        my $self = shift;
+        $self->render(@_) if (defined $self->tx and !$self->tx->is_finished);
+    }
+    sub param{
+        my $self = shift;
+        my $data = $self->SUPER::param(@_);
+        defined $data?Mojo::Util::encode("utf8",$data):undef;
+    }
+    sub params {
+        my $self = shift;
+        my $hash = $self->req->params->to_hash ;
+        $client->reform($hash);
+        return $hash;
+    }
     package Mojo::Webqq::Plugin::Openqq::App;
-    use Encode;
+    use Encode ();
     use Mojolicious::Lite;
-    helper safe_render =>sub {
-        my $c = shift;
-        $c->render(@_) if (defined $c->tx and !$c->tx->is_finished); 
-    };
+    app->controller_class('Mojo::Webqq::Plugin::Openqq::App::Controller');
     under sub {
         my $c = shift;
         if(ref $data eq "HASH" and ref $data->{auth} eq "CODE"){
             my $hash  = $c->req->params->to_hash;
-            $client->reform_hash($hash);
+            $client->reform($hash);
             my $ret = 0;
             eval{
                 $ret = $data->{auth}->($hash,$c);
@@ -71,94 +94,93 @@ sub call{
     get '/openqq/get_group_basic_info'    => sub {$_[0]->safe_render(json=>[map {delete $_->{member};$_} map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_discuss_info'  => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->discuss}]); };
     get '/openqq/get_recent_info'   => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->recent}]);};
-    any [qw(GET POST)] => '/openqq/send_message'         => sub{
+    any [qw(GET POST)] => '/openqq/send_friend_message'         => sub{
         my $c = shift;
-        my($id,$qq,$content)=($c->param("id"),$c->param("qq"),$c->param("content"));
-        my $friend = $client->search_friend(id=>$id,qq=>$qq);
+        my $p = $c->params;
+        my $friend = $client->search_friend(id=>$p->{id},uid=>$p->{uid});
         if(defined $friend){
             $c->render_later;
-            $client->send_message($friend,encode("utf8",$content),sub{
+            $client->send_friend_message($friend,$p->{content},sub{
                 my $msg= $_[1];
                 $msg->cb(sub{
-                    my($client,$msg,$status)=@_;
-                    $c->safe_render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});  
+                    my($client,$msg)=@_;
+                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});  
                 });
-                $msg->msg_from("api");
+                $msg->from("api");
             });
         }
-        else{$c->safe_render(json=>{msg_id=>undef,code=>100,status=>"friend not found"});}
+        else{$c->safe_render(json=>{id=>undef,code=>100,status=>"friend not found"});}
     };
     any [qw(GET POST)] => 'openqq/send_group_message'    => sub{
         my $c = shift;
-        my($gid,$gnumber,$content)=($c->param("gid"),$c->param("gnumber"),$c->param("content"));
-        my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber,);
+        my $p = $c->params;
+        my $group = $client->search_group(id=>$p->{id},uid=>$p->{uid},);
         if(defined $group){
             $c->render_later;
-            $client->send_group_message($group,encode("utf8",$content),sub{
+            $client->send_group_message($group,$p->{content},sub{
                 my $msg = $_[1];
                 $msg->cb(sub{
-                    my($client,$msg,$status)=@_;
-                    $c->safe_render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    my($client,$msg)=@_;
+                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
                 });
-                $msg->msg_from("api");
+                $msg->from("api");
             });
         }
-        else{$c->safe_render(json=>{msg_id=>undef,code=>101,status=>"group not found"});}
+        else{$c->safe_render(json=>{id=>undef,code=>101,status=>"group not found"});}
     };
     any [qw(GET POST)] => 'openqq/send_discuss_message'  => sub{
         my $c = shift;
-        my($did,$content)=($c->param("did"),$c->param("content"));
-        my $discuss = $client->search_discuss(did=>$did);
+        my $p = $c->params;
+        my $discuss = $client->search_discuss(id=>$p->{id});
         if(defined $discuss){
             $c->render_later;
-            $client->send_discuss_message($discuss,encode("utf8",$content),sub{
+            $client->send_discuss_message($discuss,$p->{content},sub{
                 my $msg = $_[1];
                 $msg->cb(sub{
-                    my($client,$msg,$status)=@_;
-                    $c->safe_render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                    my($client,$msg)=@_;
+                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
                 });
-                $msg->msg_from("api");
+                $msg->from("api");
             });
         }
-        else{$c->safe_render(json=>{msg_id=>undef,code=>102,status=>"discuss not found"});}
+        else{$c->safe_render(json=>{id=>undef,code=>102,status=>"discuss not found"});}
     };
     any [qw(GET POST)] => '/openqq/send_sess_message'    => sub{
         my $c = shift;
-        my($gid,$gnumber,$did,$qq,$id,$content)=
-        ($c->param("gid"),$c->param("gnumber"),$c->param("did"),$c->param("qq"),$c->param("id"),$c->param("content"));
-        if(defined $gid or defined $gnumber){
-            my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber);
-            my $member = defined $group?$group->search_group_member(qq=>$qq,id=>$id):undef;
+        my $p = $c->params;
+        if(defined $p->{group_id} or defined $p->{group_uid}){
+            my $group = $client->search_group(id=>$p->{group_id},uid=>$p->{group_uid});
+            my $member = defined $group?$group->search_group_member(uid=>$p->{uid},id=>$p->{id}):undef;
             if(defined $member){
                 $c->render_later;
-                $client->send_sess_message($member,encode("utf8",$content),sub{
+                $client->send_sess_message($member,$p->{content},sub{
                     my $msg = $_[1];
                     $msg->cb(sub{
-                        my($client,$msg,$status)=@_;
-                        $c->safe_render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                        my($client,$msg)=@_;
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
                     });
-                    $msg->msg_from("api");
+                    $msg->from("api");
                 });
             }
-            else{$c->safe_render(json=>{msg_id=>undef,code=>103,status=>"group member not found"});}
+            else{$c->safe_render(json=>{id=>undef,code=>103,status=>"group member not found"});}
         }
-        elsif(defined $did){
-            my $discuss = $client->search_discuss(did=>$did);
-            my $member = defined $discuss?$discuss->search_discuss_member(qq=>$qq,id=>$id):undef;
+        elsif(defined $p->{discuss_id}){
+            my $discuss = $client->search_discuss(id=>$p->{discuss_id});
+            my $member = defined $discuss?$discuss->search_discuss_member(uid=>$p->{uid},id=>$p->{id}):undef;
             if(defined $member){
                 $c->render_later;
-                $client->send_sess_message($member,encode("utf8",$content),sub{
+                $client->send_sess_message($member,$p->{content},sub{
                     my $msg = $_[1];
                     $msg->cb(sub{
-                        my($client,$msg,$status)=@_;
-                        $c->safe_render(json=>{msg_id=>$msg->msg_id,code=>$status->code,status=>decode("utf8",$status->msg)});
+                        my($client,$msg)=@_;
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
                     });
-                    $msg->msg_from("api");
+                    $msg->from("api");
                 });
             }
-            else{$c->safe_render(json=>{msg_id=>undef,code=>104,status=>"discuss member not found"});}
+            else{$c->safe_render(json=>{id=>undef,code=>104,status=>"discuss member not found"});}
         }
-        else{$c->safe_render(json=>{msg_id=>undef,code=>105,status=>"discuss member or group member  not found"});}
+        else{$c->safe_render(json=>{id=>undef,code=>105,status=>"discuss member or group member  not found"});}
     };
     any [qw(GET POST)] => '/openqq/search_friend' => sub{
         my $c = shift;
@@ -186,18 +208,18 @@ sub call{
     };
     any [qw(GET POST)] => '/openqq/kick_group_member' => sub{
         my $c = shift;
-        my($gid,$gnumber,$members_id,$members_qq)=($c->param("gid"),$c->param("gnumber"),$c->param("member_id"),$c->param("member_qq"));
-        my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber,);
+        my $p = $c->params;
+        my $group = $client->search_group(id=>$p->{group_id},uid=>$p->{group_uid});
         if(not defined $group){ 
             $c->safe_render(json=>{code=>100,status=>"object not found"});
             return;
         }
 
-        my @id = split /,/,(defined($members_id)?$members_id:$members_qq); 
+        my @id = split /,/,($p->{member_id} // $p->{member_uid}); 
         if(@id){
             my @members;
             for(@id){
-                my $member = $group->search_group_member(defined($members_id)?(id=>$_):(qq=>$_));
+                my $member = $group->search_group_member(defined($p->{member_id})?(id=>$_):(uid=>$_));
                 if(not defined $member){
                     $c->safe_render(json=>{code=>100,status=>"member $_ not found"});
                     return;
@@ -215,28 +237,28 @@ sub call{
     };
     any [qw(GET POST)] => '/openqq/shutup_group_member' => sub{
         my $c = shift;
-        my($gid,$gnumber,$time,$members_id,$members_qq)=($c->param("gid"),$c->param("gnumber"),$c->param("time"),$c->param("member_id"),$c->param("member_qq"));
-        my $group = $client->search_group(gid=>$gid,gnumber=>$gnumber,);
+        my $p = $c->params;
+        my $group = $client->search_group(id=>$p->{group_id},uid=>$p->{group_uid});
         if(not defined $group){ 
             $c->safe_render(json=>{code=>100,status=>"object not found"});
             return;
         }
-        if(not defined $time or $time!~/^\d+$/){ 
+        if(not defined $p->{time} or $p->{time}!~/^\d+$/){ 
             $c->safe_render(json=>{code=>400,status=>"shutup time missing or error"});
             return;
         }
-        my @id = split /,/,(defined($members_id)?$members_id:$members_qq); 
+        my @id = split /,/,($p->{member_id} // $p->{member_uid}); 
         if(@id){
             my @members;
             for(@id){
-                my $member = $group->search_group_member(defined($members_id)?(id=>$_):(qq=>$_));
+                my $member = $group->search_group_member(defined($p->{member_id})?(id=>$_):(uid=>$_));
                 if(not defined $member){
                     $c->safe_render(json=>{code=>100,status=>"member $_ not found"});
                     return;
                 }
                 push @members,$member;
             }
-            if($group->shutup_group_member($time,@members)){
+            if($group->shutup_group_member($p->{time},@members)){
                 $c->safe_render(json=>{code=>0,status=>"success"});
             }
             else{

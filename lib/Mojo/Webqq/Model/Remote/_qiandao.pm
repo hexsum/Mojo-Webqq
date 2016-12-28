@@ -1,15 +1,15 @@
 sub Mojo::Webqq::Model::_qiandao {
-    my($self,$gnumber) = @_;
-    if(not defined $gnumber){
+    my($self,$uid) = @_;
+    if(not defined $uid){
         $self->warn("无效的群组号码");
         return;
     }
     my $api = 'http://qiandao.qun.qq.com/cgi-bin/sign';
     my $json = $self->http_post(
         $api,
-        {json=>1,Referer=>"http://qiandao.qun.qq.com/index.html?groupUin=$gnumber&appID=100729587"},
+        {json=>1,Referer=>"http://qiandao.qun.qq.com/index.html?groupUin=$uid&appID=100729587"},
         form=>{
-            gc=>$gnumber,
+            gc=>$uid,
             is_sign=>0,
             bkn=>$self->get_csrf_token,
         }

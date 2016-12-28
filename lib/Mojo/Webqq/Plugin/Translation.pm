@@ -10,14 +10,14 @@ sub call {
     my $callback = sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
-        return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+        return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
         if($msg->content =~ /^翻译\s+(.*)/s){
             my $query = $1;
             return if not $query;
             $msg->allow_plugin(0);
             my $salt = time;
             $client->http_get($api,{json=>1},form=>{
-                q     => decode("utf8",$query),
+                q     => $query,
                 from  => 'auto',
                 to    => 'auto',
                 appid => $appid,
@@ -27,10 +27,10 @@ sub call {
                 my $json = shift;
                 if( not defined $json ){$msg->reply("翻译失败: api接口不可用")}
                 elsif(defined $json and exists $json->{error_code}){
-                    $msg->reply("翻译失败: api接口不可用(" . encode("utf8", $json->{error_code} . " " . $json->{error_msg} ) . ")"); 
+                    $msg->reply("翻译失败: api接口不可用(" . $json->{error_code} . " " . $json->{error_msg} . ")"); 
                 }
                 elsif(defined $json){
-                    $msg->reply( encode("utf8",join " ",map {$_->{dst}} @{ $json->{trans_result} } ));
+                    $msg->reply( join " ",map {$_->{dst}} @{ $json->{trans_result} } );
                 }
             });
         } 

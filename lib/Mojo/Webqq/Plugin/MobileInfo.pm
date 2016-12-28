@@ -8,7 +8,7 @@ sub call{
     my $data = shift;
     my $callback = sub{
         my($client,$msg)=@_;
-        return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+        return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
         if ($msg->content =~ m/^手机\s+([0-9]{7,11})/g) {
             my $phone = $1;
             return unless $phone;

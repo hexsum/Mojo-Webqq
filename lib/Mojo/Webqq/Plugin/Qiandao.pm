@@ -7,13 +7,13 @@ sub call {
         my @groups;
         if(ref $data->{allow_group}  eq "ARRAY"){
             for my $g ($client->groups){
-                next if !first {$_=~/^\d+$/?$g->gnumber eq $_:$g->gname eq $_} @{$data->{allow_group}};
+                next if !first {$_=~/^\d+$/?$g->uid eq $_:$g->name eq $_} @{$data->{allow_group}};
                 push @groups,$g;
             }
         }
         elsif(ref $data->{ban_group}  eq "ARRAY"){
             for my $g ($client->groups){
-                next if first {$_=~/^\d+$/?$g->gnumber eq $_:$g->gname eq $_} @{$data->{ban_group}};
+                next if first {$_=~/^\d+$/?$g->uid eq $_:$g->name eq $_} @{$data->{ban_group}};
                 push @groups,$g;
             } 
         }

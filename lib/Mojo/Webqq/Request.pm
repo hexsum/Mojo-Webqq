@@ -1,6 +1,6 @@
 package Mojo::Webqq::Request;
-use List::Util qw(first);
 use Mojo::Util ();
+use List::Util qw(first);
 use File::Spec ();
 sub gen_url{
     my $self = shift;
@@ -15,6 +15,21 @@ sub gen_url{
     }
     return $url . '?' . join("&",@query_string_pairs);    
 }
+
+sub gen_url2{
+    my $self = shift;
+    my ($url,@query_string) = @_;
+    my @query_string_pairs;
+    while(@query_string){
+        my $key = shift(@query_string);
+        my $val = shift(@query_string);
+        $key = "" if not defined $key;
+        $val = "" if not defined $val;
+        push @query_string_pairs , $key . "=" . Mojo::Util::url_escape($val);
+    }
+    return $url . '?' . join("&",@query_string_pairs);
+}
+
 sub http_get{
     my $self = shift;
     return $self->_http_request("get",@_);
@@ -41,53 +56,78 @@ sub _ua_debug {
 }
 sub _http_request{
     my $self = shift;
-    my $method = shift;    #$method eq [get|post]
+    my $method = shift;
     my %opt = (
-        json                =>  0,
-        retry_times         =>  $self->ua_retry_times,
+        json                =>  0,  
+        blocking            =>  0,
+        ua_retry_times      =>  $self->ua_retry_times,
+        #ua_connect_timeout  =>  $self->ua_connect_timeout,
+        #ua_request_timeout  =>  $self->ua_request_timeout,
+        #ua_inactivity_timeout => $self->ua_inactivity_timeout,
         ua_debug            =>  $self->ua_debug,
         ua_debug_res_body   =>  $self->ua_debug_res_body,
         ua_debug_req_body   =>  $self->ua_debug_req_body
     );
     if(ref $_[1] eq "HASH"){#with header or option
         $opt{json} = delete $_[1]->{json} if defined $_[1]->{json};
-        $opt{retry_times} = delete $_[1]->{retry_times} if defined $_[1]->{retry_times};
+        $opt{blocking} = delete $_[1]->{blocking} if defined $_[1]->{blocking};
+        $opt{ua_retry_times} = delete $_[1]->{ua_retry_times} if defined $_[1]->{ua_retry_times};
         $opt{ua_debug}          = delete $_[1]->{ua_debug} if defined $_[1]->{ua_debug};
         $opt{ua_debug_res_body} = delete $_[1]->{ua_debug_res_body} if defined $_[1]->{ua_debug_res_body};
         $opt{ua_debug_req_body} = delete $_[1]->{ua_debug_req_body} if defined $_[1]->{ua_debug_req_body};
+        $opt{ua_connect_timeout} = delete $_[1]->{ua_connect_timeout} if defined $_[1]->{ua_connect_timeout};
+        $opt{ua_request_timeout} = delete $_[1]->{ua_request_timeout} if defined $_[1]->{ua_request_timeout};
+        $opt{ua_inactivity_timeout} = delete $_[1]->{ua_inactivity_timeout} if defined $_[1]->{ua_inactivity_timeout};
     }
-    if(ref $_[-1] eq "CODE"){
+    if(ref $_[-1] eq "CODE" and !$opt{blocking}){
         my $cb = pop;
         return $self->ua->$method(@_,sub{
             my($ua,$tx) = @_;
             _ua_debug($self,$ua,$tx,\%opt,0) if $opt{ua_debug};
             $self->save_cookie();
             if(defined $tx and $tx->success){
-                my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;
+                my $r = $opt{json}?$self->from_json($tx->res->body):$tx->res->body;
                 $cb->($r,$ua,$tx);
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . Mojo::Util::encode("utf8",$tx->error->{message}));
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message}));
                 $cb->(undef,$ua,$tx);
             }
         });
     }
     else{
         my $tx;
-        for(my $i=0;$i<=$opt{retry_times};$i++){
-            $tx = $self->ua->$method(@_);   #$method eq [get|post]
+        my $cb = pop if ref $_[-1] eq "CODE";
+        for(my $i=0;$i<=$opt{ua_retry_times};$i++){
+            if($opt{ua_connect_timeout} or  $opt{ua_request_timeout} or $opt{ua_inactivity_timeout}){
+                my $connect_timeout = $self->ua->connect_timeout;
+                my $request_timeout = $self->ua->request_timeout;
+                my $inactivity_timeout = $self->ua->inactivity_timeout;
+                $self->ua->connect_timeout($opt{ua_connect_timeout}) if $opt{ua_connect_timeout};
+                $self->ua->request_timeout($opt{ua_request_timeout}) if $opt{ua_request_timeout};
+                $self->ua->inactivity_timeout($opt{ua_inactivity_timeout}) if $opt{ua_inactivity_timeout};
+                $tx = $self->ua->$method(@_);
+                $self->ua->connect_timeout($connect_timeout)
+                        ->request_timeout($request_timeout)
+                        ->inactivity_timeout($inactivity_timeout);
+            }
+            else{
+                $tx = $self->ua->$method(@_);
+            }
             _ua_debug($self,$ua,$tx,\%opt,1) if $opt{ua_debug};
             $self->save_cookie();
             if(defined $tx and $tx->success){
-                my $r = $opt{json}?$self->decode_json($tx->res->body):$tx->res->body;
+                my $r = $opt{json}?$self->from_json($tx->res->body):$tx->res->body;
+                $cb->($r,$ua,$tx) if defined $cb;
                 return wantarray?($r,$self->ua,$tx):$r;
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . Mojo::Util::encode("utf8",$tx->error->{message}));
+                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . $self->encode_utf8($tx->error->{message}));
                 next;
             }
         }
-        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . Mojo::Util::encode("utf8",$tx->error->{message})) if defined $tx;
+        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message})) if defined $tx;
+        $cb->($r,$ua,$tx) if defined $cb;
         return wantarray?(undef,$self->ua,$tx):undef;
     }
 }
@@ -95,12 +135,8 @@ sub _http_request{
 sub load_cookie{
     my $self = shift;
     return if not $self->keep_cookie;
-    #if(not defined $self->qq){
-    #    $self->warn("未设置登录帐号, 无法加载登录cookie"); 
-    #    return;  
-    #}
     my $cookie_jar;
-    my $cookie_path = File::Spec->catfile($self->cookie_dir , 'mojo_webqq_cookie_' . ($self->is_set_qq && $self->qq?$self->qq:'default') . '.dat');
+    my $cookie_path = $self->cookie_path;
     return if not -f $cookie_path;
     eval{require Storable;$cookie_jar = Storable::retrieve($cookie_path)};
     if($@){
@@ -116,8 +152,7 @@ sub load_cookie{
 sub save_cookie{
     my $self = shift;
     return if not $self->keep_cookie;
-    #return if not defined $self->qq;
-    my $cookie_path = File::Spec->catfile($self->cookie_dir ,'mojo_webqq_cookie_' .($self->is_set_qq && $self->qq?$self->qq:'default') . '.dat');
+    my $cookie_path = $self->cookie_path;
     eval{Storable::nstore($self->ua->cookie_jar,$cookie_path);};
     $self->warn("客户端保存cookie[ $cookie_path ]失败: $@") if $@;
 }
@@ -133,7 +168,12 @@ sub search_cookie{
     else{
         @cookies = @tmp;
     }
-    my $c = first  { defined $_ and $_->name eq $cookie} @cookies;
+    my $c = first  { $_->name eq $cookie} @cookies;
     return defined $c?$c->value:undef;
+}
+sub clear_cookie{
+    my $self = shift;
+    $self->ua->cookie_jar->empty;
+    $self->save_cookie();
 }
 1;

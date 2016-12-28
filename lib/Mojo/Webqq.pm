@@ -2,35 +2,36 @@ package Mojo::Webqq;
 use strict;
 use Carp ();
 $Mojo::Webqq::VERSION = "1.8.9";
-use base qw(Mojo::Base);
+use Mojo::Webqq::Base 'Mojo::EventEmitter';
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
-use Mojo::Webqq::Counter;
-sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 use Time::HiRes qw(gettimeofday);
-use POSIX;
 use File::Spec ();
-use base qw(Mojo::EventEmitter Mojo::Webqq::Base Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Message Mojo::Webqq::Plugin Mojo::Webqq::Util);
+use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Plugin Mojo::Webqq::Request Mojo::Webqq::Util);
 
-has qq                  => undef;
+has account             => sub{ $ENV{MOJO_WEIXIN_ACCUNT} || 'default'};
 has pwd                 => undef;
 has security            => 0;
 has state               => 'online';   #online|away|busy|silent|hidden|offline|callme,
 has type                => 'smartqq';  #smartqq
 has login_type          => 'qrlogin';    #qrlogin|login
-has ua_debug            => 0;
+has http_debug          => sub{$ENV{MOJO_WEBQQ_HTTP_DEBUG} || 0 };
+has ua_debug            => sub{$_[0]->http_debug};
 has ua_debug_req_body   => sub{$_[0]->ua_debug};
 has ua_debug_res_body   => sub{$_[0]->ua_debug};
-has log_level           => 'info';     #debug|info|warn|error|fatal
+has log_level           => 'info';     #debug|info|msg|warn|error|fatal
 has log_path            => undef;
 has log_encoding        => undef;      #utf8|gbk|...
-has email               => undef;
+has log_head            => undef;
+has log_unicode         => 0;
+has log_console         => 1;
 has ignore_1202         => 1;           #对发送消息返回状态码1202是否认为发送失败
+has check_account       => 0;           #是否检查预设账号与实际登录账号是否匹配
+has disable_color       => 0;           #是否禁用终端打印颜色
 
 has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
 has is_init_group          => 1;                            #是否在首次登录时初始化群组信息
 has is_init_discuss        => 1;                            #是否在首次登录时初始化讨论组信息
-has is_init_recent         => 0;                            #是否在首次登录时初始化最近联系人信息
 
 has is_update_user          => 0;                            #是否定期更新个人信息
 has is_update_group         => 1;                            #是否定期更新群组信息
@@ -39,51 +40,33 @@ has is_update_discuss       => 1;                            #是否定期更新
 has update_interval         => 600;                          #定期更新的时间间隔
 
 has encrypt_method      => "perl";     #perl|js
-has tmpdir              => sub {File::Spec->tmpdir();};
+has tmpdir              => sub {$ENV{MOJO_WEIXIN_TMPDIR} || File::Spec->tmpdir();};
 has pic_dir             => sub {$_[0]->tmpdir};
-has cookie_dir          => sub{return $_[0]->tmpdir;};
-has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->qq || 'default','.jpg'))};
-has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->qq || 'default','.png'))};
-has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_pid_',$_[0]->qq || 'default','.pid'))};
+has cookie_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_cookie_',$_[0]->account,'.dat'))};
+has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->account,'.jpg'))};
+has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->account,'.png'))};
+has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_pid_',$_[0]->account,'.pid'))};
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
-has max_recent          => 20;
 has msg_ttl             => 5;
 
 has version => $Mojo::Webqq::VERSION;
 has user    => sub {+{}};
 has friend  => sub {[]};
-has recent  => sub {[]};
 has group   => sub {[]};
 has discuss => sub {[]};
 
-has data    => sub {+{}};
 has plugins => sub{+{}};
-has log    => sub{Mojo::Webqq::Log->new(encoding=>$_[0]->log_encoding,path=>$_[0]->log_path,level=>$_[0]->log_level,format=>sub{
-    my ($time, $level, @lines) = @_;
-    my $title = "";
-    if(ref $lines[0] eq "HASH"){
-        my $opt = shift @lines; 
-        $time = $opt->{"time"} if defined $opt->{"time"};
-        $title = $opt->{title} . " " if defined $opt->{"title"};
-        $level  = $opt->{level} if defined $opt->{"level"};
-    }
-    @lines = split /\n/,join "",@lines;
-    my $return = "";
-    $time = $time?POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time)):"";
-    $level = $level?"[$level]":"";
-    for(@lines){
-        $return .=
-          $time
-        . " " 
-        . $level 
-        . " " 
-        . $title 
-        . $_ 
-        . "\n";
-    }
-    return $return;
-})};
+has log    => sub{
+    Mojo::Webqq::Log->new(
+        encoding    =>  $_[0]->log_encoding,
+        path        =>  $_[0]->log_path,
+        level       =>  $_[0]->log_level,
+        head        =>  $_[0]->log_head,
+        disable_color   => $_[0]->disable_color,
+        console_output  => $_[0]->log_console,
+    )
+};
 
 has sess_sig_cache => sub {Mojo::Webqq::Cache->new};
 has id_to_qq_cache => sub {Mojo::Webqq::Cache->new};
@@ -93,7 +76,6 @@ has is_ready                => 0;
 has is_polling              => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
-has is_set_qq               => 0; #是否在初始化时设置qq参数
 has login_state             => "init";#init|relogin|success|scaning|confirming
 has qrcode_count            => 0;
 has qrcode_count_max        => 10;
@@ -104,18 +86,36 @@ has poll_failure_count_max  => 3;
 has poll_connection_id      => undef;
 has message_queue           => sub { $_[0]->gen_message_queue };
 has ua                      => sub {
+    my $self = shift;
     require Mojo::UserAgent;
     require Mojo::UserAgent::Proxy;
     #local $ENV{MOJO_USERAGENT_DEBUG} = $_[0]->ua_debug; 
-    require Storable if $_[0]->keep_cookie;
+    require Storable if $self->keep_cookie;
+    my $transactor = Mojo::UserAgent::Transactor->new(
+        name =>  'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062'
+    );
+    my $default_form_generator = $transactor->generators->{form};
+    $transactor->add_generator(form => sub{
+        #my ($self, $tx, $form, %options) = @_;
+        $self->reform($_[2],unicode=>1,recursive=>1,filter=>sub{
+            my($type,$deep,$key) = @_;
+            return 1 if $type ne 'HASH';
+            return 1 if $deep == 0;
+            return 0 if $deep == 1 and $key =~ /^filename|file|content$/;
+            return 1;
+        });
+        $default_form_generator->(@_);
+    });
+    $transactor->add_generator(json=>sub{
+        $_[1]->req->body($self->to_json($_[2]))->headers->content_type('application/json');
+        return $_[1];
+    });
     Mojo::UserAgent->new(
         proxy              => sub{ my $proxy = Mojo::UserAgent::Proxy->new;$proxy->detect;$proxy}->(),
         max_redirects      => 7,
         request_timeout    => 120,
         inactivity_timeout => 120,
-        transactor => Mojo::UserAgent::Transactor->new( 
-            name =>  'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062'
-        ),
+        transactor => $transactor,
     );
 };
 
@@ -127,6 +127,7 @@ has send_msg_id            => sub {
     $send_msg_id = ( $send_msg_id % 10000 ) * 10000;
     $send_msg_id;
 };
+has uid                    => undef;
 has clientid               => 53999199;
 has psessionid             => undef;
 has vfwebqq                => undef;
@@ -195,20 +196,20 @@ sub wait {
 sub new {
     my $class = shift;
     my $self  = $class->Mojo::Base::new(@_);
-    #$ENV{MOJO_USERAGENT_DEBUG} = $self->{ua_debug};
-    $self->info("当前正在使用 Mojo-Webqq v" . $self->version);
-    if(not defined $self->{qq}){
-        $self->warn("客户端初始化缺少qq参数，尝试自动检测");
-        $self->is_set_qq(0);
-    #    $self->fatal("客户端初始化缺少qq参数");
-    #    $self->exit();
+    for my $env(keys %ENV){
+        if($env=~/^MOJO_WEBQQ_([A-Z_]+)$/){
+            my $attr = lc $1;
+            next if $attr =~ /^plugin_/;
+            $self->$attr($ENV{$env}) if $self->can($attr);
+        }
     }
-    else{ $self->is_set_qq(1); }
+    $self->info("当前正在使用 Mojo-Webqq v" . $self->version);
+    $self->warn("当前版本与1.x.x版本不兼容，改动详情参见更新日志");
     $self->ioloop->reactor->on(error=>sub{
         my ($reactor, $err) = @_;
         $self->error("reactor error: " . Carp::longmess($err));
     });
-    $SIG{__WARN__} = sub{$self->warn(Carp::longmess @_);};
+    local $SIG{__WARN__} = sub{$self->warn(Carp::longmess @_);};
     $self->on(error=>sub{
         my ($self, $err) = @_;
         $self->error(Carp::longmess($err));
@@ -242,26 +243,11 @@ sub new {
         $msg->content($content);
     });
     $self->on(send_message=>sub{
-        my($self,$msg,$status)=@_;
-        if($status->is_success){$self->send_failure_count(0);}
-        elsif($status->code == -3){my $count = $self->send_failure_count;$self->send_failure_count(++$count);}
+        my($self,$msg)=@_;
+        if($msg->is_success){$self->send_failure_count(0);}
+        elsif($msg->code == -3){my $count = $self->send_failure_count;$self->send_failure_count(++$count);}
         if($self->send_failure_count >= $self->send_failure_count_max){
             $self->relogin();
-        }
-    });
-    $self->on(send_message=>sub{
-        my($self,$msg)=@_;
-        return unless $msg->type =~/^message|sess_message$/;
-        $self->add_recent($msg->receiver);
-    });
-    $self->on(receive_message=>sub{
-        my($self,$msg)=@_;
-        return unless $msg->type =~/^message|sess_message$/;
-        my $sender_id = $msg->sender->id;
-        $self->add_recent($msg->sender);
-        unless(exists $self->data->{first_talk}{$sender_id}) {
-            $self->data->{first_talk}{$sender_id}++;
-            $self->emit(first_talk=>$msg->sender,$msg);
         }
     });
     $self->on(new_group=>sub{
@@ -277,28 +263,8 @@ sub new {
         my($self,$friend)=@_;
         $self->update_friend_ext(is_blocking=>1);
     });
-    $Mojo::Webqq::Client::CLIENT_COUNT++;
+    $Mojo::Webqq::_CLIENT = $self;
     $self;
-}
-
-sub friends{
-    my $self = shift;
-    $self->update_friend() if @{$self->friend} == 0;
-    return @{$self->friend};
-}
-sub groups{
-    my $self = shift;
-    $self->update_group() if @{$self->group} == 0;
-    return @{$self->group};
-}
-sub discusss{
-    my $self = shift;
-    $self->update_discuss() if @{$self->discuss} == 0;
-    return @{$self->discuss};
-}
-sub recents{
-    my $self = shift;
-    return @{$self->recent};
 }
 
 1;

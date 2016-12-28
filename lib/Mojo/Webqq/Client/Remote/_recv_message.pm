@@ -29,7 +29,7 @@ sub Mojo::Webqq::Client::_recv_message{
     my $id = $self->http_post(
         $api_url,   
         $headers,
-        form=>{r=>$self->encode_json(\%r)},
+        form=>{r=>$self->to_json(\%r)},
         $callback
     );
     $self->poll_connection_id($id);

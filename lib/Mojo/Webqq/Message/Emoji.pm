@@ -171,7 +171,7 @@ my %EMOJI_MAP = qw(
     :womens:        女洗手间
 );
 
-sub Mojo::Webqq::Message::emoji_parse{
+sub Mojo::Webqq::emoji_parse{
     my $self = shift;
     my $data = shift;
     my @result;

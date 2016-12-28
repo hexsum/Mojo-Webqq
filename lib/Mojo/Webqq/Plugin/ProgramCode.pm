@@ -128,7 +128,7 @@ sub call{
             my $language = $1;
             my $code = $2;
             return if not $msg->allow_plugin;
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+            return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
             return if not exists $languages{$language};
             return if not $code;
             $msg->allow_plugin(0);
@@ -139,7 +139,7 @@ sub call{
                 $filename = $1.$languages{$language};
             }
             my %r = (
-                files   =>      [{name=>decode("utf8",$filename),content=>decode("utf8",$code)}],
+                files   =>      [{name=>$filename,content=>$code}],
                 command =>      "",
                 stdin   =>      "",
             );
@@ -147,9 +147,9 @@ sub call{
                 my $json = shift;
                 return unless defined $json;
                 if ($json->{stdout}) {
-                    $client->reply_message($msg,"执行<$language>结果：---->\n".encode("utf8",$json->{stdout}));
+                    $client->reply_message($msg,"执行<$language>结果：---->\n".$json->{stdout});
                 }else{
-                    $client->reply_message($msg,"执行<$language>出错：---->\n".encode("utf8",$json->{stdout})."--->".encode("utf8",$json->{error})."--->".encode("utf8",$json->{stderr}));
+                    $client->reply_message($msg,"执行<$language>出错：---->\n".$json->{stdout}."--->".$json->{error}."--->".$json->{stderr});
                 }
             });
         }
