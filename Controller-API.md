@@ -147,7 +147,7 @@ $client->run();
 |uri     |/openqq/start_client|
 |请求方法|GET|
 |请求参数|**client**: 自定义QQ帐号，用于唯一区分不同QQ帐号客户端<br>其他Mojo-Webqq new方法支持的参数，比如log_level/log_encoding/tmpdir等等，详见 [Mojo::Weixin#new](https://metacpan.org/pod/distribution/Mojo-Weixin/doc/Weixin.pod#new)|
-|调用示例|http://127.0.0.1:4000/opeqq/start_client?client=webqq_client_01<br>http://127.0.0.1:4000/openqq/start_client?client=webqq_client_01&log_level=debug|
+|调用示例|http://127.0.0.1:4000/openqq/start_client?client=webqq_client_01<br>http://127.0.0.1:4000/openqq/start_client?client=webqq_client_01&log_level=debug|
 
 返回JSON数据:
 ```
