@@ -7,11 +7,11 @@
 
 |API地址                                                   |API说明          |
 |:---------------------------------------------------------|:----------------|
-|[/openqq/start_client](Controller-API.md#启动一个QQ客户端)|启动一个QQ客户端 |
-|[/openqq/stop_client](Controller-API.md#停止一个QQ客户端) |停止一个QQ客户端 |
-|[/openqq/check_client](Controller-API.md#查询QQ客户端状态)|查询QQ客户端状态 |
+|[/openqq/start_client](Controller-API.md#启动一个qq客户端)|启动一个QQ客户端 |
+|[/openqq/stop_client](Controller-API.md#停止一个qq客户端) |停止一个QQ客户端 |
+|[/openqq/check_client](Controller-API.md#查询qq客户端状态)|查询QQ客户端状态 |
 |[/openqq/get_qrcode](Controller-API.md#获取登录二维码文件)  |获取登录二维码文件 |
-|[兼容其他QQ单帐号API](Controller-API.md#兼容其他QQ单帐号api) |兼容其他QQ单帐号API |
+|[兼容其他QQ单帐号API](Controller-API.md#兼容其他qq单帐号api) |兼容其他QQ单帐号API |
 
 ### 首先要启动一个Controller API Server：
 
