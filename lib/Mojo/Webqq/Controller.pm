@@ -19,13 +19,13 @@ our $VERSION = $Mojo::Webqq::VERSION;
 
 has backend => sub{+{}};
 has ioloop  => sub {Mojo::IOLoop->singleton};
-has backend_start_port => 3000;
+has backend_start_port => 5000;
 has post_api => undef;
 has poll_api => undef;
 has poll_interval => 5;
 has auth     => undef;
 has server =>  sub { Mojo::Webqq::Server->new };
-has listen => sub { [{host=>"0.0.0.0",port=>2000},] };
+has listen => sub { [{host=>"0.0.0.0",port=>4000},] };
 
 has keep_cookie => 0;
 has cookie_path => undef;

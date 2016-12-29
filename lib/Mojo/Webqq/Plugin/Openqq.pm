@@ -435,6 +435,35 @@ sub call{
             });
         }
     };
+    any [qw(GET POST)] => '/openqq/get_client_info' => sub{
+        my $c = shift;
+        $c->safe_render(json=>{
+            code=>0,
+            pid=>$$,
+            account=>$client->account,
+            os=>$^O,
+            version=>$client->version,
+            starttime=>$client->start_time,
+            runtime=>int(time - $client->start_time),
+            http_debug=>$client->http_debug,
+            log_encoding=>$client->log_encoding,
+            log_path=>$client->log_path||"",
+            log_level=>$client->log_level,
+            status=>"success",
+        });
+    };
+    any [qw(GET POST)] => '/openqq/stop_client' => sub{
+        my $c = shift;
+        $c->safe_render(json=>{
+            code=>0,
+            account=>$client->account,
+            pid=>$$,
+            starttime=>$client->start_time,
+            runtime=>int(time - $client->start_time),
+            status=>"success, client($$) will stop in 3 seconds",
+        });
+        $client->timer(3=>sub{$client->stop()});#3秒后再执行，让客户端可以收到该api的响应
+    };
     any '/*whatever'  => sub{whatever=>'',$_[0]->safe_render(text=>"request error",status=>403)};
     package Mojo::Webqq::Plugin::Openqq;
     $server = Mojo::Webqq::Server->new();   

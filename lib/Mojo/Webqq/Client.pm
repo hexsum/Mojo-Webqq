@@ -240,6 +240,7 @@ sub login {
         $self->qrcode_count(0);
         $self->info("帐号(" . $self->account . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
+        $self->state('updating');
         $self->update_user;
         $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
         $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
