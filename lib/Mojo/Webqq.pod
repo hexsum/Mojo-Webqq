@@ -1371,6 +1371,14 @@ QQ群每日签到插件
     附件：webqq_qrcode_xxxx.png
     正文：请使用手机QQ扫描附件中的二维码
 
+=head2 Mojo::Webqq::Plugin::PostQRcodeToTelegram
+
+登录过程如果需要手机扫描二维码，会将二维码通过Telegram Bot发至指定账户或频道或群组，再通过手机QQ扫描二维码
+
+    $client->load("PostQRcodeToTelegram",data=>{
+        api_key    =>  'xxxx', #Telegram Bot的API Key
+        chat_id    =>  'xxxx', #接收信息的chat_id
+    });
 
 =head2 Mojo::Webqq::Plugin::PostImgVerifycode
 
