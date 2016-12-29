@@ -24,6 +24,7 @@ has history => sub { [] };
 has level => 'debug';
 has head => '';
 has encoding => undef;
+has unicode_support => 1;
 has disable_color   => 0;
 has console_output  => 0;
 has max_history_size => 10;
@@ -57,23 +58,29 @@ sub colored {
     return $_[0] if (!$_[0] or !$_[1] or $self->disable_color or !$Mojo::Webqq::Log::is_support_color);
     return Term::ANSIColor::colored(@_) if $Mojo::Webqq::Log::is_support_color;
 }
+sub reform_encoding{
+    my $self = shift;
+    my $log = shift;
+    no strict;
+    my $msg ; 
+    if($self->unicode_support and Encode::is_utf8($log)){
+        $msg = encode($self->encoding || console_out,$log);
+    }
+    else{
+        if($self->encoding =~/^utf-?8$/i ){
+            $msg = $log;
+        }
+        else{
+            $msg = encode($self->encoding || console_out,decode("utf8",$log));
+        }
+    }
+}
 sub append {
     my ($self,$log) = @_;
     return unless my $handle = $self->handle;
     flock $handle, LOCK_EX;
-    #no strict;
-    #my $msg;
-    #if($self->unicode_support and Encode::is_utf8($log)){
-    #    $msg = encode($self->encoding || console_out,$log);
-    #}
-    #else{
-    #    if($self->encoding =~/^utf-?8$/i ){
-    #        $msg = $log;
-    #    }
-    #    else{
-    #        $msg = encode($self->encoding || console_out,decode("utf8",$log));
-    #    }
-    #}
+    $log->{$_} = $self->reform_encoding($log->{$_}) for(qw(head level title ));
+    $_ = $self->reform_encoding($_) for @{$log->{content}};
     if( -t $handle){
         my $color_msg;
         for(@{$log->{content}}){

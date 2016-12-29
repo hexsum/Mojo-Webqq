@@ -140,11 +140,13 @@ sub Mojo::Webqq::Client::_login1{
         elsif($d{retcode} == 66){
             $self->info("等待手机QQ扫描二维码...\n") if $self->login_state ne 'scaning';
             $self->login_state('scaning');
+            $self->state('scaning');
             return -4;
         }
         elsif($d{retcode} == 67){
             $self->info("手机QQ扫码成功，请在手机上点击[允许登录smartQQ]按钮...") if $self->login_state ne 'confirming';
             $self->login_state('confirming');
+            $self->state('confirming');
             return -5;
         }
         #elsif($d{retcode} == 10005){

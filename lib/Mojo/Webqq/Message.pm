@@ -5,6 +5,7 @@ has from     => "none";
 has ttl      => 5;
 has cb       => undef;
 has allow_plugin => 1;
+has format   => 'text';
 has [qw(id via type class discuss_id sender_id receiver_id group_id content raw_content)];
 has [qw(sender receiver group discuss)];
 has [qw(state client_type)];

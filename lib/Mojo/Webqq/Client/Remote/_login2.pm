@@ -7,7 +7,7 @@ sub Mojo::Webqq::Client::_login2{
         json        => 1,
     };
     my %r = (
-        status      =>  $self->state,
+        status      =>  $self->mode,
         ptwebqq     =>  $self->ptwebqq,
         clientid    =>  $self->clientid,
         psessionid  =>  $self->psessionid,  
