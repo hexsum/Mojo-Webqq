@@ -380,6 +380,78 @@
 ```
 {"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
+### 查询事件消息
+
+| API|采用HTTP GET请求长轮询获取事件（消息）
+|----|:------------------|
+|uri |/openqq/check_event|
+|请求方法|GET|
+|数据格式|application/json|
+
+接口返回JSON数组的形式，数组中的每个元素是一个JSON格式消息，格式和 [自定义事件消息上报地址](API.md#自定义事件消息上报地址) 完全一样
+
+程序最大保留最近20条信息记录，可以通过插件参数`check_event_list_max_size`进行自定义
+
+```
+$client->load("Openqq",data=>{ 
+    check_event_list_max_size=>100,
+});
+```
+
+采用长轮询机制，没有事件（消息）时，请求会挂起等待30s即断开，需要客户端再次重复发起请求
+
+API只能工作在非阻塞模式下,功能受限，不如POST上报的方式获取的信息全面，目前仅支持获取:
+
+发送消息、接收消息 以及如下一部分事件: 
+
+`new_group`,`new_friend`,`new_group_member`,`lose_group`,`lose_friend`,`lose_group_member`,
+
+```
+* Connected to 127.1 (127.0.0.1) port 5000 (#0)
+> GET /openqq/check_event? HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: 127.1:3000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Content-Type: application/json;charset=UTF-8
+< Date: Tue, 22 Nov 2016 04:11:36 GMT
+< Content-Length: 16405
+< Server: Mojolicious (Perl)
+
+[ 
+   {
+    "class":"send",
+    "content":" hello world",
+    "id":"2647366348175870091",
+    "post_type":"send_message",
+    "receiver":"小灰",
+    "receiver_id":"xxxxxx",
+    "receiver_uid":12345,
+    "sender":"灰灰",
+    "time":"1479787946",
+    "type":"friend_message"
+    }
+]
+```
+
+没有消息等待超时后，会返回一个空的JSON数组，客户端需要再次发起请求
+
+```
+* Connected to 127.1 (127.0.0.1) port 3000 (#0)
+> GET /openqq/check_event? HTTP/1.1
+> User-Agent: curl/7.29.0
+> Host: 127.1:3000
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Content-Type: application/json;charset=UTF-8
+< Date: Tue, 22 Nov 2016 04:11:36 GMT
+< Content-Length: 16405
+< Server: Mojolicious (Perl)
+
+[]
+```
 
 ### 自定义事件消息上报地址
 |   API  |自定义事件（消息）上报地址
@@ -600,5 +672,55 @@ Content-Type: application/json
 |请求参数|**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_uid**: 成员的qq（多个成员qq用逗号分割）<br>**group_id**: 群组的id<br>**group_uid**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
 |调用示例|http://127.0.0.1:5000/openqq/kick_group_member?group_uid=xxxxxx&member_uid=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/kick_group_member?group_id=xxxxxx&member_id=xxxx,xxxx|
+
+### 获取程序运行信息
+
+|   API  |获取进程运行信息
+|--------|:------------------------------------------|
+|uri     |/openqq/get_client_info|
+|请求方法|GET\|POST|
+|请求参数|无|
+|调用示例|http://127.0.0.1:5000/openqq/get_client_info|
+
+返回JSON结果:
+
+```
+{
+    "code":0,
+    "account":"default",
+    "log_encoding":null,
+    "log_level":"debug",
+    "log_path":null,
+    "os":"linux",
+    "pid":15497,
+    "runtime":3096,
+    "starttime":1475135588,
+    "status":"success",
+    "http_debug":"0",
+    "version":"1.2.0"
+ }
+ ```
+ 
+### 终止程序运行
+
+|   API  |终止程序运行
+|--------|:------------------------------------------|
+|uri     |/openqq/stop_client|
+|请求方法|GET\|POST|
+|请求参数|无|
+|调用示例|http://127.0.0.1:5000/openwx/stop_client|
+
+返回JSON结果:
+
+```
+{
+    "code":0,
+    "account":"default",
+    "pid":15972,
+    "runtime":30,
+    "starttime":1475136637,
+    "status":"success, client(15972) will stop in 3 seconds"
+}
+```
 
 ### 更多高级用法，参见[Openqq插件文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
