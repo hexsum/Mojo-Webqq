@@ -24,7 +24,7 @@
 
     $host = "0.0.0.0"; #Controller API server 监听地址，没有有特殊需要请不要修改
     $port = 4000;      #Controller API server 监听端口，修改为自己希望监听的端口
-    #$post_api = 'http://xxxx';  #每个微信帐号接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
+    #$post_api = 'http://xxxx';  #每个QQ帐号接收到的消息上报接口，如果不需要接收消息上报，可以删除或注释此行
     #$poll_api = 'http://xxxx';  #可选，参见单帐号API文档中关于内网穿透的说明，不需要可以删除或注释此行
 
     my $controller = Mojo::Webqq::Controller->new(
@@ -66,7 +66,7 @@ linux中使用`ps ef`命令可以方便的查看到进程的运行情况
 
 ### 数据文件介绍
 
-wqcontroller和每个创建的微信客户端（wqclient）在运行过程中会产生很多的文件，这些文件默认情况下会保存在系统的临时目录下
+wqcontroller和每个创建的QQ客户端（wqclient）在运行过程中会产生很多的文件，这些文件默认情况下会保存在系统的临时目录下
 
 你可以通过wqcontroller的 `tmpdir` 参数来修改这个临时目录的位置，参考[首先要启动一个Controller API Server](Controller-API.md##首先要启动一个controller-api-server)中的代码示例
 
@@ -90,13 +90,13 @@ wqclient:
 
 关于创建客户端时采用的模版文件，这里要做一下特别说明：
 
-在创建客户端时，wqcontroller会使用临时目录中的`mojo_webqq_controller_template.pl`来启动一个微信客户端进程，你可以通过
+在创建客户端时，wqcontroller会使用临时目录中的`mojo_webqq_controller_template.pl`来启动一个QQ客户端进程，你可以通过
 
-`Mojo::Webqq::Controller->new` 中的 `template_path` 参数来自定义模版文件的路径，也可以修改模版文件，来自定义产生的微信客户端默认配置
+`Mojo::Webqq::Controller->new` 中的 `template_path` 参数来自定义模版文件的路径，也可以修改模版文件，来自定义产生的QQ客户端默认配置
 
 比如，修改默认加载哪些插件等行为，模版文件的默认形式参考如下：
 
-注意：模版文件有一些特殊的书写方式（主要是设置了很多参数从环境变量读取，因为wxcontroller是通过环境变量把启动参数传递给客户端的模版文件）
+注意：模版文件有一些特殊的书写方式（主要是设置了很多参数从环境变量读取，因为wqcontroller是通过环境变量把启动参数传递给客户端的模版文件）
 
 ```
 use Mojo::Webqq;
@@ -168,6 +168,7 @@ $client->run();
 {"client":"webqq_client_01","code":0,"pid":32294,"port":5000,"status":"success"}
 ```
 ### 获取登录二维码文件
+
 |   API  |查询所有QQ客户端列表
 |--------|:------------------------------------------|
 |uri     |/openqq/get_qrcode|
@@ -245,7 +246,7 @@ $client->run();
 
 查询某个QQ帐号的信息、发送消息、消息上报等和[单帐号模式API](API.md)相同，只是url中增加了一个 `client=xxx`的参数用于区分不同客户端，比如
 
-####查询某个微信帐号用户信息:
+####查询某个QQ帐号用户信息:
 
 http://127.0.0.1:4000/openqq/get_user_info?client=webqq_client_01
 
