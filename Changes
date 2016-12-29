@@ -20,7 +20,7 @@ https://github.com/sjdy521/Mojo-Webqq/issues/51
 3）内部编码进行了统一，尽量去unicode，http_get/http_post 提交和获取的json数据，可以直接使用utf8编码字节流，不再需要encode/decode转换
 4）内建$client->encode/decode/encode_utf8/from_json/to_json等方法，不再需要自己加载外部的Encode模块等
 5）日志新增msg级别，debug|info|msg|warn|error|fatal 专用与打印接收和发送的消息，方便和系统其他级别日志做区分
-6）去掉了单进程多帐号的支持，每个进程只能支持一个帐号，后续会类似Mojo-Weixin提供Mojo::Webqq::Controller来统一管理多账号
+6）去掉了单进程多帐号的支持，每个进程只能支持一个帐号，新增Mojo::Webqq::Controller来统一管理多账号
 7）Mojo::Webqq->new(qq=>xxxx) 变更为 Mojo::Webqq->new(account=>xxxx) account可以自定义，不再强制要求使用qq号
 8）新增终端彩色日志打印，需要先安装Term::ANSIColor模块
 
