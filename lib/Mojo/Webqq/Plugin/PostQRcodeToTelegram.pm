@@ -11,7 +11,7 @@ sub call{
         my $telegram_api = 'https://api.telegram.org/bot' . $data->{api_key} .'/sendPhoto';
         my $response = $client->http_post($telegram_api,{json=>1},form=>{
             chat_id => $data->{chat_id},
-            caption => 'QQ帐号' .(defined $client->uid?$client->uid:$client->account) .'登录二维码'),
+            caption => 'QQ帐号' .(defined $client->uid?$client->uid:$client->account) .'登录二维码',
             photo=>{file=>$qrcode_path}
         });
 
