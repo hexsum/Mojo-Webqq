@@ -37,20 +37,46 @@ sub http_post{
     my $self = shift;
     return $self->_http_request("post",@_);
 }
-
 sub _ua_debug {
     my ($self,$ua,$tx,$opt,$is_blocking) = @_;
     return if not $opt->{ua_debug};
     $self->print("-- " . ($is_blocking?"Blocking":"Non-blocking"). " request (@{[$tx->req->url->to_abs]})\n");
 
-    $opt->{ua_debug_req_body}?$self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n"):$self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->build_start_line . $tx->req->build_headers]}\n[body data skipped]\n");
-
-    my $res_content_type = eval {$tx->res->headers->content_type};
-    if(defined $res_content_type and $res_content_type =~m#^(image|video|auido)/|^application/octet-stream#){
-        $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[binary data not shown]");
+    if($opt->{ua_debug_req_body}){#是否打印请求body
+        my $req_content_type = eval {$tx->req->headers->content_type};
+        if(defined $req_content_type and $req_content_type =~ /^multipart\/form-data; boundary=(.+?)$/){#对于文件上传不打印body中的二进制
+            my $body = $tx->req->build_body;
+            my $boundary = "--".$1;
+            my $filename_pos = index($body,"filename=");
+            if($filename_pos != -1){
+                my $binary_start_pos = index($body,"\r\n\r\n",$filename_pos);
+                if($binary_start_pos!=-1){
+                    my $binary_end_pos = index($body,$boundary,$binary_start_pos);
+                    substr($body,$binary_start_pos,$binary_end_pos-$binary_start_pos+1,"\r\n\r\n[binary data not shown]\r\n") if $binary_end_pos != -1;
+                }
+            }
+            $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->build_start_line . $tx->req->build_headers]}\n$body\n");
+        }
+        else{#其他非文件上传的请求，打印完整的header和body
+            $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->to_string]}\n");
+        }
+        
     }
     else{
-        $opt->{ua_debug_res_body}?$self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n"):$self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[body data skipped]\n");
+        $self->print("-- Client >>> Server (@{[$tx->req->url->to_abs]})\n@{[$tx->req->build_start_line . $tx->req->build_headers]}\n[body data skipped]\n");
+    }
+
+    if($opt->{ua_debug_res_body}){
+        my $res_content_type = eval {$tx->res->headers->content_type};
+        if(defined $res_content_type and $res_content_type =~m#^(image|video|auido)/|^application/octet-stream#){
+            $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[binary data not shown]");
+        }
+        else{
+            $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->to_string]}\n");
+        }
+    }
+    else{
+        $self->print("-- Server >>> Client (@{[$tx->req->url->to_abs]})\n@{[$tx->res->build_start_line . $tx->res->build_headers]}\n[body data skipped]\n");
     }
 }
 sub _http_request{
