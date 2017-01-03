@@ -33,13 +33,12 @@ has 'path';
 # Supported log levels
 my $LEVEL = {debug => 1, info => 2, msg=>3, warn => 4, error => 5, fatal => 6};
 sub _format {
-    my $self = shift;
     my ($time, $level, @lines) = @_;
     my %opt = ref $lines[0] eq "HASH"?%{shift @lines}:();
     $time = $opt{time} if defined $opt{time};
     $time = $time?POSIX::strftime('[%y/%m/%d %H:%M:%S]',localtime($time)):"";
     my $log = {
-        head        =>  $opt{head} // $self->head,
+        head        =>  $opt{head} // "",
         head_color  =>  $opt{head_color},
         'time'      =>  $time,
         time_color  =>  $opt{time_color},
@@ -74,6 +73,7 @@ sub reform_encoding{
             $msg = encode($self->encoding || console_out,decode("utf8",$log));
         }
     }
+    return $msg;
 }
 sub append {
     my ($self,$log) = @_;
@@ -155,10 +155,16 @@ sub _message {
  
   my $max     = $self->max_history_size;
   my $history = $self->history;
+  if(ref $_[0] eq 'HASH'){
+      $_[0]{head} = $self->head if not defined $_[0]{head};
+  }
+  else{
+      unshift @_,{head=>$self->head};
+  }
   push @$history, my $msg = [time, $level, @_];
   shift @$history while @$history > $max;
- 
-  $self->append($self->format->($self,@$msg));
+
+  $self->append($self->format->(@$msg));
 }
  
 sub _now { $LEVEL->{pop()} >= $LEVEL->{$ENV{MOJO_LOG_LEVEL} || shift->level} }
