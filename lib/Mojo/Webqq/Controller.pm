@@ -441,7 +441,7 @@ get '/openqq/get_qrcode' => sub{
         my $qrcode_path = $c->stash('wqc')->backend->{$client}{_qrcode_path};
         my $data = $c->stash('wqc')->slurp($qrcode_path);
         $c->res->headers->cache_control('no-cache');
-        $c->res->headers->content_type('image/jpg');
+        $c->res->headers->content_type('image/png');
         $c->safe_render(data=>$data,);
     };
     if($@){
