@@ -61,7 +61,7 @@ sub call{
                 $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败:" . $client->encode("utf8",$tx->error->{message}));
             }
         }
-        elsif($event =~ /^new_group|lose_group|new_friend|lose_friend|new_group_member|lose_group_member$/){
+        elsif($event =~ /^new_group|lose_group|new_friend|lose_friend|new_discuss|lose_discuss|new_group_member|lose_group_member|new_discuss_member|lose_discuss_member$/){
             my $post_json = {};
             $post_json->{post_type} = "event";
             $post_json->{event} = $event;
@@ -221,9 +221,9 @@ sub call{
         return $hash;
     }
     package Mojo::Webqq::Plugin::Openqq::App;
-    no utf8;
     use Encode ();
     use Mojolicious::Lite;
+    no utf8;
     app->controller_class('Mojo::Webqq::Plugin::Openqq::App::Controller');
     under sub {
         my $c = shift;

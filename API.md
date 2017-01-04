@@ -323,7 +323,7 @@
 |请求方法|GET\|POST|
 |请求参数|**id**: 好友的id（每次扫描登录可能会变化）<br>**uid**: 好友的QQ号<br>**content**: 发送的消息(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_message?uid=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_friend_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_friend_message?uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 
 返回JSON数组:
 ```
@@ -404,7 +404,9 @@ API只能工作在非阻塞模式下,功能受限，不如POST上报的方式获
 
 发送消息、接收消息 以及如下一部分事件: 
 
-`new_group`,`new_friend`,`new_group_member`,`lose_group`,`lose_friend`,`lose_group_member`,
+`new_group`,`new_friend`,`new_group_member`,`new_discuss`,`new_discuss_member`
+
+`lose_group`,`lose_friend`,`lose_group_member`,`lose_discuss`,`lose_dicuss_member`
 
 ```
 * Connected to 127.1 (127.0.0.1) port 5000 (#0)
@@ -559,11 +561,16 @@ Server: Mojolicious (Perl)
 |state_change                  |客户端状态变化|旧的状态，新的状态 参见 [客户端状态说明](API.md#客户端运行状态介绍）
 |input_qrcode                  |扫描二维码  | 二维码本地保存路径，二维码原始数据的base64编码
 |new_group                     |新加入群聊  | 对应群对象
+|new_discuss                   |新加入讨论组| 对应讨论组对象
 |new_friend                    |新增好友    | 对应好友对象
 |new_group_member              |新增群聊成员| 对应成员对象，对应的群对象
+|new_discuss_member            |新增讨论组成员| 对应成员对象，对应的讨论组对象
 |lose_group                    |退出群聊    | 对应群对象
+|lose_group                    |退出群聊    | 对应群对象
+|lose_discuss                  |退出讨论组  | 对应讨论组对象
 |lose_friend                   |删除好友    | 对应好友对象
 |lose_group_member             |成员退出群聊| 对应成员对象，对应的群对象
+|lose_discuss_member           |成员退出讨论组| 对应成员对象，对应的讨论组对象
 |group_property_change         |群聊属性变化| 群对象，属性，原始值，更新值
 |group_member_property_change  |成员属性变化| 成员对象，属性，原始值，更新值
 |friend_property_change        |好友属性变化| 好友对象，属性，原始值，更新值
