@@ -1,3 +1,12 @@
+2017-01-05 Mojo::Webqq v2.0.1
+1）增加PostQRcodeToTelegram插件
+2）开启http_debug后，debug日志不打印http post上传文件的二进制内容
+3）/openqq/get_qrcode 获取到的图片mime纠正为png格式
+4）修复PostQRcode插件使用QQ邮箱出现错误信息乱码的问题
+5）修复某些情况 下日志打印出现大量警告的问题
+6）修复new_group_member/lose_group_member事件报错的问题 感谢 @阿凡夫俗子 反馈
+7）修复Openqq插件上报接口返回reply回复内容时产生大量报错的问题 感谢 @Hubertzhang
+
 2016-12-28 Mojo::Webqq v2.0.0
 版本将进行大量的重构，以便和Mojo-Weixin项目尽量统一，清理杂乱代码，同时增加更多新的特性
 不清楚有多少人正在使用这个项目，没办法一一通知到，详细的改动可以参考github issue #51 
