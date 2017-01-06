@@ -33,8 +33,7 @@ Mojo-Webqq v1.8.9 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 |[MobileInfo](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::MobileInfo)          |93       |已发布      |limengyu1990  |手机号码归属地查询
 |[Riddle](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Riddle)              |92       |已发布      |limengyu1990  |输入"猜谜"关键字进行猜谜游戏
 |[GasPrice](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GasPrice)            |91       |已发布      |hyvinlam      |输入"油价"关键字查询油价
-|[KnowledgeBase2](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::KnowledgeBase2)       |3        |已发布      |sjdy521       |自定义可编辑问答知识库
-|[KnowledgeBase](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::KnowledgeBase)       |2        |已发布      |sjdy521       |通过qq消息自定义问答知识库
+|[KnowledgeBase](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::KnowledgeBase)       |3        |已发布      |sjdy521       |自定义可编辑问答知识库
 |[FuckDaShen](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::FuckDaShen)          |1        |已发布      |sjdy521       |对消息中的"大神"关键词进行鄙视
 |[Qiandao](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Qiandao)          |1        |已发布      |sjdy521       |QQ群每日签到
 |[Pu](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Pu)          |1        |已发布      |bollwarm |周易、占卜、算命、八卦等关键字触发占卜

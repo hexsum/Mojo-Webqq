@@ -49,7 +49,7 @@
 |   API  |获取用户数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_user_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_user_info|
 
@@ -57,7 +57,7 @@
 
 ```
 {
-    "nick": "小灰",
+    "name": "小灰",
     "mobile": "188********",
     "state": "online",
     "client_type": "web",
@@ -67,9 +67,9 @@
     "province": "北京",
     "id": "1234567",
     "birthday": "1990-01-01",
-    "gender": "male",
+    "sex": "male",
     "country": "中国",
-    "qq": "1234567",
+    "uid": "1234567",
     "account": "1234567",
     "college": "",
     "occupation": "计算机/互联网/IT",
@@ -85,7 +85,7 @@
 |   API  |获取好友数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_friend_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_friend_info|
 返回JSON数组:
@@ -94,10 +94,10 @@
 [#好友数组
     {#第一个好友
         "is_vip": "1",
-        "qq": "123456",
+        "uid": "123456",
         "markname": "xxx",
         "flag": "0",
-        "nick": "测试帐号1",
+        "name": "测试帐号1",
         "state": "offline",
         "client_type": "unknown",
         "face": "153",
@@ -107,10 +107,10 @@
     },
     {
         "is_vip": "0",
-        "qq": "7891234",
+        "uid": "7891234",
         "markname": "哈哈",
         "flag": "32",
-        "nick": "测试帐号2",
+        "name": "测试帐号2",
         "state": "offline",
         "client_type": "unknown",
         "face": "168",
@@ -125,52 +125,54 @@
 |   API  |获取群组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_info|
 返回JSON数组:
 ```
 [#数组
     {#第1个群
-        "gmarkname": "xxx",
-        "gid": "",
-        "gnumber": "552603",
-        "gcode": "",
-        "gname": "",
-        "gtype": "",
-        "gcreatetime": "",
+        "markname": "xxx",
+        "id": "",
+        "uid": "552603",
+        "code": "",
+        "name": "",
+        "role": "",
+        "createtime": "",
+        "owner_id": 12345,
+        "owner_uid": 123456,
+        "max_member": 2000,
+        "max_admin": 10,
         "member": [
             {
                 "qage": "16",
-                "nick": "xxx",
+                "name": "xxx",
                 "join_time": "0",
                 "state": "offline",
                 "client_type": "unknown",
                 "city": "大连",
                 "province": "辽宁",
                 "id": "2832277643",
-                "gender": "male",
+                "sex": "male",
                 "bad_record": "0",
                 "country": "中国",
-                "qq": "45678",
-                "gnumber": "552603",
+                "uid": "45678",
                 "last_speak_time": "1453449884",
                 "role": "attend",
             },
             {
                 "qage": "16",
-                "nick": "xxx",
+                "name": "xxx",
                 "join_time": "0",
                 "state": "offline",
                 "client_type": "unknown",
                 "city": "大连",
                 "province": "辽宁",
                 "id": "2832277643",
-                "gender": "male",
+                "sex": "male",
                 "bad_record": "0",
                 "country": "中国",
-                "qq": "123455",
-                "gnumber": "552603",
+                "uid": "123455",
                 "last_speak_time": "1453449884",
                 "role": "owner",
             },
@@ -186,7 +188,7 @@
 |   API  |获取群组数据(不包含群成员)
 |--------|:------------------------------------------|
 |uri     |/openqq/get_group_basic_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_group_basic_info|
 
@@ -194,7 +196,7 @@
 |   API  |获取讨论组数据
 |--------|:------------------------------------------|
 |uri     |/openqq/get_discuss_info|
-|请求方法|GET\|POST|
+|请求方法|GET|
 |请求参数|无|
 |调用示例|http://127.0.0.1:5000/openqq/get_discuss_info|
 返回JSON数组:
@@ -202,35 +204,24 @@
 ```
 [
     {
-        "dname": "测试",
-        "did": "4118239384",
+        "name": "测试",
+        "id": "4118239384",
+        "owner_id": "4118239384",
         "member": [
             {
-                "did": "4118239384",
-                "nick": "小灰",
+                "id": "4118239384",
+                "name": "小灰",
                 "state": "offline",
-                "downer": null,
                 "client_type": "unknown",
-                "dname": "测试",
-                "id": "123456"
+                "uid": "123456"
             },
             {
                 "did": "4118239384",
                 "nick": "哈哈",
                 "state": "offline",
-                "downer": null,
                 "client_type": "unknown",
                 "dname": "测试",
                 "id": "456789"
-            },
-            {
-                "did": "4118239384",
-                "nick": "嘿嘿",
-                "state": "offline",
-                "downer": null,
-                "client_type": "unknown",
-                "dname": "测试",
-                "id": "78901"
             }
         ],
     }
@@ -241,27 +232,27 @@
 ### 发送好友消息
 |   API  |发送好友消息
 |--------|:------------------------------------------|
-|uri     |/openqq/send_message|
+|uri     |/openqq/send_friend_message|
 |请求方法|GET\|POST|
-|请求参数|**id**: 好友的id（每次扫描登录可能会变化）<br>**qq**: 好友的QQ号<br>**content**: 发送的消息(中文需要做urlencode)|
+|请求参数|**id**: 好友的id（每次扫描登录可能会变化）<br>**uid**: 好友的QQ号<br>**content**: 发送的消息(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_message?qq=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_message?uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 
 返回JSON数组:
 ```
-{"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
+{"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
 ### 发送群组消息
 |   API  |发送群组消息
 |--------|:------------------------------------------|
 |url     |/openqq/send_group_message|
 |请求方法|GET\|POST|
-|请求参数|**gid**: 群组的id（每次扫描登录可能会变化）<br>**gnumber**: 群号码<br>**content**:消息内容(中文需要做urlencode)|
+|请求参数|**id**: 群组的id（每次扫描登录可能会变化）<br>**uid**: 群号码<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_group_message?gid=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_group_message?gnumber=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_group_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_group_message?uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
 ```
-{"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
+{"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
 ### 发送讨论组消息
@@ -269,12 +260,12 @@
 |--------|:------------------------------------------|
 |uri     |/openqq/send_discuss_message|
 |请求方法|GET\|POST|
-|请求参数|**did**: 讨论组的id（每次扫描登录可能会变化）<br>**content**:消息内容(中文需要做urlencode)|
+|请求参数|**id**: 讨论组的id（每次扫描登录可能会变化）<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_discuss_message?did=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_discuss_message?did=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_discuss_message?id=xxxx&content=hello<br>http://127.0.0.1:5000/openqq/send_discuss_message?id=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
 ```
-{"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
+{"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
 ### 发送群临时消息
@@ -282,12 +273,12 @@
 |--------|:------------------------------------------|
 |uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
-|请求参数|**gid**: 群的id（每次扫描登录可能会变化）<br>**gnumber**: 群的号码<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**qq**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
+|请求参数|**group_id**: 群的id（每次扫描登录可能会变化）<br>**group_uid**: 群的号码<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**uid**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_sess_message?gid=xxxx&id=xxx&content=hello<br>http://127.0.0.1:5000/openqq/send_sess_message?gnumber=xxx&qq=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_sess_message?group_id=xxxx&id=xxx&content=hello<br>http://127.0.0.1:5000/openqq/send_sess_message?group_uid=xxx&uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
 ```
-{"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
+{"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
 ### 发送讨论组临时消息
@@ -295,12 +286,12 @@
 |--------|:------------------------------------------|
 |uri     |/openqq/send_sess_message|
 |请求方法|GET\|POST|
-|请求参数|**did**: 讨论组的id（每次扫描登录可能会变化）<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**qq**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
+|请求参数|**discuss_id**: 讨论组的id（每次扫描登录可能会变化）<br>**id**: 陌生人的id（每次扫描登录可能会变化）<br>**uid**: 陌生人的qq号<br>**content**:消息内容(中文需要做urlencode)|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/send_sess_message?did=xxxx&id=xxx&content=hello<br>http://127.0.0.1:5000/openqq/send_sess_message?did=xxx&qq=xxx&content=%e4%bd%a0%e5%a5%bd|
+|调用示例|http://127.0.0.1:5000/openqq/send_sess_message?discuss_id=xxxx&id=xxx&content=hello<br>http://127.0.0.1:5000/openqq/send_sess_message?discuss_id=xxx&uid=xxx&content=%e4%bd%a0%e5%a5%bd|
 返回JSON数组:
 ```
-{"status":"发送成功","msg_id":23910327,"code":0} #code为 0 表示发送成功
+{"status":"发送成功","id":23910327,"code":0} #code为 0 表示发送成功
 ```
 
 ### 自定义消息上报地址
@@ -328,19 +319,19 @@ Content-Length: xxx
 Content-Type: application/json
 
 {
-    "msg_time":"1442542632",
+    "time":"1442542632",
     "content":"测试一下",
-    "msg_class":"recv",
+    "class":"recv",
     "sender":"灰灰",
     "sender_id":"2372835507",
-    "sender_qq":"456789",
+    "sender_uid":"456789",
     "receiver":"小灰",
     "receiver_id":"4072574066",
-    "receiver_qq":"123456",
+    "receiver_uid":"123456",
     "group":"PERL学习交流",
     "group_id":"2617047292",
-    "gnumber":"67890",
-    "msg_id":"10856",
+    "group_uid":"67890",
+    "id":"10856",
     "type":"group_message"
 }
 
@@ -378,9 +369,9 @@ Server: Mojolicious (Perl)
 |--------|:------------------------------------------|
 |uri     |/openqq/search_friend|
 |请求方法|GET\|POST|
-|请求参数|好友对象的任意属性，中文需要做urlencode，比如：<br>**id**: 好友的id<br>**qq**: 好友的帐号<br>**markname**: 好友备注名称<br>|
+|请求参数|好友对象的任意属性，中文需要做urlencode，比如：<br>**id**: 好友的id<br>**uid**: 好友的帐号<br>**markname**: 好友备注名称<br>|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/search_friend?qq=xxxx|
+|调用示例|http://127.0.0.1:5000/openqq/search_friend?uid=xxxx|
 
 
 ### 搜索群组
@@ -389,9 +380,9 @@ Server: Mojolicious (Perl)
 |--------|:------------------------------------------|
 |uri     |/openqq/search_group|
 |请求方法|GET\|POST|
-|请求参数|群对象的任意属性，中文需要做urlencode，比如：<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|请求参数|群对象的任意属性，中文需要做urlencode，比如：<br>**id**: 群组的id<br>**uid**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/search_group?gnumber=xxxxxx|
+|调用示例|http://127.0.0.1:5000/openqq/search_group?uid=xxxxxx|
 返回JSON数组:
 
 ### 群成员禁言
@@ -400,9 +391,9 @@ Server: Mojolicious (Perl)
 |--------|:------------------------------------------|
 |uri     |/openqq/shutup_group_member|
 |请求方法|GET\|POST|
-|请求参数|**time**: 禁言时长，最低60秒（单位：秒）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_qq**: 成员的qq（多个成员qq用逗号分割）<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|请求参数|**time**: 禁言时长，最低60秒（单位：秒）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_uid**: 成员的qq（多个成员qq用逗号分割）<br>**group_id**: 群组的id<br>**group_uid**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/shutup_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shutup_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
+|调用示例|http://127.0.0.1:5000/openqq/shutup_group_member?group_uid=xxxxxx&member_uid=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shutup_group_member?group_id=xxxxxx&member_id=xxxx,xxxx&time=120|
 
 ### 踢除群成员
 
@@ -410,8 +401,8 @@ Server: Mojolicious (Perl)
 |--------|:------------------------------------------|
 |uri     |/openqq/kick_group_member|
 |请求方法|GET\|POST|
-|请求参数|**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_qq**: 成员的qq（多个成员qq用逗号分割）<br>**gid**: 群组的id<br>**gnumber**: 群组的号码<br>|
+|请求参数|**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_uid**: 成员的qq（多个成员qq用逗号分割）<br>**group_id**: 群组的id<br>**group_uid**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
-|调用示例|http://127.0.0.1:5000/openqq/kick_group_member?gnumber=xxxxxx&member_qq=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/kick_group_member?gid=xxxxxx&member_id=xxxx,xxxx|
+|调用示例|http://127.0.0.1:5000/openqq/kick_group_member?group_uid=xxxxxx&member_uid=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/kick_group_member?group_id=xxxxxx&member_id=xxxx,xxxx|
 
 ### 更多高级用法，参见[Openqq插件文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::Openqq)
