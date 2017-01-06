@@ -102,7 +102,12 @@ sub call {
         my $key_word = $1;$key_word=~s/\s+//;
         my $reply = $reply[int rand($#reply+1)];
         $reply=~s/%/$key_word/g;
+<<<<<<< HEAD
         $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;
+=======
+        $client->reply_message($msg,$reply,sub{$_[1]->from("bot")}) if $reply;
+
+>>>>>>> bc8d3b0cffc111440c82833543f43f2456d310d2
     });
 }
 1;
