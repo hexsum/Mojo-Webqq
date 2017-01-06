@@ -103,6 +103,7 @@ sub call {
         my $reply = $reply[int rand($#reply+1)];
         $reply=~s/%/$key_word/g;
         $client->reply_message($msg,$reply,sub{$_[1]->from("bot")}) if $reply;
+
     });
 }
 1;

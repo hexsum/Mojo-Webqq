@@ -5,11 +5,32 @@ use IP::IPwhere;
 use Encode;
 
 =pod
-本插件需要，安装模块IP::IPwhere，如果你需要纯真的信息
+
+插件使用方法给加载插件的账号发 IPwhere IP
+或者QQ群里发IPwhere IP.
+
+例子：
+
+IPwhere 166.111.166.100
+
+result ：
+
+taobao 166.111.166.100:中国,北京市,北京市,教育网
+sina 166.111.166.100:中国,北京,北京,
+baidu 166.111.166.100:北京市海淀区 教育网
+pconline 166.111.166.100:北京市,北京市,,北京市 教育网
+qqwry 166.111.166.100:清华大学学生宿舍14号楼
+
+
+本插件需要安装模块IP::IPwhere，如果你需要纯真的信息
 还要安装IP::QQWry，以及下载纯真的数据库QQWry.Dat
 下载地址:
 
 https://github.com/bollwarm/ipwhere/blob/master/QQWry.Dat
+
+oschina同步更新，如果github太慢通过osc下载
+
+https://git.oschina.net/ijz/ipwhere/raw/master/QQWry.Dat
 安装库可以简单通过cpanm IP::IPwhere IP::QQWry
 
 并把下面部分注释掉。
