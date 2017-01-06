@@ -117,11 +117,11 @@ sub update{
                 my($new_members,$lost_members,$sames)=$self->client->array_diff($self->member, \@member,sub{$_[0]->id});
                 for(@{$new_members}){
                     $self->add_discuss_member($_);
-                    $self->client->emit(new_discuss_member=>$_) if defined $self->client;
+                    $self->client->emit(new_discuss_member=>$_,$self) if defined $self->client;
                 }
                 for(@{$lost_members}){
                     $self->remove_discuss_member($_);
-                    $self->client->emit(lose_discuss_member=>$_) if defined $self->client;
+                    $self->client->emit(lose_discuss_member=>$_,$self) if defined $self->client;
                 }
                 for(@{$sames}){
                     my($old,$new) = ($_->[0],$_->[1]);

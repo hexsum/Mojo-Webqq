@@ -27,9 +27,6 @@ sub run{
     $self->ioloop->start unless $self->ioloop->is_running;
 }
 
-sub multi_run{
-    Mojo::IOLoop->singleton->start unless Mojo::IOLoop->singleton->is_running; 
-}
 sub steps {
     my $self = shift;
     Mojo::IOLoop::Delay->new(ioloop=>$self->ioloop)->steps(@_)->catch(sub {
@@ -42,16 +39,19 @@ sub stop{
     my $self = shift;
     return if $self->is_stop;
     $self->is_stop(1);
+    $self->state('stop');
     $self->info("客户端停止运行");
     CORE::exit;
 }
 sub exit{
     my $self = shift;  
     my $code = shift;
+    $self->state('stop');
     exit(defined $code?$code+0:0);
 }
 sub ready{
     my $self = shift;
+    $self->state('loading');
     #加载插件
     my $plugins = $self->plugins;
     for(
@@ -95,8 +95,13 @@ sub ready{
     });
 
     #接收消息
-    $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
-    $self->on(run=>sub{my $self = $_[0]; $self->info("开始接收消息..."); $self->_recv_message();});
+    $self->on(poll_over=>sub{ $self->state('running');my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
+    $self->on(run=>sub{
+        my $self = $_[0]; 
+        $self->info("开始接收消息..."); 
+        $self->state('running');
+        $self->_recv_message();
+    });
     $self->is_ready(1);
     $self->emit("ready");
     return $self;
@@ -235,6 +240,7 @@ sub login {
         $self->qrcode_count(0);
         $self->info("帐号(" . $self->account . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
+        $self->state('updating');
         $self->update_user;
         $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
         $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
@@ -402,6 +408,46 @@ sub clean_pid {
     return if not -f $self->pid_path;
     $self->info("清除残留的pid文件");
     unlink $self->pid_path or $self->warn("删除pid文件[ " . $self->pid_path . " ]失败: $!");
+}
+
+sub save_state{
+    my $self = shift;
+    my @attr = qw( 
+        account 
+        version 
+        start_time
+        mode
+        http_debug 
+        log_encoding 
+        log_path 
+        log_level 
+        log_console
+        disable_color
+        tmpdir
+        cookie_path
+        qrcode_path
+        pid_path
+        state_path
+        keep_cookie
+        ua_retry_times
+        qrcode_count_max
+        state 
+    );
+    # pid
+    # os
+    eval{
+        my $json = {plugin => []};
+        for my $attr (@attr){
+            $json->{$attr} = $self->$attr;
+        }
+        $json->{pid} = $$;
+        $json->{os}  = $^O;
+        for my $p (keys %{ $self->plugins }){
+            push @{ $json->{plugin} } , { name=>$self->plugins->{$p}{name},priority=>$self->plugins->{$p}{priority},auto_call=>$self->plugins->{$p}{auto_call},call_on_load=>$self->plugins->{$p}{call_on_load} } ;
+        }
+        $self->spurt($self->to_json($json),$self->state_path);
+    };
+    $self->warn("客户端状态信息保存失败：$@") if $@;
 }
 
 1;

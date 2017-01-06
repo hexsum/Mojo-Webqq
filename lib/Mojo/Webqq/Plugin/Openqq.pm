@@ -1,47 +1,198 @@
-use strict;
-use Mojo::Webqq::Server;
 package Mojo::Webqq::Plugin::Openqq;
-$Mojo::Webqq::Plugin::Openqq::PRIORITY = 98;
-my $server;
+our $PRIORITY = 98;
+use strict;
+use POSIX qw();
+use Mojo::Util qw();
+use List::Util qw(first);
+use Mojo::Webqq::Server;
+use Mojo::Webqq::List;
+my  $server;
+my  $check_event_list;
 sub call{
     my $client = shift;
     my $data   =  shift;
-    my $post_api = $data->{post_api} if ref $data eq "HASH";
+    $check_event_list = Mojo::Webqq::List->new(max_size=>$data->{check_event_list_max_size} || 20);
+    $data->{post_media_data} = 1 if not defined $data->{post_media_data};
+    $data->{post_event} = 1 if not defined $data->{post_event};
+    $data->{post_event_list} = [qw(login stop state_change input_qrcode new_group new_friend new_group_member lose_group lose_friend lose_group_member)]
+        if ref $data->{post_event_list} ne 'ARRAY';
 
-    if(defined $post_api){
-        $client->on(receive_message=>sub{
-            my($client,$msg) = @_;
-            return if $msg->type !~ /^friend_message|group_message|discuss_message|sess_message$/;
-            $client->http_post($post_api,json=>$msg->to_json_hash,sub{
-                my($data,$ua,$tx) = @_;
-                if($tx->success){
-                    $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->id."]上报成功");
-                    if($tx->res->headers->content_type =~m#text/json|application/json#){
-                        #文本类的返回结果必须是json字符串
-                        my $json;
-                        eval{$json = $client->from_json($tx->res->body)};
-                        if($@){$client->warn($@);return}
-                        if(defined $json){
-                            #{code=>0,reply=>"回复的消息",format=>"text"}
-                            if((!defined $json->{format}) or (defined $json->{format} and $json->{format} eq "text")){
-                                $msg->reply($json->{reply}) if defined $json->{reply}; 
-                            } 
-                            if($msg->type eq "group_message" and defined $json->{shutup} and $json->{shutup} == 1){
-                                $msg->sender->shutup($json->{shutup_time} || 60);
-                            }
-                        }
-                    }
-                    #elsif($tx->res->headers->content_type =~ m#image/#){
-                    #    #发送图片，暂未实现 
-                    #}
-                }
-                else{
-                    $client->warn("插件[".__PACKAGE__ . "]接收消息[".$msg->id."]上报失败: ". $client->encode_utf8($tx->error->{message})); 
-                }
+    if(defined $data->{poll_api}){
+        $client->on('_mojo_webqq_plugin_openqq_poll_over' => sub{
+            $client->http_get($data->{poll_api},sub{
+                $client->timer($data->{poll_interval} || 5,sub {$client->emit('_mojo_webqq_plugin_openqq_poll_over');});
             });
         });
+        $client->emit('_mojo_webqq_plugin_openqq_poll_over');
     }
 
+    $client->on(all_event => sub{
+        my($client,$event,@args) =@_;
+        return if not first {$event eq $_} @{ $data->{post_event_list} };
+        if(defined $data->{post_api} and ($event eq  'login' or $event eq 'stop' or $event eq 'state_change') ){
+            my $post_json = {};
+            $post_json->{post_type} = "event";
+            $post_json->{event} = $event;
+            $post_json->{params} = [@args];
+            my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>2},json=>$post_json);
+            if($tx->success){
+                $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "](@args)上报成功");
+            }
+            else{
+                $client->warn("插件[".__PACKAGE__ . "]事件[".$event."](@args)上报失败:" . $client->encode("utf8",$tx->error->{message}));
+            } 
+        }
+        elsif(defined $data->{post_api} and $event eq 'input_qrcode'){
+            my ($qrcode_path,$qrcode_data) = @args;
+            eval{ $qrcode_data = Mojo::Util::b64_encode($qrcode_data);};
+            if($@){
+                $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败: $@");
+                return;
+            }
+            my $post_json = {};
+            $post_json->{post_type} = "event";
+            $post_json->{event} = $event;
+            $post_json->{params} = [$qrcode_path,$qrcode_data];
+            my($data,$ua,$tx) = $client->http_post($data->{post_api},json=>$post_json);
+            if($tx->success){
+                $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "]上报成功");
+            }
+            else{
+                $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败:" . $client->encode("utf8",$tx->error->{message}));
+            }
+        }
+        elsif($event =~ /^new_group|lose_group|new_friend|lose_friend|new_discuss|lose_discuss|new_group_member|lose_group_member|new_discuss_member|lose_discuss_member$/){
+            my $post_json = {};
+            $post_json->{post_type} = "event";
+            $post_json->{event} = $event;
+            if($event =~ /^new_group_member|lose_group_member$/){
+                $post_json->{params} = [$args[0]->to_json_hash(0),$args[1]->to_json_hash(0)];
+            }
+            else{
+                $post_json->{params} = [$args[0]->to_json_hash(0)];
+            }
+            $check_event_list->append($post_json);
+            $client->http_post($data->{post_api},json=>$post_json,sub{
+                my($data,$ua,$tx) = @_;
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]事件[".$event."]上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败: ".$client->encode("utf8",$tx->error->{message}));
+                }
+            }) if defined $data->{post_api};
+        }
+        elsif($event =~ /^group_property_change|group_member_property_change|friend_property_change|user_property_change$/){
+            my ($object,$property,$old,$new) = @args;
+            my $post_json = {
+                post_type => "event",
+                event     => $event,
+                params    => [$object->to_json_hash(0),$property,$old,$new],
+            };
+            $check_event_list->append($post_json);
+            $client->http_post($data->{post_api},json=>$post_json,sub{
+                my($data,$ua,$tx) = @_;
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]事件[".$event."]上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败: ".$client->encode("utf8",$tx->error->{message}));
+                }
+            }) if defined $data->{post_api};
+
+        }
+        elsif($event =~ /^update_user|update_friend|update_group$/){
+            my ($ref) = @args;
+            my $post_json = {
+                post_type => "event",
+                event     => $event,
+                params    => [$event eq 'update_user'?$ref->to_json_hash():map {$_->to_json_hash()} @{$ref}], 
+            };
+            $client->http_post($data->{post_api},json=>$post_json,sub{
+                my($data,$ua,$tx) = @_;
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]事件[".$event."]上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败: ".$client->encode("utf8",tx->error->{message}));
+                }
+            }) if defined $data->{post_api};
+        }
+    }) if $data->{post_event};
+
+    $client->on(receive_message=>sub{
+        my($client,$msg) = @_;
+        return if $msg->type !~ /^friend_message|group_message|discuss_message|sess_message$/;
+        my $post_json = $msg->to_json_hash;
+        #delete $post_json->{media_data} if ($post_json->{format} eq "media" and ! $data->{post_media_data});
+        $post_json->{post_type} = "receive_message";
+        $check_event_list->append($post_json);
+        $client->http_post($data->{post_api},json=>$post_json,sub{
+            my($data,$ua,$tx) = @_;
+            if($tx->success){
+                $client->debug("插件[".__PACKAGE__ ."]接收消息[".$msg->id."]上报成功");
+                if($tx->res->headers->content_type =~m#text/json|application/json#){
+                    #文本类的返回结果必须是json字符串
+                    my $json;
+                    eval{$json = $client->from_json($tx->res->body)};
+                    if($@){$client->warn($@);return}
+                    if(defined $json){
+                        #暂时先不启用format的属性
+                        #{code=>0,reply=>"回复的消息",format=>"text"}
+                        #if((!defined $json->{format}) or (defined $json->{format} and $json->{format} eq "text")){
+                        #    $msg->reply(Encode::encode("utf8",$json->{reply})) if defined $json->{reply};
+                        #}
+
+                        $msg->reply($json->{reply}) if defined $json->{reply};
+                        if($msg->type eq "group_message" and defined $json->{shutup} and $json->{shutup} == 1){
+                            $msg->sender->shutup($json->{shutup_time} || 60);
+                        }
+                        #$msg->reply_media($json->{media}) if defined $json->{media} and $json->{media} =~ /^https?:\/\//;
+
+                    }
+                }
+                #elsif($tx->res->headers->content_type =~ m#image/#){
+                #   #发送图片，暂未实现
+                #}
+            }
+            else{
+                $client->warn("插件[".__PACKAGE__ . "]接收消息[".$msg->id."]上报失败: ". $client->encode("utf8",$tx->error->{message})); 
+            }
+        }) if defined $data->{post_api};
+    });
+
+    $client->on(send_message=>sub{
+        my($client,$msg) = @_;
+        return if $msg->type !~ /^friend_message|group_message|discuss_message|sess_message$/;
+        my $post_json = $msg->to_json_hash;
+        #delete $post_json->{media_data} if ($post_json->{format} eq "media" and ! $data->{post_media_data});
+        $post_json->{post_type} = "send_message";
+        $check_event_list->append($post_json);
+        $client->http_post($data->{post_api},json=>$post_json,sub{
+            my($data,$ua,$tx) = @_;
+            if($tx->success){
+                $client->debug("插件[".__PACKAGE__ ."]发送消息[".$msg->id."]上报成功");
+                if($tx->res->headers->content_type =~m#text/json|application/json#){
+                    #文本类的返回结果必须是json字符串
+                    my $json;
+                    eval{$json = $client->from_json($tx->res->body)};
+                    if($@){$client->warn($@);return}
+                    if(defined $json){
+                        #{code=>0,reply=>"回复的消息",format=>"text"}
+                        if((!defined $json->{format}) or (defined $json->{format} and $json->{format} eq "text")){
+                            $msg->reply($json->{reply}) if defined $json->{reply};
+                        }
+                    }
+                }
+                #elsif($tx->res->headers->content_type =~ m#image/#){
+                #   #发送图片，暂未实现
+                #}
+            }
+            else{
+                $client->warn("插件[".__PACKAGE__ . "]发送消息[".$msg->id."]上报失败: ".$client->encode("utf8",$tx->error->{message})); 
+            }
+        }) if defined $data->{post_api};
+    });
     package Mojo::Webqq::Plugin::Openqq::App::Controller;
     use Mojo::JSON ();
     use Mojo::Util ();
@@ -72,12 +223,12 @@ sub call{
     package Mojo::Webqq::Plugin::Openqq::App;
     use Encode ();
     use Mojolicious::Lite;
+    no utf8;
     app->controller_class('Mojo::Webqq::Plugin::Openqq::App::Controller');
     under sub {
         my $c = shift;
         if(ref $data eq "HASH" and ref $data->{auth} eq "CODE"){
-            my $hash  = $c->req->params->to_hash;
-            $client->reform($hash);
+            my $hash  = $c->params;
             my $ret = 0;
             eval{
                 $ret = $data->{auth}->($hash,$c);
@@ -93,7 +244,6 @@ sub call{
     get '/openqq/get_group_info'    => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_group_basic_info'    => sub {$_[0]->safe_render(json=>[map {delete $_->{member};$_} map {$_->to_json_hash()} @{$client->group}]); };
     get '/openqq/get_discuss_info'  => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->discuss}]); };
-    get '/openqq/get_recent_info'   => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->recent}]);};
     any [qw(GET POST)] => '/openqq/send_friend_message'         => sub{
         my $c = shift;
         my $p = $c->params;
@@ -266,6 +416,53 @@ sub call{
             }   
         }
         else{$c->safe_render(json=>{code=>200,status=>"member id empty"});}
+    };
+    any [qw(GET POST)] => '/openwx/check_event'          => sub{
+        my $c = shift;
+        $c->render_later;
+        if($check_event_list->size > 0){
+            $c->safe_render(json=>scalar($check_event_list->pick_all));
+            return;
+        }
+        else{
+            $c->inactivity_timeout(120);
+            my($timer,$cb);
+            $timer = Mojo::IOLoop->timer( 30 ,sub { $check_event_list->unsubscribe(append=>$cb);$c->safe_render(json=>[]) });
+            $cb = $check_event_list->once(append=>sub{
+                my($list,$element) = @_;
+                Mojo::IOLoop->remove($timer);
+                $c->safe_render(json=>[ $list->pick ]);
+            });
+        }
+    };
+    any [qw(GET POST)] => '/openqq/get_client_info' => sub{
+        my $c = shift;
+        $c->safe_render(json=>{
+            code=>0,
+            pid=>$$,
+            account=>$client->account,
+            os=>$^O,
+            version=>$client->version,
+            starttime=>$client->start_time,
+            runtime=>int(time - $client->start_time),
+            http_debug=>$client->http_debug,
+            log_encoding=>$client->log_encoding,
+            log_path=>$client->log_path||"",
+            log_level=>$client->log_level,
+            status=>"success",
+        });
+    };
+    any [qw(GET POST)] => '/openqq/stop_client' => sub{
+        my $c = shift;
+        $c->safe_render(json=>{
+            code=>0,
+            account=>$client->account,
+            pid=>$$,
+            starttime=>$client->start_time,
+            runtime=>int(time - $client->start_time),
+            status=>"success, client($$) will stop in 3 seconds",
+        });
+        $client->timer(3=>sub{$client->stop()});#3秒后再执行，让客户端可以收到该api的响应
     };
     any '/*whatever'  => sub{whatever=>'',$_[0]->safe_render(text=>"request error",status=>403)};
     package Mojo::Webqq::Plugin::Openqq;

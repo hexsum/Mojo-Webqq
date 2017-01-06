@@ -395,7 +395,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 =head1 客户端属性
 
     $client->security   #是否开启安全加密
-    $client->state      #登录状态
+    $client->mode       #登录状态
     $client->type       #类型 固定值 smartqq，Mojo::Webqq只支持smartqq
     $client->htto_debug #http请求是否打印debug信息
     $client->log_level  #日志记录等级 默认info
@@ -409,9 +409,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     account         #登录帐号，默认default,不必是真实qq号码，可自由定义，根据扫码确定实际登陆qq
     security        #设置该参数，将使得发送和接收消息使用https加密
-    state           #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline|callme
+    mode            #设置登录状态，默认是online，支持online|away|busy|silent|hidden|offline|callme
     http_debug      #设置该参数，打印调试信息
     keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
+    disable_color   #默认为0，是否禁用终端彩色打印
+    log_console     #打印到文件的同时也打印到屏幕，方便调试，默认 1
 
     log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path        #默认客户端输出内容打印到STDOUT 设置该参数可以将客户端输出重定向到文件
@@ -419,11 +421,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
                     #编码必须是 Encode 模块支持的格式，比如utf8 gbk等
 
     tmpdir          #程序使用的临时目录，主要用于保存一些验证码、二维码等数据，默认为系统临时目录
-    cookie_dir      #登录cookie的保存目录，默认为 tmpdir 参数所设置的目录
     pic_dir         #图片接收默认地址，默认为 tmpdir 参数所设置的目录
 
     verifycode_path #图片验证码保存路径，默认是 tmpdir 目录下固定文件名
     qrcode_path     #二维码保存路径，默认是 tmpdir 目录下固定文件名
+    cookie_path     #登录cookie接收保存地址，默认为 tmpdir 参数所设置的目录下固定文件名
 
     #程序会根据实际需要自动按需加载好友、群、讨论组信息，首次登录加载这些信息是不必须的
     #如果你的群组数量非常惊人，首次加载会严重影响运行速度，这种情况下建议选择性的取消某些默认加载行为

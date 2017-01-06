@@ -139,11 +139,11 @@ sub update{
                 my($new_members,$lost_members,$sames)=$self->client->array_diff($self->member, \@member,sub{$_[0]->id});
                 for(@{$new_members}){
                     $self->add_group_member($_);
-                    $self->client->emit(new_group_member=>$_);
+                    $self->client->emit(new_group_member=>$_,$self);
                 }
                 for(@{$lost_members}){
                     $self->remove_group_member($_);
-                    $self->client->emit(lose_group_member=>$_);
+                    $self->client->emit(lose_group_member=>$_,$self);
                 }
                 for(@{$sames}){
                     my($old_member,$new_member) = ($_->[0],$_->[1]);

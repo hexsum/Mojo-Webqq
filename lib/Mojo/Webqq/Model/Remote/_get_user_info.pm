@@ -16,8 +16,8 @@ sub Mojo::Webqq::Model::_get_user_info{
         return undef unless defined $json;
         return undef if $json->{retcode} !=0;
         my $user = $json->{result};
-        $user->{state} = $self->state;
-        $user->{name} = $user->{nick};
+        $user->{state} = $self->mode;
+        $user->{name} = delete $user->{nick};
         $user->{client_type} = 'web';
         $user->{birthday} = join( "-", @{ $user->{birthday} }{qw(year month day)} );
         $user->{signature} = delete $user->{lnick};

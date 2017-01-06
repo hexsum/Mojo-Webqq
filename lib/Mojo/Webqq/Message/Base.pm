@@ -59,12 +59,15 @@ sub to_json_hash{
         next if substr($key,0,1) eq "_";
         if($key eq "sender"){
             $json->{sender} = $self->sender->displayname;
+            $json->{sender_uid} = $self->sender->uid;
         }
         elsif($key eq "receiver"){
             $json->{receiver} = $self->receiver->displayname;
+            $json->{receiver_uid} = $self->receiver->uid;
         }
         elsif($key eq "group"){
             $json->{group} = $self->group->displayname;
+            $json->{group_uid} = $self->group->uid;
         }
         elsif($key eq "discuss"){
             $json->{discuss} = $self->discuss->displayname;
@@ -73,11 +76,6 @@ sub to_json_hash{
             $json->{$key} = $self->{$key};
         }
     } 
-    $json->{sender_uid} = $self->sender->uid;
-    $json->{receiver_uid} = $self->receiver->uid;
-    if($self->type eq "group_message"){
-        $json->{group_uid} = $self->group->uid;
-    }
     return $json;
 }
 

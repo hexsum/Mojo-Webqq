@@ -1,7 +1,7 @@
 package Mojo::Webqq;
 use strict;
 use Carp ();
-$Mojo::Webqq::VERSION = "1.8.9";
+$Mojo::Webqq::VERSION = "2.0.1";
 use Mojo::Webqq::Base 'Mojo::EventEmitter';
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -10,9 +10,10 @@ use File::Spec ();
 use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Plugin Mojo::Webqq::Request Mojo::Webqq::Util);
 
 has account             => sub{ $ENV{MOJO_WEIXIN_ACCUNT} || 'default'};
+has start_time          => time;
 has pwd                 => undef;
 has security            => 0;
-has state               => 'online';   #online|away|busy|silent|hidden|offline|callme,
+has mode                => 'online';   #online|away|busy|silent|hidden|offline|callme,
 has type                => 'smartqq';  #smartqq
 has login_type          => 'qrlogin';    #qrlogin|login
 has http_debug          => sub{$ENV{MOJO_WEBQQ_HTTP_DEBUG} || 0 };
@@ -42,10 +43,11 @@ has update_interval         => 600;                          #定期更新的时
 has encrypt_method      => "perl";     #perl|js
 has tmpdir              => sub {$ENV{MOJO_WEIXIN_TMPDIR} || File::Spec->tmpdir();};
 has pic_dir             => sub {$_[0]->tmpdir};
-has cookie_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_cookie_',$_[0]->account,'.dat'))};
-has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->account,'.jpg'))};
-has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->account,'.png'))};
-has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_pid_',$_[0]->account,'.pid'))};
+has cookie_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_cookie_',$_[0]->account || 'default','.dat'))};
+has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->account || 'default','.jpg'))};
+has qrcode_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_qrcode_',$_[0]->account || 'default','.png'))};
+has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_pid_',$_[0]->account || 'default','.pid'))};
+has state_path          => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_state_',$_[0]->account || 'default','.json'))};
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
 has msg_ttl             => 5;
@@ -150,9 +152,22 @@ has g_pt_version           => 10179;
 has rc                     => 1;
 has csrf_token             => undef;
 has model_ext              => 0;
-#{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0,recent=>0}
+#{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0}
 has model_status           => sub {+{}}; 
 
+sub state {
+    my $self = shift;
+    $self->{state} = 'init' if not defined $self->{state};
+    if(@_ == 0){#get
+        return $self->{state};
+    }
+    elsif($_[0] and $_[0] ne $self->{state}){#set
+        my($old,$new) = ($self->{state},$_[0]);
+        $self->{state} = $new;
+        $self->emit(state_change=>$old,$new);
+    }
+    $self;
+}
 sub on {
     my $self = shift;
     my @return;
@@ -161,6 +176,11 @@ sub on {
         push @return,$self->SUPER::on($event,$callback);
     }
     return wantarray?@return:$return[0];
+}
+sub emit {
+    my $self = shift;
+    $self->SUPER::emit(@_);
+    $self->SUPER::emit(all_event=>@_);
 }
 sub wait_once {
     my $self = shift;
@@ -215,6 +235,8 @@ sub new {
         $self->error(Carp::longmess($err));
     });
     $self->check_pid();
+    $self->save_state();
+    $SIG{CHLD} = 'IGNORE';
     $SIG{INT} = $SIG{KILL} = $SIG{TERM} = sub{
         return if $^O ne 'MSWin32' and $_[0] eq 'INT' and !-t;
         $self->info("捕获到停止信号[$_[0]]，准备停止...");
@@ -222,6 +244,10 @@ sub new {
         $self->clean_pid();
         $self->stop();
     };
+    $self->on(state_change=>sub{
+        my $self = shift;
+        $self->save_state();
+    });
     $self->on(qrcode_expire=>sub{
         my($self) = @_;
         my $count = $self->qrcode_count;
