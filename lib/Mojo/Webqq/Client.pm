@@ -3,7 +3,7 @@ use strict;
 use Mojo::IOLoop;
 use Mojo::IOLoop::Delay;
 $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
-
+use Mojo::Webqq::Message::Handle;
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
 use Mojo::Webqq::Client::Remote::_check_verify_code;
 use Mojo::Webqq::Client::Remote::_get_img_verify_code;
@@ -20,8 +20,6 @@ use Mojo::Webqq::Client::Remote::_recv_message;
 use Mojo::Webqq::Client::Remote::_relink;
 use Mojo::Webqq::Client::Remote::logout;
 
-use base qw(Mojo::Webqq::Request);
-
 sub run{
     my $self = shift;
     $self->ready() if not $self->is_ready;
@@ -29,9 +27,6 @@ sub run{
     $self->ioloop->start unless $self->ioloop->is_running;
 }
 
-sub multi_run{
-    Mojo::IOLoop->singleton->start unless Mojo::IOLoop->singleton->is_running; 
-}
 sub steps {
     my $self = shift;
     Mojo::IOLoop::Delay->new(ioloop=>$self->ioloop)->steps(@_)->catch(sub {
@@ -42,24 +37,21 @@ sub steps {
 }
 sub stop{
     my $self = shift;
-    my $mode = shift || "auto";
     return if $self->is_stop;
     $self->is_stop(1);
+    $self->state('stop');
     $self->info("客户端停止运行");
-    if($mode eq "auto"){
-        $Mojo::Webqq::Client::CLIENT_COUNT > 1?$Mojo::Webqq::Client::CLIENT_COUNT--:exit;
-    }
-    else{
-        $Mojo::Webqq::Client::CLIENT_COUNT--;
-    }
+    CORE::exit;
 }
 sub exit{
     my $self = shift;  
     my $code = shift;
+    $self->state('stop');
     exit(defined $code?$code+0:0);
 }
 sub ready{
     my $self = shift;
+    $self->state('loading');
     #加载插件
     my $plugins = $self->plugins;
     for(
@@ -72,67 +64,6 @@ sub ready{
     $self->login() if $self->login_state ne 'success';
     $self->relogin() if $self->get_model_status() == 0;
 
-    $self->interval(3600*4,sub{$self->data(+{})});
-    $self->interval(900,sub{
-        $self->debug("检查数据完整性...");
-        for my $g ($self->groups){
-            if(not defined $g->{_client}){
-                $g->{_client} = $self;
-                $self->warn("群对象[ " . $g->gname . " ]数据异常, 已尝试修复");
-            }
-            if(!defined $g->gnumber){
-                $self->warn("群对象[ " . $g->gname . " ]扩展数据异常, 已尝试修复");
-                $self->update_group_ext($g,is_blocking=>0,is_update_group_member_ext=>1);
-            }
-            my $ext_count = 0;
-            my $member_count = 0;
-            for my $m ($g->members){
-                $member_count++;
-                if(not defined $m->{_client}){
-                    $m->{_client} = $self;
-                    $self->warn("群成员对象[ ". $m->id . "|". $g->gname . " ]数据异常, 已尝试修复");
-                }
-                $ext_count++ if defined $g->{gnumber} and defined $m->{qq};
-            }
-            if(defined $g->{gnumber} and $member_count>0 and $ext_count==0){
-                $self->warn("群对象[ " . $g->gname . " ]成员扩展数据异常，已尝试修复");
-                $self->update_group_member_ext($g,is_blocking=>0);
-            }
-            if(defined $g->{gnumber} and $member_count>0 and $ext_count>0 and $ext_count<$member_count){
-                $self->debug("群对象[ " . $g->gname . " ]成员扩展数据完整度: $ext_count/$member_count");
-            }
-        } 
-        for my $d ($self->discusss){
-            if(not defined $d->{_client}){
-                $d->{_client} = $self;
-                $self->warn("讨论组对象[ " . $d->displayname . " ]数据异常, 已尝试修复");
-            }
-            for my $m ($d->members){
-                if(not defined $m->{_client}){
-                    $m->{_client} = $self;
-                    $self->warn("讨论组成员对象[ ". $m->displayname . "|" . $d->displayname . " ]数据异常, 已尝试修复");
-                }
-            }
-        }
-        my $ext_count = 0;
-        my $friend_count = 0;
-        for my $f ($self->friends){
-            $friend_count++;
-            if(not defined $f->{_client}){
-                $f->{_client} = $self;
-                $self->warn("好友对象[ " . $f->displayname . " ]数据异常, 已尝试修复");
-            }
-            $ext_count++ if defined $f->{qq};
-        }
-        if($friend_count>0 and $ext_count == 0){
-            $self->warn("好友扩展数据异常，已尝试修复");
-            $self->update_friend_ext(is_blocking=>0);
-        }
-        if($friend_count>0 and $ext_count >0 and $ext_count<$friend_count){
-            $self->debug("好友扩展数据完整度: $ext_count/$friend_count");
-        }
-        
-    });
     $self->interval($self->update_interval || 600,sub{
         return if $self->is_stop;
         return if not $self->is_update_group;
@@ -164,8 +95,13 @@ sub ready{
     });
 
     #接收消息
-    $self->on(poll_over=>sub{ my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
-    $self->on(run=>sub{my $self = $_[0]; $self->info("开始接收消息..."); $self->_recv_message();});
+    $self->on(poll_over=>sub{ $self->state('running');my $self = $_[0];$self->timer(1,sub{$self->_recv_message()}) } );
+    $self->on(run=>sub{
+        my $self = $_[0]; 
+        $self->info("开始接收消息..."); 
+        $self->state('running');
+        $self->_recv_message();
+    });
     $self->is_ready(1);
     $self->emit("ready");
     return $self;
@@ -194,7 +130,7 @@ sub relogin{
     $self->login_state("relogin");
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
-    $self->ua->cookie_jar->empty;
+    $self->clear_cookie();
     $self->poll_failure_count(0);
     $self->send_failure_count(0);
     $self->qrcode_count(0);
@@ -205,8 +141,6 @@ sub relogin{
     $self->friend([]);
     $self->group([]);
     $self->discuss([]);
-    $self->recent([]);
-    $self->data(+{});
     $self->model_status(+{});
 
     $self->login(delay=>0);
@@ -230,8 +164,6 @@ sub login {
     return if $self->login_state eq 'success';
     my %p = @_;
     my $is_scan  = 0;
-    $self->qq($p{qq}) if defined $p{qq};
-    $self->pwd($p{pwd}) if defined $p{pwd};
     my $delay = defined $p{delay}?$p{delay}:0;
     if($self->is_first_login == -1){
         $self->is_first_login(1);
@@ -306,13 +238,13 @@ sub login {
     }
     else{
         $self->qrcode_count(0);
-        $self->info("帐号(" . $self->qq . ")登录成功");
+        $self->info("帐号(" . $self->account . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
+        $self->state('updating');
         $self->update_user;
         $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
         $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;
         $self->update_discuss(is_blocking=>1,is_update_discuss_member=>0) if $self->is_init_discuss;
-        $self->update_recent(is_blocking=>1) if $self->is_init_recent;
         $self->emit("login",$is_scan);
     }
     return $self;
@@ -476,6 +408,46 @@ sub clean_pid {
     return if not -f $self->pid_path;
     $self->info("清除残留的pid文件");
     unlink $self->pid_path or $self->warn("删除pid文件[ " . $self->pid_path . " ]失败: $!");
+}
+
+sub save_state{
+    my $self = shift;
+    my @attr = qw( 
+        account 
+        version 
+        start_time
+        mode
+        http_debug 
+        log_encoding 
+        log_path 
+        log_level 
+        log_console
+        disable_color
+        tmpdir
+        cookie_path
+        qrcode_path
+        pid_path
+        state_path
+        keep_cookie
+        ua_retry_times
+        qrcode_count_max
+        state 
+    );
+    # pid
+    # os
+    eval{
+        my $json = {plugin => []};
+        for my $attr (@attr){
+            $json->{$attr} = $self->$attr;
+        }
+        $json->{pid} = $$;
+        $json->{os}  = $^O;
+        for my $p (keys %{ $self->plugins }){
+            push @{ $json->{plugin} } , { name=>$self->plugins->{$p}{name},priority=>$self->plugins->{$p}{priority},auto_call=>$self->plugins->{$p}{auto_call},call_on_load=>$self->plugins->{$p}{call_on_load} } ;
+        }
+        $self->spurt($self->to_json($json),$self->state_path);
+    };
+    $self->warn("客户端状态信息保存失败：$@") if $@;
 }
 
 1;

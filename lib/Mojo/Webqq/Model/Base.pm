@@ -1,14 +1,17 @@
 package Mojo::Webqq::Model::Base;
+use Mojo::Webqq::Base -base;
 use Scalar::Util qw(blessed);
 use Data::Dumper;
-use Encode qw(decode_utf8);
+sub client {
+    return $Mojo::Webqq::_CLIENT;
+}
 sub to_json_hash{
     my $self = shift;   
     my $hash = {};
     for(keys %$self){
         next if substr($_,0,1) eq "_";
         next if $_ eq "member";
-        $hash->{$_} = decode_utf8($self->{$_});
+        $hash->{$_} = $self->{$_};
     }
     if(exists $self->{member}){
         $hash->{member} = [];
@@ -27,7 +30,6 @@ sub dump{
     my $clone = {};
     my $obj_name = blessed($self);
     for(keys %$self){
-        next if $_ eq "_client";
         if(my $n=blessed($self->{$_})){
              $clone->{$_} = "Object($n)";
         }
@@ -41,7 +43,7 @@ sub dump{
     }
     local $Data::Dumper::Indent = 1;
     local $Data::Dumper::Terse = 1;
-    $self->{_client}->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
+    $self->client->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
     return $self;
 }
 
@@ -85,7 +87,7 @@ sub is_me{
     my $self = shift;
     return 1 if ref $self eq "Mojo::Webqq::User";
     if($self->is_group_member or $self->is_discuss_member){
-        return 1 if $self->id eq $self->{_client}->user->id;  
+        return 1 if $self->id eq $self->client->user->id;  
     } 
     return 0;
 }

@@ -1,4 +1,3 @@
-use Encode;
 sub Mojo::Webqq::Model::get_single_long_nick{
     my $self = shift;
     my $uin = shift;
@@ -14,7 +13,7 @@ sub Mojo::Webqq::Model::get_single_long_nick{
     return undef unless defined $json;
     return undef if $json->{retcode} !=0;
     #{"retcode":0,"result":[{"uin":308165330,"lnick":""}]}
-    my $single_long_nick = encode("utf8",$json->{result}[0]{lnick});
+    my $single_long_nick = $json->{result}[0]{lnick};
     return $single_long_nick;
 }
 1;

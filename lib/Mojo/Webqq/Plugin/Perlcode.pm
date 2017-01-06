@@ -20,7 +20,7 @@ sub call{
         my $content = $msg->content; $content=~s/＞/>/g;
         if($content=~/^(?:>>>)(.*?)(?:__END__|$)/s or $content =~/perl\s+-e\s+'([^']+)'/s){
             $msg->allow_plugin(0);
-            return if $msg->msg_class eq "send" and $msg->msg_from ne "api" and $msg->msg_from ne "irc";
+            return if $msg->class eq "send" and $msg->from ne "api" and $msg->from ne "irc";
             my $doc = '';
             my $code = $1;
             $code=~s/^\s+|\s+$//g;
@@ -43,7 +43,7 @@ sub call{
                 stdout_cb => sub {
                     my ($pid, $chunk) = @_;
                     $stdout_buf.=$chunk if defined $chunk;
-                    if(count_lines($stdout_buf) > 10){
+                    if(count_lines($stdout_buf) > 8){
                         $run->kill($pid);
                         $stdout_buf  = join "\n",(split /\r?\n/,$stdout_buf,11)[0..9];
                         $stdout_buf .= "(已截断)";
@@ -57,7 +57,7 @@ sub call{
                 stderr_cb => sub {
                     my ($pid, $chunk) = @_;
                     $stderr_buf.=$chunk if defined $chunk;
-                    if(count_lines($stderr_buf) > 20){
+                    if(count_lines($stderr_buf) > 8){
                         $run->kill($pid);
                         $stderr_buf  = join "\n",(split /\r?\n/,$stderr_buf,11)[0..9];
                         $stderr_buf .= "(已截断)";

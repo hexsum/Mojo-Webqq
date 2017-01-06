@@ -1,13 +1,15 @@
 package Mojo::Webqq::Message::Base;
+use Mojo::Webqq::Base -base;
 use Data::Dumper;
-use Encode qw(decode_utf8);
 use Scalar::Util qw(blessed);
+sub client {
+    return $Mojo::Webqq::_CLIENT;
+}
 sub dump{
     my $self = shift;
     my $clone = {};
     my $obj_name = blessed($self);
     for(keys %$self){
-        next if $_ eq "_client";
         if(my $n=blessed($self->{$_})){
              $clone->{$_} = "Object($n)";
         }
@@ -21,7 +23,7 @@ sub dump{
     }
     local $Data::Dumper::Indent = 1;
     local $Data::Dumper::Terse = 1;
-    $self->{_client}->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
+    $self->client->print("Object($obj_name) " . Data::Dumper::Dumper($clone));
     return $self;
 }
 
@@ -29,11 +31,11 @@ sub is_at{
     my $self = shift;
     my $object;
     my $displayname;
-    if($self->msg_class eq "recv"){
+    if($self->class eq "recv"){
         $object = shift || $self->receiver;
         $displayname = $object->displayname;
     }
-    elsif($self->msg_class eq "send"){
+    elsif($self->class eq "send"){
         if($self->type eq "group"){
             $object = shift || $self->group->me;
             $displayname = $object->displayname;
@@ -42,7 +44,7 @@ sub is_at{
             $object = shift || $self->discuss->me;
             $displayname = $object->displayname;
         }
-        elsif($self->type=~/^message|sess_message$/){
+        elsif($self->type=~/^friend_message|sess_message$/){
             $object = shift || $self->receiver;
             $displayname = $object->displayname;
         }
@@ -56,24 +58,24 @@ sub to_json_hash{
     for my $key (keys %$self){
         next if substr($key,0,1) eq "_";
         if($key eq "sender"){
-            $json->{sender} = decode_utf8($self->sender->displayname);
+            $json->{sender} = $self->sender->displayname;
+            $json->{sender_uid} = $self->sender->uid;
         }
         elsif($key eq "receiver"){
-            $json->{receiver} = decode_utf8($self->receiver->displayname);
+            $json->{receiver} = $self->receiver->displayname;
+            $json->{receiver_uid} = $self->receiver->uid;
         }
         elsif($key eq "group"){
-            $json->{group} = decode_utf8($self->group->gname);
+            $json->{group} = $self->group->displayname;
+            $json->{group_uid} = $self->group->uid;
         }
         elsif($key eq "discuss"){
-            $json->{discuss} = decode_utf8($self->discuss->dname);
+            $json->{discuss} = $self->discuss->displayname;
         }
         elsif(ref $self->{$key} eq ""){
-            $json->{$key} = decode_utf8($self->{$key});
+            $json->{$key} = $self->{$key};
         }
     } 
-    $json->{sender_qq} = $self->sender->qq;
-    $json->{receiver_qq} = $self->receiver->qq;
-    $json->{gnumber} = $self->group->gnumber if $self->type eq "group_message";
     return $json;
 }
 
@@ -97,7 +99,7 @@ sub faces {
 sub images {
     my $self = shift;
     my $cb   = shift;
-    $self->{_client}->die("参数必须是一个函数引用") if ref $cb ne "CODE";
+    $self->client->die("参数必须是一个函数引用") if ref $cb ne "CODE";
     return if ref $self->raw_content ne "ARRAY";
     return if $self->msg_class ne "recv";
     return if $self->type eq "discuss_message";
@@ -108,35 +110,68 @@ sub images {
             return unless exists $_->{name};
             my ($ip,$port) = split /:/,$_->{server};
             $port = 80 unless defined $port;
-            $self->{_client}->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$self->sender,$cb);
+            $self->client->_get_group_pic($_->{file_id},$_->{name},$ip,$port,$self->sender,$cb);
         }
         elsif($_->{type} eq "offpic"){
-            $self->{_client}->_get_offpic($_->{file_path},$self->sender,$cb);
+            $self->client->_get_offpic($_->{file_path},$self->sender,$cb);
         }
     }
 }
 
+
 sub reply {
     my $self = shift;
-    $self->{_client}->reply_message($self,@_);
+    $self->client->reply_message($self,@_);
 }
 
-#部分属性最开始设计的是msg_开头，比如msg_class/msg_from，这些属性在Mojo::Weixin里变成了class/from
-#为了和Mojo::Weixin对象属性保持一致，便于插件移植，因此添加如下代码
-sub class {
+sub is_success{
     my $self = shift;
-    return @_?$self->msg_class(@_):$self->msg_class;
+    return $self->code == 0?1:0;
 }
-sub from {
+
+sub parse_send_status_msg{
     my $self = shift;
-    return @_?$self->msg_from(@_):$self->msg_from;
+    my $json = shift;
+    if(defined $json){
+        if(exists $json->{errCode}){
+            if($json->{errCode}==0 and exists $json->{msg} and $json->{msg} eq 'send ok'){
+                $self->send_status(code=>0,msg=>"发送成功",info=>'发送正常');
+            }
+            elsif(exists $json->{errMsg} and $json->{errMsg} eq "ERROR"){
+                $self->send_status(code=>-3,msg=>"发送失败",info=>'发送异常');
+            }
+            else{
+                $self->send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . $self->client->to_json($json));
+            }
+        }
+        elsif(exists $json->{retcode}){
+            if($json->{retcode}==0){
+                $self->send_status(code=>0,msg=>"发送成功",info=>'发送正常');
+            }
+            elsif($json->{retcode}==1202){
+                if($self->client->ignore_1202){
+                    $self->send_status(code=>0,msg=>"发送成功",info=>'无法判断是否发送成功');
+                }
+                else{
+                    $self->send_status(code=>-5,msg=>"发送失败",info=>'发送异常1202');
+                }
+            }
+            else{
+                $self->send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . $self->client->to_json($json));
+            }
+        }
+        else{
+            $self->send_status(code=>-2,msg=>"发送失败",info=>'响应未知: ' . $self->cient->to_json($json));
+        }
+    }
+    else{
+        $self->send_status(code=>-1,msg=>"发送失败",info=>'数据格式错误'); 
+    }
 }
-sub id{
+
+sub send_status{
     my $self = shift;
-    return @_?$self->msg_id(@_):$self->msg_id;
-}
-sub time{
-    my $self = shift;
-    return @_?$self->msg_time(@_):$self->msg_time;
+    my %opt = @_;
+    $self->code($opt{code})->msg($opt{msg})->info($opt{info});
 }
 1;

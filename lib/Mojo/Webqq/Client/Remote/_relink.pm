@@ -5,14 +5,14 @@ sub Mojo::Webqq::Client::_relink{
     my $api_url = 'http://d1.web2.qq.com/channel/login2';
     my $headers = {Referer=>'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',json=>1};
     my %r = (
-        status      =>  $self->state,
+        status      =>  $self->mode,
         key         =>  "",
         ptwebqq     =>  $self->ptwebqq,
         clientid    =>  $self->clientid,
         psessionid  =>  $self->psessionid,
     );    
     
-    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)});
+    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)});
     unless(defined $data){
         $self->relogin();
         return 0;

@@ -1,11 +1,10 @@
-use Encode;
 sub Mojo::Webqq::Model::_get_user_friends{
     my $self = shift;
     my $callback = shift;
     my $api_url = 'http://s.web2.qq.com/api/get_user_friends2';
     my $headers = {Referer=>'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',json=>1};
     my %r = (
-        hash        => $self->hash($self->ptwebqq,$self->qq),  
+        hash        => $self->hash($self->ptwebqq,$self->uid),  
         vfwebqq     => $self->vfwebqq,
     );
     
@@ -27,11 +26,11 @@ sub Mojo::Webqq::Model::_get_user_friends{
             }
         }
         for(@{ $json->{result}{categories}}){
-            $categories{ $_->{'index'} } = {'sort'=>$_->{'sort'},name=>Encode::encode("utf8",$_->{name}) };
+            $categories{ $_->{'index'} } = {'sort'=>$_->{'sort'},name=>$_->{name} };
         }
         $categories{0} = {sort=>0,name=>'我的好友'} if not defined $categories{0};
         for(@{ $json->{result}{info}}){
-            $info{$_->{uin}} = {face=>$_->{face},flag=>$_->{flag},nick=>Encode::encode("utf8",$_->{nick}),};
+            $info{$_->{uin}} = {face=>$_->{face},flag=>$_->{flag},nick=>$_->{nick}};
         }
         for(@{ $json->{result}{marknames} }){
             $marknames{$_->{uin}} = {markname=>$_->{markname},type=>$_->{type}};
@@ -50,19 +49,18 @@ sub Mojo::Webqq::Model::_get_user_friends{
                 $_->{client_type} = 'unknown';
             }
             $_->{category} = $self->xmlescape_parse($categories{$_->{categories}}{name});
-            $_->{nick}  = $self->xmlescape_parse($info{$uin}{nick});
+            $_->{name}  = $self->xmlescape_parse($info{$uin}{nick});
             $_->{face} = $info{$uin}{face};
             $_->{markname} = $self->xmlescape_parse($marknames{$uin}{markname});
             $_->{is_vip} = $vipinfo{$uin}{is_vip};
             $_->{vip_level} = $vipinfo{$uin}{vip_level};
             delete $_->{categories};
             $_->{id} = delete $_->{uin};
-            $self->reform_hash($_);
         }
         return $json->{result}{friends};
     };
     if($is_blocking){
-        my $json = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)},);
+        my $json = $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)},);
         my $friends_state = $self->_get_friends_state();
         return $handle->($json,$friends_state);
     }
@@ -70,7 +68,7 @@ sub Mojo::Webqq::Model::_get_user_friends{
         $self->steps(
             sub{
                 my $delay = shift;
-                $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)},$delay->begin(0,1));
+                $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)},$delay->begin(0,1));
                 $self->_get_friends_state($delay->begin(0,1));
             },
             sub{

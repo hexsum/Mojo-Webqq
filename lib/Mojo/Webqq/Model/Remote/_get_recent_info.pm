@@ -23,17 +23,17 @@ sub Mojo::Webqq::Model::_get_recent_info {
             next unless exists $type{$_->{type}};
             $_->{type} = $type{$_->{type}};
             if($_->{type} eq "friend"){$_->{id} = delete $_->{uin};}
-            elsif($_->{type} eq "group"){$_->{gid} = delete $_->{uin};}
-            elsif($_->{type} eq "discuss"){$_->{did} = delete $_->{uin};}
+            elsif($_->{type} eq "group"){$_->{id} = delete $_->{uin};}
+            elsif($_->{type} eq "discuss"){$_->{id} = delete $_->{uin};}
             push @recent,$_;
         }
         return @recent>0?\@recent:undef;
     };
     if($is_blocking){
-        return $handle->( $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)},) );
+        return $handle->( $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)},) );
     }
     else{
-        $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)},sub{
+        $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)},sub{
             my $json = shift;
             $callback->( $handle->($json) );
         });

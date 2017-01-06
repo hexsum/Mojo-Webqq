@@ -7,7 +7,7 @@ sub Mojo::Webqq::Client::_login2{
         json        => 1,
     };
     my %r = (
-        status      =>  $self->state,
+        status      =>  $self->mode,
         ptwebqq     =>  $self->ptwebqq,
         clientid    =>  $self->clientid,
         psessionid  =>  $self->psessionid,  
@@ -17,15 +17,15 @@ sub Mojo::Webqq::Client::_login2{
     #    $r{passwd_sig} = $self->passwd_sig;
     #}
     
-    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->encode_json(\%r)});
+    my $data = $self->http_post($api_url,$headers,form=>{r=>$self->to_json(\%r)});
     return 0 unless defined $data;
     if($data->{retcode} ==0){
-        if(defined $self->qq and $self->qq ne $data->{result}{uin}){
+        if(defined $self->uid and $self->uid ne $data->{result}{uin}){
             $self->fatal("实际登录帐号和程序预设帐号不一致");
             $self->stop();
             return 0;
         }
-        $self->qq($data->{result}{uin})
+        $self->uid($data->{result}{uin})
              ->psessionid($data->{result}{psessionid})
              #->vfwebqq($data->{result}{vfwebqq})
              ->login_state('success')

@@ -22,7 +22,7 @@ sub Mojo::Webqq::Model::_get_friend_info{
         $friend_info->{birthday} = join("-",@{ $friend_info->{birthday}}{qw(year month day)}  );
         $friend_info{state} = $self->code2state(delete $friend_info->{'stat'});
         $friend_info->{id} = delete $friend_info->{uin};
-        $self->reform_hash($friend_info);
+        $friend_info->{name} = $friend_info->{nick};
         return $friend_info;
     };
     if($is_blocking){

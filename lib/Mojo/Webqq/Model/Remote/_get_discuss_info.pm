@@ -41,19 +41,17 @@ sub Mojo::Webqq::Model::_get_discuss_info {
         }
 
         my $discuss_info = {
-            did         =>  $json->{result}{info}{did},
-            downer       =>  $json->{result}{info}{discu_owner},
-            dname        =>  $json->{result}{info}{discu_name},
+            id         =>  $json->{result}{info}{did},
+            owner_id   =>  $json->{result}{info}{discu_owner},
+            name       =>  $json->{result}{info}{discu_name},
         };
 
         for(keys %mem_list){
             my $m = {
                 id          => $_,  
-                nick        => $mem_info{$_}{nick},
-                ruin        => $mem_list{$_}{ruin},
-                did         => $discuss_info->{did},
-                downer      => $discuss_info->{downer},
-                dname       => $discuss_info->{dname},
+                name        => $mem_info{$_}{nick},
+                uid          => $mem_list{$_}{ruin},
+                _discuss_id => $discuss_info->{did},
             };
             if(exists $mem_status{$_}){
                 $m->{state} = $mem_status{$_}{status};
@@ -63,11 +61,9 @@ sub Mojo::Webqq::Model::_get_discuss_info {
                 $m->{state} = 'offline';
                 $m->{client_type} = 'unknown';
             }
-            $self->reform_hash($m);
             push @{$minfo},$m;
         }
 
-        $self->reform_hash($discuss_info);
         $discuss_info->{ member } = $minfo if @$minfo>0;
         return $discuss_info;
     };

@@ -1,13 +1,11 @@
 package Mojo::Webqq::Friend;
 use strict;
-use base qw(Mojo::Base Mojo::Webqq::Model::Base);
-sub has { Mojo::Base::attr(__PACKAGE__, @_) }
+use Mojo::Webqq::Base 'Mojo::Webqq::Model::Base';
 has [qw(
     flag
     id
-    qq
     category
-    nick
+    name
     face
     markname    
     is_vip      
@@ -15,14 +13,16 @@ has [qw(
     state       
     client_type 
 )];
-has qq => sub{
+has uid => sub{
     my $self = shift;
-    return $self->{qq} if defined $self->{qq};
-    return $self->{_client}?$self->{_client}->get_qq_from_id($self->id):undef;
+    return $self->{uid} if defined $self->{uid};
+    return $self->client->get_qq_from_id($self->id);
 };
+sub qq {$_[0]->uid}
+sub nick {$_[0]->name}
 sub displayname {
     my $self = shift;
-    return defined $self->markname?$self->markname:$self->nick;
+    return defined $self->markname?$self->markname:$self->name;
 }
 sub update{
     my $self = shift;
@@ -34,14 +34,14 @@ sub update{
                     my $old_property = $self->{$_};
                     my $new_property = $hash->{$_};
                     $self->{$_} = $hash->{$_};
-                    $self->{_client}->emit("friend_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
+                    $self->client->emit("friend_property_change"=>$self,$_,$old_property,$new_property);
                 }
             }
             elsif( ! (!defined $hash->{$_} and !defined $self->{$_}) ){
                 my $old_property = $self->{$_};
                 my $new_property = $hash->{$_};
                 $self->{$_} = $hash->{$_};
-                $self->{_client}->emit("friend_property_change"=>$self,$_,$old_property,$new_property) if defined $self->{_client};
+                $self->client->emit("friend_property_change"=>$self,$_,$old_property,$new_property);
             }
         }
     }
@@ -50,7 +50,7 @@ sub update{
 
 sub send {
     my $self = shift;
-    $self->{_client}->send_message($self,@_);
+    $self->client->send_friend_message($self,@_);
 }
 
 1;

@@ -1,5 +1,4 @@
 package Mojo::Webqq::Plugin::UploadQRcode;
-use Mojo::Util qw();
 our $CALL_ON_LOAD=1;
 use strict;
 sub call{
@@ -17,10 +16,10 @@ sub call{
             return;
         }
         elsif(defined $json and $json->{code} ne 'success' ){
-            $client->warn("二维码图片上传云存储失败: " . Mojo::Util::encode("utf8",$json->{msg}));
+            $client->warn("二维码图片上传云存储失败: " . $json->{msg});
             return;
         }
-        $client->info("二维码已上传云存储[ ". Mojo::Util::encode("utf8",($json->{data}{url})) . " ]");
+        $client->info("二维码已上传云存储[ ". $json->{data}{url} . " ]");
     });
 }
 1;

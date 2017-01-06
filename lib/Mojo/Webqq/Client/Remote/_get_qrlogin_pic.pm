@@ -1,4 +1,4 @@
-use Encode;
+use Encode ();
 use Encode::Locale;
 sub Mojo::Webqq::Client::_get_qrlogin_pic {
     my $self = shift;
@@ -34,7 +34,7 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
         return 0;
     }
 
-    my $filename_for_log = encode("utf8",decode(locale_fs,$self->qrcode_path));
+    my $filename_for_log = Encode::encode("utf8",Encode::decode(locale_fs,$self->qrcode_path));
     #$self->info("二维码已下载到本地[ $filename_for_log ]\n二维码原始下载地址[ $url ]");
     $self->info("二维码已下载到本地[ $filename_for_log ]");
     $self->emit(input_qrcode=>$self->qrcode_path,$data);

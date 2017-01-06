@@ -13,12 +13,11 @@ sub call {
     $client->on(receive_message=>sub{
         my($client,$msg)=@_;
         return if not $msg->allow_plugin;
-        return if $msg->type eq "group_message" and $msg->group->gname eq "Mojolicious";
         return if $msg->content !~ /(大\s*神|大\s*婶|大\s*侠)/;
         my $key_word = $1;$key_word=~s/\s+//;
         my $reply = $reply[int rand($#reply+1)];
         $reply=~s/%/$key_word/g;
-        $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;
+        $client->reply_message($msg,$reply,sub{$_[1]->from("bot")}) if $reply;
     });
 }
 1;

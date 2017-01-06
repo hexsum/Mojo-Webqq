@@ -15,7 +15,7 @@ sub call {
         my($client,$filename) = @_;
         $client->die("插件[".__PACKAGE__."]必须设置提交验证码本机地址") unless defined $data->{post_host};
         $data->{post_port} = "3000" unless defined $data->{post_port};
-        my $subject = $data->{subject} || "QQ帐号 " . $client->qq . " 登录验证码";
+        my $subject = $data->{subject} || "QQ帐号 " . $client->uid . " 登录验证码";
         my $mime = MIME::Lite->new(
             Type    => 'multipart/mixed',
             From    => $data->{from},

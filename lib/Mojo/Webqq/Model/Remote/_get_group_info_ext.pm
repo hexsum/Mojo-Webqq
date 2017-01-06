@@ -1,7 +1,7 @@
 use strict;
 sub Mojo::Webqq::Model::_get_group_info_ext {
     my $self = shift;
-    my $gnumber = shift;
+    my $uid = shift;
     my $callback = shift;
     my $api = "http://qun.qq.com/cgi-bin/qun_mgr/search_group_members";
     my $is_blocking = ref $callback eq "CODE"?0:1;
@@ -20,34 +20,33 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
             $levelname{$_} = $json->{levelname}{$_};
         }
         my $group = {member=>[]};
-        $group->{adm_max} = $json->{adm_max};
-        $group->{adm_num} = $json->{adm_num};
-        $group->{member_count} = $json->{count};
-        $group->{max_member_count} = $json->{max_count};
-        $group->{gnumber} = $gnumber;
+        $group->{max_admin} = $json->{adm_max};
+        #$group->{admin_count} = $json->{adm_num};
+        #$group->{member_count} = $json->{count};
+        $group->{max_member} = $json->{max_count};
+        $group->{uid} = $uid;
 
         for(@{$json->{mems}}){
             my $member = {};
             $member->{level} = $levelname{$_->{lv}{level}};
             $member->{bad_record} = $_->{flag};
-            $member->{gender} = $_->{g}?"female":"male";
-            $member->{qq}  = $_->{uin};
+            $member->{sex} = $_->{g}?"female":"male";
+            $member->{uid}  = $_->{uin};
             $member->{role} = $role{$_->{role}};
             $member->{card} = (defined $_->{card} and $_->{card} ne "")?$self->xmlescape_parse($_->{card}): undef;
-            $member->{nick} = $self->xmlescape_parse($_->{nick});
+            $member->{name} = $self->xmlescape_parse($_->{nick});
             $member->{qage} = $_->{qage};
             $member->{join_time} = $_->{join_time};
             $member->{last_speak_time} = $_->{last_speak_time};
-            $self->reform_hash($member);
             push @{$group->{member}},$member;
         }   
         return $group;
     };
     if($is_blocking){
-        return $handle->( $self->http_post($api,{Referer=>"http://qun.qq.com/member.html",json=>1},form=>{gc=>$gnumber,st=>0,end=>2000,sort=>0,bkn=>$self->get_csrf_token},) );
+        return $handle->( $self->http_post($api,{Referer=>"http://qun.qq.com/member.html",json=>1},form=>{gc=>$uid,st=>0,end=>2000,sort=>0,bkn=>$self->get_csrf_token},) );
     }
     else{
-        $self->http_post($api,{Referer=>"http://qun.qq.com/member.html",json=>1},form=>{gc=>$gnumber,st=>0,end=>2000,sort=>0,bkn=>$self->get_csrf_token},sub{
+        $self->http_post($api,{Referer=>"http://qun.qq.com/member.html",json=>1},form=>{gc=>$uid,st=>0,end=>2000,sort=>0,bkn=>$self->get_csrf_token},sub{
             my $json = shift;
             $callback->( $handle->($json) );
         });

@@ -22,7 +22,7 @@ sub call{
             $client->stop();
             return 
         }
-        $data->{subject} = "QQ帐号" . (defined $client->qq?$client->qq:'') . "扫描二维码" if not defined $data->{subject};
+        $data->{subject} = "QQ帐号" . (defined $client->uid?$client->uid:$client->account) . "扫描二维码" if not defined $data->{subject};
         my $mime = MIME::Lite->new(
             Type    => 'multipart/mixed',
             From    => $data->{from},
@@ -41,7 +41,12 @@ sub call{
         $data->{data} = $mime->as_string;
         my($is_success,$err) = $client->mail(%$data);
         if(not $is_success){
-            $client->error("插件[".__PACKAGE__."]邮件发送失败: $err");
+            if($data->{smtp} eq 'smtp.qq.com'){
+                $client->error("插件[".__PACKAGE__."]邮件发送失败: " . $client->encode("utf8",$client->decode("gbk",$err)));
+            }
+            else{
+                $client->error("插件[".__PACKAGE__."]邮件发送失败: $err");
+            }
         }   
         else{
             $client->info("登录二维码已经发送到邮箱: $data->{to}");

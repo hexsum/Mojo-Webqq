@@ -106,7 +106,7 @@ my %FACE_MAP = qw(
     134 右太极
 );
 my %FACEID_MAP = reverse %FACE_MAP;
-sub Mojo::Webqq::Message::face_to_txt{
+sub Mojo::Webqq::face_to_txt{
     my $self = shift;
     my $face = shift;
     if(ref $face eq 'ARRAY'){
@@ -118,7 +118,7 @@ sub Mojo::Webqq::Message::face_to_txt{
         return $face;
     }
 }
-sub Mojo::Webqq::Message::face_parse {
+sub Mojo::Webqq::face_parse {
     my $self = shift;
     my $data = shift;
     my @result;

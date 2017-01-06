@@ -36,28 +36,28 @@ sub call{
         }
         if($msg->type eq 'group_message'){
             return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->gnumber eq $_:$msg->group->gname eq $_} @{$data->{allow_group}};
-            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
-            my $limit = $counter->check($msg->group->gid ."|" .$msg->sender->id);
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
+            my $limit = $counter->check($msg->group->id ."|" .$msg->sender->id);
             if($is_need_at and $limit >= $ban_limit){
                 $ban{$msg->sender->id} = 1;
                 $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，$ban_time秒内提问无视",sub{$_[1]->msg_from("bot")});
-                $counter->clear($msg->group->gid ."|" .$msg->sender->id);
+                $counter->clear($msg->group->id ."|" .$msg->sender->id);
                 $client->timer($ban_time ,sub{delete $ban{$msg->sender->id};});
                 return;
             }
             if($is_need_at and $limit >= $warn_limit){
-                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->msg_from("bot")});
+                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->from("bot")});
                 return;
             }
             if($is_need_at and $limit >= $notice_limit){
-                $client->reply_message($msg,"\@$sender_nick " . $limit_reply->[int rand(@$limit_reply)],sub{$_[1]->msg_from("bot")});
+                $client->reply_message($msg,"\@$sender_nick " . $limit_reply->[int rand(@$limit_reply)],sub{$_[1]->from("bot")});
                 return;
             }   
         } 
         else{
-            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->qq eq $_:$sender_nick eq $_} @{$data->{ban_user}};
+            return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
         }
         $msg->allow_plugin(0);
 
@@ -68,10 +68,10 @@ sub call{
         my $json = {
             "key"       =>  $data->{apikey} || "f771372ffd054183bfcdf260d7c7ad5a",
             "userid"    =>  $msg->sender->id,
-            "info"      =>  decode("utf8",$input),
+            "info"      =>  $input,
         };
 
-        $json->{"loc"} = decode("utf8",$msg->sender->city) if $msg->type eq "group_message" and  $msg->sender->city; 
+        $json->{"loc"} = $msg->sender->city if $msg->type eq "group_message" and  $msg->sender->city; 
         $client->http_post($api,{json=>1},json=>$json,sub{
             my $json = shift;
             return unless defined $json;
@@ -79,18 +79,18 @@ sub call{
             my $reply;
             if($json->{code} == 100000){
                 return unless $json->{text};
-                $reply = encode("utf8",$json->{text});
+                $reply = $json->{text};
             } 
             elsif($json->{code} == 200000){
-                $reply = encode("utf8","$json->{text}$json->{url}");
+                $reply = "$json->{text}$json->{url}";
             }
             else{return}
             $reply=~s#<br(\s*/)?>#\n#g;
             eval{$reply= Mojo::Util::html_unescape($reply);};
             $client->warn("html entities unescape fail: $@") if $@;
             $reply  = "\@$sender_nick " . $reply  if $msg->type eq 'group_message' and rand(100)>20;
-            $reply = $client->truncate($reply,max_bytes=>500,max_lines=>10) if ($msg->type eq 'group_message' and $data->{is_truncate_reply});   
-            $client->reply_message($msg,$reply,sub{$_[1]->msg_from("bot")}) if $reply;
+            $reply = $client->truncate($reply,max_bytes=>500,max_lines=>8) if ($msg->type eq 'group_message' and $data->{is_truncate_reply});   
+            $client->reply_message($msg,$reply,sub{$_[1]->from("bot")}) if $reply;
         });
 
     }); 

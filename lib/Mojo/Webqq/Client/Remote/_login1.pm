@@ -10,7 +10,7 @@ sub Mojo::Webqq::Client::_login1{
     my $query_string_ul = 'http%3A%2F%2Fw.qq.com%2Fproxy.html%3Flogin2qq%3D1%26webqq_type%3D10';
     my $query_string_action = '0-23-19230';
     if($login_type eq "login"){
-        if(not defined $self->qq){
+        if(not defined $self->account){
             $self->fatal("未设置登录帐号, 无法登录");
             $self->stop();
             return 0;
@@ -47,7 +47,7 @@ sub Mojo::Webqq::Client::_login1{
             return $self->encrypt_method eq "perl"?-2:-3; 
         }
         @query_string = (
-            u               =>  $self->qq,
+            u               =>  $self->account,
             p               =>  $passwd,
             verifycode      =>  $self->verifycode,
             webqq_type      =>  10,
@@ -140,11 +140,13 @@ sub Mojo::Webqq::Client::_login1{
         elsif($d{retcode} == 66){
             $self->info("等待手机QQ扫描二维码...\n") if $self->login_state ne 'scaning';
             $self->login_state('scaning');
+            $self->state('scaning');
             return -4;
         }
         elsif($d{retcode} == 67){
             $self->info("手机QQ扫码成功，请在手机上点击[允许登录smartQQ]按钮...") if $self->login_state ne 'confirming';
             $self->login_state('confirming');
+            $self->state('confirming');
             return -5;
         }
         #elsif($d{retcode} == 10005){
@@ -161,12 +163,12 @@ sub Mojo::Webqq::Client::_login1{
                 $self->stop();
                 return 0;
             }
-            elsif(defined $self->qq and $self->qq ne $id){
+            elsif($self->check_account and $self->account=~/^\d+$/ and $self->account ne $id){
                 $self->fatal("实际登录帐号和程序预设帐号不一致");
                 $self->stop();
                 return 0;
             }
-            $self->qq($id);
+            $self->uid($id);
             $self->api_check_sig($d{api_check_sig})->ptwebqq($self->search_cookie('ptwebqq'));;
             return 1;
         }

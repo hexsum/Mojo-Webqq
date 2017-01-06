@@ -15,9 +15,9 @@ sub call{
     my $client = shift;
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server::Chinese") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
-    my $master_irc_user = $data->{master_irc_user} || $client->qq;
+    my $master_irc_user = $data->{master_irc_user} || $client->uid;
     my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
-    my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
+    my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
@@ -29,7 +29,7 @@ sub call{
             my $raw_content = $content;
             my $channel = $ircd->search_channel(name=>$channel_name);
             return if not defined $channel;
-            my $group = $client->search_group(gid=>$channel->id);
+            my $group = $client->search_group(id=>$channel->id);
             return if not defined $group;
             if($content=~/^([^\s]+?): /){
                 my $at_nick = $1;
@@ -41,10 +41,10 @@ sub call{
                 #$content .= " (来自 ".$user->nick.")"; 
             }
             $group->send($content,sub{
-                $_[1]->msg_from("irc");
+                $_[1]->from("irc");
                 $_[1]->cb(sub{
-                    my($client,$msg,$status)=@_;
-                    if($status->is_success){
+                    my($client,$msg)=@_;
+                    if($msg->is_success){
                         if($msg->content ne $raw_content){
                             $msg->content($raw_content);
                             $msg->raw_content($client->face_parse($msg->content));
@@ -64,10 +64,10 @@ sub call{
             my $friend = $client->search_friend(id=>$u->id);
             if(defined $friend){
                 $friend->send($content,sub{
-                    $_[1]->msg_from("irc");
+                    $_[1]->from("irc");
                     $_[1]->cb(sub{
-                        my($client,$msg,$status)=@_;
-                        return if $status->is_success;
+                        my($client,$msg)=@_;
+                        return if $msg->is_success;
                         $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
                     });
                 });
@@ -78,8 +78,8 @@ sub call{
                     $member->send($content,sub{
                         $_[1]->msg_from("irc");
                         $_[1]->cb(sub{
-                            my($client,$msg,$status)=@_;
-                            return if $status->is_success;
+                            my($client,$msg)=@_;
+                            return if $msg->is_success;
                             $user->send($user->ident,"PRIVMSG",$nick,$content . "[发送失败]");
                         });
                     });
@@ -122,27 +122,27 @@ sub call{
         }
         $client->each_group(sub{
             my($client,$group) = @_;
-            return if(@groups and not first {$group->gname eq $_} @groups);
-            my $mode = defined $mode{$group->gname}?$mode{$group->gname}:"Pi";
-            my $channel_name = '#'.$group->gname;$channel_name=~s/\s|,|&//g;
+            return if(@groups and not first {$group->name eq $_} @groups);
+            my $mode = defined $mode{$group->name}?$mode{$group->name}:"Pi";
+            my $channel_name = '#'.$group->name;$channel_name=~s/\s|,|&//g;
             my $channel = $ircd->search_channel(name=>$channel_name);
             if(defined $channel){
                 delete $delete_channel{$channel->id};
-                $channel->id($group->gid);
+                $channel->id($group->id);
                 $channel->remove_user($_) for grep {$_->is_virtual} $channel->users;
             }
-            else{ $ircd->new_channel(id=>$group->gid,name=>'#'.$group->gname,mode=>$mode);}
+            else{ $ircd->new_channel(id=>$group->id,name=>'#'.$group->name,mode=>$mode);}
         });
         $ircd->remove_channel($_) for values %delete_channel;
     };
     $client->on(ready=>sub{
-        $master_irc_user = $data->{master_irc_user} || $client->qq;
+        $master_irc_user = $data->{master_irc_user} || $client->uid;
         $callback->();
         $client->on(login=>$callback);
     });
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
-        if($msg->type eq "message"){
+        if($msg->type eq "friend_message"){
             my $friend = $msg->sender;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
@@ -170,11 +170,11 @@ sub call{
 
         if($msg->type eq "sess_message"){
             my $member  = $msg->sender;
-            return if @groups and not first {$member->gname eq $_} @groups;
+            return if @groups and not first {$member->group->name eq $_} @groups;
             return if $msg->via ne "group";
             my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
-            my $channel = $ircd->search_channel(id=>$member->gid) ||
-                    $ircd->new_channel(id=>$member->id,name=>'#'.$member->gname,);
+            my $channel = $ircd->search_channel(id=>$member->group->id) ||
+                    $ircd->new_channel(id=>$member->id,name=>'#'.$member->group->name,);
             return if not defined $channel;
             if(not defined $user){
                 $user=$ircd->new_user(
@@ -204,10 +204,10 @@ sub call{
 
         elsif($msg->type eq "group_message"){
             my $member = $msg->sender;
-            return if @groups and not first {$member->gname eq $_} @groups;
+            return if @groups and not first {$member->group->name eq $_} @groups;
             my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
-            my $channel = $ircd->search_channel(id=>$member->gid) ||
-                    $ircd->new_channel(id=>$member->gid,name=>'#'.$member->gname,);
+            my $channel = $ircd->search_channel(id=>$member->group->id) ||
+                    $ircd->new_channel(id=>$member->group->id,name=>'#'.$member->group->name,);
             return if not defined $channel;
             if(not defined $user){
                 $user=$ircd->new_user(
@@ -245,7 +245,7 @@ sub call{
     $client->on(send_message=>sub{
         my($client,$msg) = @_;
         return if $msg->msg_from eq "irc";
-        if($msg->type eq "message"){
+        if($msg->type eq "friend_message"){
             my $friend = $msg->receiver;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
             my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
@@ -276,11 +276,11 @@ sub call{
 
         if($msg->type eq "sess_message"){
             my $member  = $msg->receiver;
-            return if @groups and not first {$member->gname eq $_} @groups;
+            return if @groups and not first {$member->group->name eq $_} @groups;
             return if $msg->via ne "group";
             my $user = $ircd->search_user(id=>$member->id,virtual=>1)||$ircd->search_user(nick=>$member->displayname,virtual=>0);
-            my $channel = $ircd->search_channel(id=>$member->gid) ||
-                    $ircd->new_channel(id=>$member->id,name=>'#'.$member->gname,);
+            my $channel = $ircd->search_channel(id=>$member->group->id) ||
+                    $ircd->new_channel(id=>$member->id,name=>'#'.$member->group->name,);
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$member->id,
@@ -307,8 +307,8 @@ sub call{
         }
 
         elsif($msg->type eq "group_message"){
-            return if @groups and not first {$msg->group->gname eq $_} @groups;
-            my $channel = $ircd->search_channel(id=>$msg->group->gid);
+            return if @groups and not first {$msg->group->name eq $_} @groups;
+            my $channel = $ircd->search_channel(id=>$msg->group->id);
             return unless defined $channel;
             for my $master_irc_client (
                 grep {$_->user eq $master_irc_user or $_->is_localhost}
@@ -333,7 +333,7 @@ sub call{
     if(defined $image_api){
         $client->on(receive_group_pic=>sub{
             my($client,$file_path,$sender) = @_;
-            my $channel = $ircd->search_channel(id=>$sender->gid);
+            my $channel = $ircd->search_channel(id=>$sender->id);
             my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
             return unless defined $user;
             return unless defined $channel;
