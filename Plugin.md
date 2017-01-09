@@ -26,6 +26,7 @@
 |[SmartReply]        |0        |已发布      |sjdy521       |智能聊天回复
 |[IPWhere]           |1        |已发布      |bollwarm      |IP库查询
 |[LCMD]              |1        |已发布      |bollwarm      |linux命令使用方法查询
+|[PostQRcodeToTelegram]|0      |已发布      |HubertZhang   |二维码通过Telegram Bot发至指定账户或频道或群组
 
 [ShowMsg]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowMsg
 [GroupManage]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GroupManage
@@ -51,3 +52,4 @@
 [SmartReply]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::SmartReply
 [IPWhere]: https://git.oschina.net/ijz/Mojo-Webqq-IPwhere
 [LCMD]: https://git.oschina.net/ijz/Mojo-Webqq-LCMD
+[PostQRcodeToTelegram]: https://github.com/sjdy521/Mojo-Webqq/blob/master/lib/Mojo/Webqq.pod#Mojo::Webqq::Plugin::PostQRcodeToTelegram
