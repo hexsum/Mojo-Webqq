@@ -61,8 +61,8 @@ sub call {
         return if $msg->content !~ /IPwhere\s*($ipre)/;
         my $arg= $1 if $msg->content=~ /IPwhere\s*($ipre)/;
         $reply= Encode::encode("utf8",squery($arg));
-#         $reply.=Encode::encode("utf8",gquery($arg)); # 如果需要解析纯真数据库，吧本行注释去掉
-        $client->reply_message($msg,$reply,sub{$_[1]->from("bot")}) if $reply;
+#       $reply.=Encode::encode("utf8",gquery($arg)); # 如果需要解析纯真数据库，吧本行注释去掉
+        $msg->reply($reply,sub{$_[1]->from("bot")}) if $reply;
     });
 }
 1;
