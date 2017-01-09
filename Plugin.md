@@ -24,8 +24,8 @@
 |[UploadQRcode]      |0        |已发布      |sjdy521       |二维码上传图床获得公网访问url
 |[ShowQRcode]        |0        |已发布      |autodataming  |调用系统图片查看程序来示二维码（目前仅支持win）
 |[SmartReply]        |0        |已发布      |sjdy521       |智能聊天回复
-|[IPWhere]           |1        |已发布      |bollwarm      |IP库查询
-|[LCMD]              |1        |已发布      |bollwarm      |linux命令使用方法查询
+|[IPWhere]           |1        |已发布      |bollwarm      |IP库查询
+|[LCMD]              |1        |已发布      |bollwarm      |linux命令使用方法查询
 |[PostQRcodeToTelegram]|0      |已发布      |HubertZhang   |二维码通过Telegram Bot发至指定账户或频道或群组
 
 [ShowMsg]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowMsg
