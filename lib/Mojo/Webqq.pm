@@ -79,6 +79,7 @@ has is_polling              => 0;
 has ua_retry_times          => 5;
 has is_first_login          => -1;
 has login_state             => "init";#init|relogin|success|scaning|confirming
+has qrcode_upload_url       => undef;
 has qrcode_count            => 0;
 has qrcode_count_max        => 10;
 has send_failure_count      => 0;

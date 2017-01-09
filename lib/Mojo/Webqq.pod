@@ -245,6 +245,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
     #取消群名片
     $group->me->set_card(undef);
+    #或者使用空串作为参数
+    $group->me->set_card("");
 
     #设置群成员的群名片，需要管理员权限
     $group->set_group_member_card($member,$card); 

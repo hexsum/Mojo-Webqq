@@ -53,6 +53,7 @@ sub call{
             $post_json->{post_type} = "event";
             $post_json->{event} = $event;
             $post_json->{params} = [$qrcode_path,$qrcode_data];
+            push @{$post_json->{params} },$client->qrcode_upload_url if defined $client->qrcode_upload_url;
             my($data,$ua,$tx) = $client->http_post($data->{post_api},json=>$post_json);
             if($tx->success){
                 $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "]上报成功");

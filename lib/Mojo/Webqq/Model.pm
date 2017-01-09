@@ -988,7 +988,7 @@ sub set_group_member_card{
     my $ret = $self->_set_group_member_card($group->uid,$member->uid,$card);
     if($ret){
         $member->card($card);
-        if(defined $card){$self->info("设置群名片成功");}
+        if(length $card){$self->info("设置群名片成功");}
         else{$self->info("取消群名片成功");}
     }
     else{$self->error("设置群名片失败")}
