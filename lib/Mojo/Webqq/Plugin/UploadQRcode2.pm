@@ -13,6 +13,7 @@ sub call{
         my $uniq_path = "mojo_webqq_" .  substr(Time::HiRes::gettimeofday(),4) .  sprintf("%.6f",rand(1)) . ".png";
         my $url = upload($client,$data,$uniq_path,$qrcode_data);
         return if not defined $url;
+        $client->qrcode_upload_url($url);
         $client->info("二维码已上传云存储[ $url ]");
     });
 }

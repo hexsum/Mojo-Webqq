@@ -19,6 +19,7 @@ sub call{
             $client->warn("二维码图片上传云存储失败: " . $json->{msg});
             return;
         }
+        $client->qrcode_upload_url($json->{data}{url});
         $client->info("二维码已上传云存储[ ". $json->{data}{url} . " ]");
     });
 }
