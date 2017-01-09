@@ -107,3 +107,21 @@ $client->run();
 你可以通过设置 `Mojo::Webqq->new(ignore_1202=>0)` 的方式，不忽略1202的状态码，认为这种发送结果也是失败的
 
 客户端会自动尝试5次，但可能也会导致对方收到很多重复的消息
+
+#### 7. PHP如何获取达到Openqq插件上报的json数据
+
+由于上报的json数据属于 application/json类型，而非application/x-www-form-urlencoded类型
+
+因此使用常规的`$_POST`的方式是行不通的（`$_POST` 只适合获取形式为 a=1&b=2&c=3 的数据形式）
+
+需要使用`$GLOBALS['HTTP_RAW_POST_DATA']`来直接获取http请求body中携带的原始json数据
+
+或者使用 `$http_request_body = file_get_contents('php://input');`
+
+再通过 php提供的`json_decode` 函数将原始json字符串转换为php对应的数据结构
+
+php相关文档说明：
+
+http://us3.php.net/manual/en/function.json-decode.php
+
+http://us3.php.net/manual/en/reserved.variables.httprawpostdata.php
