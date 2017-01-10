@@ -124,6 +124,11 @@ sub _http_request{
         my $tx;
         my $cb = pop if ref $_[-1] eq "CODE";
         for(my $i=0;$i<=$opt{ua_retry_times};$i++){
+
+            #fix bug Mojo::IOLoop already running Mojo/UserAgent.pm
+            #https://github.com/kraih/mojo/issues/1029
+            $self->ua->ioloop->stop if $self->ua->ioloop->is_running;
+
             if($opt{ua_connect_timeout} or  $opt{ua_request_timeout} or $opt{ua_inactivity_timeout}){
                 my $connect_timeout = $self->ua->connect_timeout;
                 my $request_timeout = $self->ua->request_timeout;

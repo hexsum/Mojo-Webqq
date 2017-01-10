@@ -40,14 +40,9 @@ sub stop{
     return if $self->is_stop;
     $self->is_stop(1);
     $self->state('stop');
+    $self->emit("stop");
     $self->info("客户端停止运行");
     CORE::exit;
-}
-sub exit{
-    my $self = shift;  
-    my $code = shift;
-    $self->state('stop');
-    exit(defined $code?$code+0:0);
 }
 sub ready{
     my $self = shift;
