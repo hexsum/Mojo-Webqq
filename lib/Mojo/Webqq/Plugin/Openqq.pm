@@ -235,7 +235,7 @@ sub call{
                 $ret = $data->{auth}->($hash,$c);
             };
             $client->warn("插件[Mojo::Webqq::Plugin::Openqq]认证回调执行错误: $@") if $@;
-            $c->safe_render(text=>"auth failure",status=>403) if not $ret;
+            $c->safe_render(json=>{code=>-6,status=>"auth failure"}) if not $ret;
             return $ret;
         }
         else{return 1} 
