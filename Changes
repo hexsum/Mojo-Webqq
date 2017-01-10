@@ -1,3 +1,13 @@
+2017-01-10 Mojo::Webqq v2.0.2
+1）取消群名片可以使用空串
+2）加载了UploadQRcode插件之后，Openqq插件input_qrcode事件上报也会带上上传的二维码url
+3）新增插件 PostQRcodeToTelegram
+4）压缩或删除一些图片，减少这个项目的体积
+5）Openqq插件auth认证失败时返回json格式数据而非原来的文本错误信息
+6）修复客户端正常调用->stop() 退出时无法清理临时文件的bug
+   修复客户端正常调用->stop() 退出时无法正常上报事件的bug
+   修复ctrl+c时客户端报错 Mojo::IOLoop already running at /usr/local/share/perl5/Mojo/UserAgent.pm line 60
+
 2017-01-05 Mojo::Webqq v2.0.1
 1）增加PostQRcodeToTelegram插件
 2）开启http_debug后，debug日志不打印http post上传文件的二进制内容
