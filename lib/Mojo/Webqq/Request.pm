@@ -152,11 +152,11 @@ sub _http_request{
                 return wantarray?($r,$self->ua,$tx):$r;
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code} || "-") . " " . $self->encode_utf8($tx->error->{message}));
+                $self->warn($tx->req->url->to_abs . " 请求($i/$opt{ua_retry_times})失败: " . ($tx->error->{code} || "-") . " " . $self->encode_utf8($tx->error->{message}));
                 next;
             }
         }
-        $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message})) if defined $tx;
+        #$self->warn($tx->req->url->to_abs . " 请求最终失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message})) if defined $tx;
         $cb->($r,$ua,$tx) if defined $cb;
         return wantarray?(undef,$self->ua,$tx):undef;
     }
