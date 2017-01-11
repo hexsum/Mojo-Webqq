@@ -6,6 +6,7 @@
 |[GroupManage]       |100      |已发布      |sjdy521       |群管理，入群欢迎、限制发图频率等
 |[IRCShell]          |99       |已发布      |sjdy521       |Linux环境下通过irc客户端使用qq
 |[Openqq]            |98       |已发布      |sjdy521       |提供qq发送消息api接口
+|[GCM]               |97       |已发布      |sjdy521       |接收消息通过GCM推送到android手机
 |[Perlcode]          |97       |已发布      |sjdy521       |通过qq消息执行perl代码
 |[Perldoc]           |96       |已发布      |sjdy521       |通过qq消息查询perl文档
 |[StockInfo]         |95       |已发布      |shalk         |查询股票信息
@@ -55,3 +56,4 @@
 [LCMD]: https://git.oschina.net/ijz/Mojo-Webqq-LCMD
 [PW]: http://git.oschina.net/ijz/pullword/blob/master/example/PW.pm
 [PostQRcodeToTelegram]: https://github.com/sjdy521/Mojo-Webqq/blob/master/lib/Mojo/Webqq.pod#Mojo::Webqq::Plugin::PostQRcodeToTelegram
+[GCM]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::GCM

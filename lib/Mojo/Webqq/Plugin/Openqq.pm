@@ -34,7 +34,7 @@ sub call{
             $post_json->{post_type} = "event";
             $post_json->{event} = $event;
             $post_json->{params} = [@args];
-            my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>2},json=>$post_json);
+            my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>1},json=>$post_json);
             if($tx->success){
                 $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "](@args)上报成功");
             }
