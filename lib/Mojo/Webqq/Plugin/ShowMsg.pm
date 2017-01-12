@@ -49,7 +49,7 @@ sub call{
             my($client,$msg)=@_;
             my $attach = '';
             if($msg->is_success){
-                if(defined $msg->info and $msg->info ne "发送正常" ){
+                if($client->log_level eq 'debug' and defined $msg->info and $msg->info ne "发送正常" ){
                     $attach = "[" . $msg->info . "]";
                 }
             }

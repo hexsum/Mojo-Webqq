@@ -26,9 +26,9 @@ has log_encoding        => undef;      #utf8|gbk|...
 has log_head            => undef;
 has log_unicode         => 0;
 has log_console         => 1;
-has ignore_1202         => 1;           #对发送消息返回状态码1202是否认为发送失败
 has check_account       => 0;           #是否检查预设账号与实际登录账号是否匹配
 has disable_color       => 0;           #是否禁用终端打印颜色
+has ignore_retcode      => sub{[0,1202,100100]}; #对发送消息返回这些状态码不认为发送失败，不重试
 
 has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
 has is_init_group          => 1;                            #是否在首次登录时初始化群组信息
@@ -50,7 +50,7 @@ has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_
 has state_path          => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_state_',$_[0]->account || 'default','.json'))};
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
-has msg_ttl             => 5;
+has msg_ttl             => 3;
 
 has version => $Mojo::Webqq::VERSION;
 has user    => sub {+{}};

@@ -413,8 +413,10 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     http_debug      #设置该参数，打印调试信息
     keep_cookie     #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
     disable_color   #默认为0，是否禁用终端彩色打印
-    log_console     #打印到文件的同时也打印到屏幕，方便调试，默认 1
+    ignore_retcode  #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用，默认 [1202,100100]
+                    #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
 
+    log_console     #打印到文件的同时也打印到屏幕，方便调试，默认 1
     log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
     log_path        #默认客户端输出内容打印到STDOUT 设置该参数可以将客户端输出重定向到文件
     log_encoding    #输出日志的编码，默认自动检测，如果出现乱码可以尝试手动设置一下输出编码

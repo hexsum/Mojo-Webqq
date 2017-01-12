@@ -2,6 +2,7 @@ package Mojo::Webqq::Message::Base;
 use Mojo::Webqq::Base -base;
 use Data::Dumper;
 use Scalar::Util qw(blessed);
+use List::Util qw(first);
 sub client {
     return $Mojo::Webqq::_CLIENT;
 }
@@ -148,16 +149,11 @@ sub parse_send_status_msg{
             if($json->{retcode}==0){
                 $self->send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
-            elsif($json->{retcode}==1202){
-                if($self->client->ignore_1202){
-                    $self->send_status(code=>0,msg=>"发送成功",info=>'无法判断是否发送成功');
-                }
-                else{
-                    $self->send_status(code=>-5,msg=>"发送失败",info=>'发送异常1202');
-                }
+            elsif( ref $self->client->ignore_retcode eq "ARRAY" and first { $json->{retcode} == $_ } @{$self->client->ignore_retcode} ){
+                $self->send_status(code=>0,msg=>"发送成功",info=>"忽略返回值: $json->{retcode}");
             }
             else{
-                $self->send_status(code=>-4,msg=>"发送失败",info=>'响应未知: ' . $self->client->to_json($json));
+                $self->send_status(code=>-5,msg=>"发送失败",info=>'未识别返回值:' . $json->{retcode});
             }
         }
         else{
