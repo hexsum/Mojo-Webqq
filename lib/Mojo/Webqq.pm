@@ -62,6 +62,7 @@ has plugins => sub{+{}};
 has log    => sub{
     Mojo::Webqq::Log->new(
         encoding    =>  $_[0]->log_encoding,
+        unicode_support => $_[0]->log_unicode,
         path        =>  $_[0]->log_path,
         level       =>  $_[0]->log_level,
         head        =>  $_[0]->log_head,

@@ -43,7 +43,12 @@ sub call {
             json=>{
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
-                data=>{type=>$data->{type} // 'Mojo-Webqq',title=>$title,message=>$message},
+                priority => $data->{priority} // 'high',
+                data=>{
+                    type=>$data->{type} // 'Mojo-Webqq',
+                    title=>$title,
+                    message=>$message,
+                },
             },
             sub{
                 #"{"multicast_id":9016211065189210367,"success":1,"failure":0,"canonical_ids":0,"results":[{"message_id":"0:1484103730761325%9b9e6c13f9fd7ecd"}]}"
