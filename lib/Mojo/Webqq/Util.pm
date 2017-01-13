@@ -1,6 +1,7 @@
 package Mojo::Webqq::Util;
 use Carp qw();
 use Encode qw();
+use IO::Handle;
 use Mojo::JSON qw();
 use Mojo::Util qw();
 use Mojo::Webqq::Counter;
@@ -15,11 +16,22 @@ sub url_escape {
 
 sub slurp {
     my $self = shift;
-    return Mojo::Util::slurp(@_);
+    my $path = shift;
+
+    open my $file, '<', $path or Carp::croak qq{Can't open file "$path": $!};
+    my $ret = my $content = '';
+    while ($ret = $file->sysread(my $buffer, 131072, 0)) { $content .= $buffer }
+    Carp::croak qq{Can't read from file "$path": $!} unless defined $ret;
+
+    return $content;
 }
 sub spurt {
     my $self = shift;
-    return Mojo::Util::spurt(@_);
+    my ($content, $path) = @_;
+    open my $file, '>', $path or Carp::croak qq{Can't open file "$path": $!};
+    defined $file->syswrite($content)
+        or Carp::croak qq{Can't write to file "$path": $!};
+    return $content;
 }
 sub encode{
     my $self = shift;
