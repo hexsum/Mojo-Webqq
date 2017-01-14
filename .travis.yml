@@ -1,5 +1,21 @@
+sudo: required
+
 language: perl
 perl:
   - "5.10"
   - "5.14"
   - "5.20"
+
+services:
+  - docker
+
+install:
+  - cpanm --installdeps .
+
+script:
+  - perl Makefile.PL
+  - make
+  - make test
+
+after_success:
+  - if [[ $TRAVIS_BRANCH = "master" && $TRAVIS_TAG && $TRAVIS_TAG =~ ^v[0-9.]+$ ]]; then sh .travis_build_docker_image.sh; fi
