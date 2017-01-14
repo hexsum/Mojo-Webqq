@@ -14,10 +14,7 @@ script:
   - perl Makefile.PL
   - make
   - make test
-  - if [[ $TRAVIS_TAG && $TRAVIS_TAG =~ "^v[0-9.]+$" ]]; then
-      TAG=${TRAVIS_TAG#v};
-      docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS;
-      docker build -f docker-image/Dockerfile -t $DOCKER_REPO:$TAG docker-image;
-      docker tag $DOCKER_REPO:$TAG $DOCKER_REPO:latest;
-      docker push $DOCKER_REPO;
-    fi
+  - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+  - docker build -f docker-image/Dockerfile -t $DOCKER_REPO:$TRAVIS_BRANCH docker-image
+  - docker tag $DOCKER_REPO:$TRAVIS_BRANCH $DOCKER_REPO:latest
+  - docker push $DOCKER_REPO
