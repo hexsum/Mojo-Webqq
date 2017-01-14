@@ -2,9 +2,7 @@ sudo: required
 
 language: perl
 perl:
-  - "5.10"
-  - "5.14"
-  - "5.20"
+  - "5.22"
 
 services:
   - docker
