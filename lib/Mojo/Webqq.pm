@@ -1,7 +1,7 @@
 package Mojo::Webqq;
 use strict;
 use Carp ();
-$Mojo::Webqq::VERSION = "2.0.2";
+$Mojo::Webqq::VERSION = "2.0.3";
 use Mojo::Webqq::Base 'Mojo::EventEmitter';
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
