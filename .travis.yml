@@ -16,5 +16,10 @@ script:
   - make test
 
 after_success:
-  - echo "Branch $TRAVIS_BRANCH\nTag  $TRAVIS_TAG"
-  - if [[ $TRAVIS_BRANCH = "master" && $TRAVIS_TAG && $TRAVIS_TAG =~ "^v[0-9.]+$" ]]; then sh ".travis_build_docker_image.sh"; fi
+  - if [[ $TRAVIS_TAG && $TRAVIS_TAG =~ "^v[0-9.]+$" ]]; then
+      TAG=${TRAVIS_TAG#v}
+      docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS;
+      docker build -f docker-image/Dockerfile -t $DOCKER_REPO:$TAG docker-image;
+      docker tag $DOCKER_REPO:$TAG $DOCKER_REPO:latest;
+      docker push $DOCKER_REPO;
+    fi
