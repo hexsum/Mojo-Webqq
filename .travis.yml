@@ -16,4 +16,5 @@ script:
   - make test
 
 after_success:
-  - if [[ $TRAVIS_BRANCH = "master" && $TRAVIS_TAG && $TRAVIS_TAG =~ ^v[0-9.]+$ ]]; then sh .travis_build_docker_image.sh; fi
+  - echo "Branch: $TRAVIS_BRANCH\nTag: $TRAVIS_TAG"
+  - if [[ $TRAVIS_BRANCH = "master" && $TRAVIS_TAG && $TRAVIS_TAG =~ "^v[0-9.]+$" ]]; then sh ".travis_build_docker_image.sh"; fi
