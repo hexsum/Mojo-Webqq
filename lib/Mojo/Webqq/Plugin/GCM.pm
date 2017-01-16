@@ -1,6 +1,6 @@
 package Mojo::Webqq::Plugin::GCM;
 our $AUTHOR = 'sjdy521@163.com';
-our $SITE = '';
+our $SITE = 'http://www.coolapk.com/apk/com.swjtu.gcmformojo';
 our $DESC = '接收消息通过谷歌提供的GCM接口发送到android手机';
 our $PRIORITY = 97;
 use List::Util qw(first);
