@@ -233,7 +233,7 @@ sub login {
     }
     else{
         $self->qrcode_count(0);
-        $self->info("帐号(" . $self->account . ")登录成功");
+        $self->info("帐号(" .( $self->uid // $self->account) . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
         $self->state('updating');
         $self->update_user;
