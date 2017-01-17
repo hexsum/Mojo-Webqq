@@ -112,9 +112,10 @@ http://us3.php.net/manual/en/reserved.variables.httprawpostdata.php
 
 #### 7. screen乱码的问题
 
-解决办法：在 ~/.screenrc 中，添加下面两句：
+解决办法：强制UTF-8模式开启,在其他命令前加上-U 即可,如
 
 ```
-defencoding GBK
-encoding UTF-8 GBK
+screen -U -S test
+screen -U -r xxx
+
 ```
