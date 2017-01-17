@@ -109,3 +109,12 @@ php相关文档说明：
 http://us3.php.net/manual/en/function.json-decode.php
 
 http://us3.php.net/manual/en/reserved.variables.httprawpostdata.php
+
+#### 7. screen乱码的问题
+
+解决办法：在 ~/.screenrc 中，添加下面两句：
+
+```
+defencoding GBK
+encoding UTF-8 GBK
+```
