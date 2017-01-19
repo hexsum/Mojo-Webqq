@@ -87,7 +87,7 @@ sub call {
         else{return}
         $client->http_post($api_url,
             {   'Authorization'=>"key=$api_key",
-                is_blocking=>1,
+                blocking=>1,
                 ua_connect_timeout=>5,
                 ua_request_timeout=>5,
                 ua_inactivity_timeout=>5,
