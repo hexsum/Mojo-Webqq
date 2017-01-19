@@ -17,6 +17,7 @@ sub call {
     }
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
+        my $type  = 'Mojo-Webqq';
         my $title;
         my $message;
         my $msgId;
@@ -49,7 +50,7 @@ sub call {
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
                 priority=> $data->{priority} // 'high',
-                data=>{type=>$data->{type} // 'Mojo-Webqq',title=>$title,message=>$message,msgId=>$msgId},
+                data=>{type=>$type,title=>$title,message=>$message,msgId=>$msgId},
             },
             sub{
                 #"{"multicast_id":9016211065189210367,"success":1,"failure":0,"canonical_ids":0,"results":[{"message_id":"0:1484103730761325%9b9e6c13f9fd7ecd"}]}"
@@ -67,7 +68,9 @@ sub call {
 
     $client->on(all_event => sub{
         my($client,$event,@args) =@_;
-        my $message = $event;
+        my $type = 'Mojo-Sys';
+        my $message;
+        my $msgId = 1;
         if($event eq 'login'){
             $message = "登录成功";
         }
@@ -90,7 +93,7 @@ sub call {
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
                 priority=> $data->{priority} // 'high',
-                data=>{type=>$data->{type} // 'Mojo-Webqq',title=>'事件通知',message=>$message},
+                data=>{type=>$type,title=>'事件通知',message=>$message,msgId=>$msgId},
             },
             sub{
                 my $json = shift;
