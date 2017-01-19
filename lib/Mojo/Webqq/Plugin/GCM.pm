@@ -77,7 +77,7 @@ sub call {
             $title = "登录事件";
         }
         elsif($event eq 'input_qrcode'){
-            $message = "$args[2]";
+            $message = $client->qrcode_upload_url // '获取二维码url失败';
             $title = "扫描二维码事件";
         }
         elsif($event eq 'stop'){
