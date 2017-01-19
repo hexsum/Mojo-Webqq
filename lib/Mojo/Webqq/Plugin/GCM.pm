@@ -7,6 +7,7 @@ use List::Util qw(first);
 sub call {
     my $client = shift;
     my $data  = shift;
+    $client->load("UploadQRcode") if !$client->is_load_plugin('UploadQRcode');
     my $api_url = $data->{api_url} // 'https://gcm-http.googleapis.com/gcm/send';
     my $api_key = $data->{api_key} or $client->die("[".__PACKAGE__."]必须指定api_key");
     my $collapse_key = $data->{collapse_key};
@@ -62,6 +63,46 @@ sub call {
                 }
             }
         );
+    });
+
+    $client->on(all_event => sub{
+        my($client,$event,@args) =@_;
+        my $message = $event;
+        if($event eq 'login'){
+            $message = "登录成功";
+        }
+        elsif($event eq 'input_qrcode'){
+            $message = "需要扫描二维码: $args[2]";
+        }
+        elsif($event eq 'stop'){
+            $message = "Mojo-Webqq已停止";
+        }
+        else{return}
+        $client->http_post($api_url,
+            {   'Authorization'=>"key=$api_key",
+                is_blocking=>1,
+                ua_connect_timeout=>5,
+                ua_request_timeout=>5,
+                ua_inactivity_timeout=>5,
+                ua_retry_times=>1
+            },
+            json=>{
+                registration_ids=> $registration_ids,
+                $collapse_key?(collapse_key=> $collapse_key):(),
+                priority=> $data->{priority} // 'high',
+                data=>{type=>$data->{type} // 'Mojo-Webqq',title=>'事件通知',message=>$message},
+            },
+            sub{
+                my $json = shift;
+                if(not defined $json){
+                    $client->debug("[".__PACKAGE__."]GCM消息推送失败: 返回结果异常");
+                    return;
+                }
+                else{
+                    $client->debug("[".__PACKAGE__."]GCM消息推送完成：$json->{multicast_id}/$json->{success}/$json->{failure}");
+                }
+            }
+        ); 
     });
 }
 1;

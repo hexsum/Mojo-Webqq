@@ -445,4 +445,9 @@ sub save_state{
     $self->warn("客户端状态信息保存失败：$@") if $@;
 }
 
+sub is_load_plugin {
+    my $self = shift;
+    my $plugin = shift;
+    return exists $self->plugins->{ substr($plugin,0,1) eq '+'?$plugin:"Mojo::Webqq::Plugin::$plugin" };
+}
 1;
