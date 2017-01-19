@@ -1405,7 +1405,6 @@ QQ群每日签到插件
         api_url         => 'https://gcm-http.googleapis.com/gcm/send',
         api_key         =>'xxx', #需要向谷歌申请
         registration_ids=>["xxx"],#android设备的注册id
-        type            =>'Mojo-Webqq',#可选，可以不用设置，默认Mojo-Webqq
         allow_group     =>["允许推送消息的群名称1","允许推送消息的群名称2","或者群号码"],
         ban_group       =>["禁止推送消息的群名称","或者群号码"],
         allow_dicuss    =>["允许推送消息的讨论组名称1","允许推送消息的讨论组名称2"],
