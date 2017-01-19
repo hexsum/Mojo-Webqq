@@ -109,3 +109,13 @@ php相关文档说明：
 http://us3.php.net/manual/en/function.json-decode.php
 
 http://us3.php.net/manual/en/reserved.variables.httprawpostdata.php
+
+#### 7. screen乱码的问题
+
+解决办法：强制UTF-8模式开启,在其他命令前加上-U 即可,如
+
+```
+screen -U -S test
+screen -U -r xxx
+
+```
