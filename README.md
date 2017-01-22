@@ -205,12 +205,12 @@ Mojo-Webqq v2.0.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     发送好友消息的接口调用示例
     
-        http://127.0.0.1:5000/openqq/send_message?qq=xxxxx&content=hello
+        http://127.0.0.1:5000/openqq/send_friend_message?uid=xxxxx&content=hello
         
         * About to connect() to 127.0.0.1 port 5000 (#0)
         *   Trying 127.0.0.1...
         * Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
-        > GET /openqq/send_message?qq=xxxxx&content=hello HTTP/1.1
+        > GET /openqq/send_friend_message?uid==xxxxx&content=hello HTTP/1.1
         > User-Agent: curl/7.29.0
         > Host: 127.0.0.1:5000
         > Accept: */*
