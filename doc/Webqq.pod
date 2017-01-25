@@ -1094,16 +1094,16 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
     $client->load("IRCShell",data=>{
         listen=>[ {host=>"0.0.0.0",port=>6667},], #可选，IRC服务器监听的地址+端口，默认0.0.0.0:6667
         load_friend => 1, #默认是1 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
-        master_irc_user => "你的QQ号码", #用于识别哪个irc用户是你自己
+        master_irc_nick => "你的QQ昵称", #用于识别哪个irc用户是你自己
     });
     #支持的参数包括：
     listen              #监听的地址和端口，数组的形式来支持多个地址
                         # listen=>[ {host=>"127.0.0.1",port=>6667}, {host=>"127.0.0.1",port=>6668}]
                         # 表示监听127.0.0.1:6667和 127.0.0.1:6668两个端口
-    master_irc_user     #和qq匹配的irc user帐号，默认按照和qq号相同的user或者客户端ip是本机地址作为识别规则
+    master_irc_nick     #和qq匹配的irc帐号昵称，默认按照和qq号相同的昵称或者客户端ip是本机地址作为识别规则
     load_friend         #0|1 默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
-    image_api           #兼容elimage图床api地址，将qq图片转为连接，方便在irc上查看图片，默认没有启用
-                        #推荐依云的elimage http://img.vim-cn.com/
+    upload_api          #图床api地址，将qq图片转为连接，方便在irc上查看图片
+                        #默认采用的是 https://sm.ms/api/upload 接口文档 https://sm.ms/doc/
 
 当设置了 load_friend =>1 参数，qq好友会默认加入到irc的 '#我的好友' 频道中，可能影响加载速度
 
