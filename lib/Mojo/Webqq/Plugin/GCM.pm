@@ -27,15 +27,15 @@ sub call {
             $message = $msg->content;
         }
         elsif($msg->type eq 'group_message'){
-            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{allow_group}};
+            return if ref $data->{ban_group}  eq "ARRAY" and @{$data->{ban_group}} and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and  @{$data->{allow_group}} and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{allow_group}};
             $msgId = $msg->group->id;
             $title = $msg->group->displayname;
             $message = $msg->sender->displayname . ": " . $msg->content;
         }
         elsif($msg->type eq 'discuss_message'){
-            return if ref $data->{ban_discuss}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->discuss->uid eq $_:$msg->discuss->displayname eq $_} @{$data->{ban_discuss}};
-            return if ref $data->{allow_discuss}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->discuss->uid eq $_:$msg->discuss->displayname eq $_} @{$data->{allow_discuss}};
+            return if ref $data->{ban_discuss}  eq "ARRAY" and @{$data->{ban_discuss}} and first {$_=~/^\d+$/?$msg->discuss->uid eq $_:$msg->discuss->displayname eq $_} @{$data->{ban_discuss}};
+            return if ref $data->{allow_discuss}  eq "ARRAY" and @{$data->{allow_discuss}} and !first {$_=~/^\d+$/?$msg->discuss->uid eq $_:$msg->discuss->displayname eq $_} @{$data->{allow_discuss}};
             $msgId= $msg->discuss->id;
             $title = $msg->discuss->displayname;
             $message = $msg->sender->displayname . ": " . $msg->content;
