@@ -59,8 +59,25 @@ sub call{
         elsif($user->nick eq $master_irc_nick or $user->is_localhost){
             my $nick =  $msg->{params}[0];
             my $content = $msg->{params}[1];
-            my $u = $ircd->search_user(nick=>$nick,virtual=>1);
-            return if not defined $u;
+            my $u = $ircd->search_user(nick=>$nick);
+            #return if not defined $u;
+            if(not defined $u){
+                my $friend = $client->search_friend(displayname=>$nick);
+                return if not defined $friend;
+                my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+                return if not defined $channel;
+                $u = $ircd->new_user(
+                    id      =>$friend->id,
+                    name    =>$friend->displayname . ":虚拟用户",,
+                    user    =>$friend->id,
+                    nick    =>$friend->displayname,
+                    virtual => 1,
+                );
+                $u->join_channel($channel);
+                $user->send($user->ident,"PRIVMSG",$nick,"[系统提示]已从QQ好友中搜索到对应昵称好友并生成irc用户，现在可以
+继续和好友聊天了");
+
+            }
             my $friend = $client->search_friend(id=>$u->id);
             if(defined $friend){
                 $friend->send($content,sub{
