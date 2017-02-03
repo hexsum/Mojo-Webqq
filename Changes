@@ -1,3 +1,15 @@
+2017-02-03 Mojo::Webqq v2.0.5
+1）帐号登录成功日志中包含真实的登录QQ号
+2）FAQ中添加修复screen乱码的问题的解决方案
+3）新增 is_load_plugin 方法 检测客户端是否加载某个插件
+4）GCM插件支持推送事件，bug修复，无视GCM插件设置allow_group=>[]的情况
+5）IRCShell插件完善
+    插件参数master_irc_user更名为master_irc_nick
+    插件参数image_api更名为upload_api
+    上传api替换为https://sm.ms/api/upload接口
+    新增群组、群组名称修改irc上也能够自动同步
+6）完善MakeFile.PL文件
+
 2017-01-16 Mojo::Webqq v2.0.4
 1）GCM插件完善
 2）Dockerfile完善，充分利用cache机制，加快build速度，设置镜像为北京时区
