@@ -715,7 +715,7 @@ Content-Type: application/json
 |uri     |/openqq/stop_client|
 |请求方法|GET\|POST|
 |请求参数|无|
-|调用示例|http://127.0.0.1:5000/openwx/stop_client|
+|调用示例|http://127.0.0.1:5000/openqq/stop_client|
 
 返回JSON结果:
 
