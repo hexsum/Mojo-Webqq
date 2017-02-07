@@ -125,7 +125,7 @@ sub relogin{
     $self->login_state("relogin");
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
-    $self->clear_cookie();
+    #$self->clear_cookie();
     $self->poll_failure_count(0);
     $self->send_failure_count(0);
     $self->qrcode_count(0);
@@ -167,7 +167,7 @@ sub login {
         $self->is_first_login(0);
     }
     if($self->is_first_login){
-        $self->load_cookie();
+        #$self->load_cookie(); #转移到new的时候就调用，这里不再需要
         my $ptwebqq = $self->search_cookie("ptwebqq");
         my $skey = $self->search_cookie("skey");
         $self->ptwebqq($ptwebqq) if defined $ptwebqq;

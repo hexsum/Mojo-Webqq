@@ -12,6 +12,7 @@ use IO::Socket::IP;
 use Time::HiRes ();
 use Storable qw();
 use POSIX qw();
+use File::Spec ();
 use if $^O eq "MSWin32",'Win32::Process';
 use if $^O eq "MSWin32",'Win32';
 use base qw(Mojo::Webqq::Util Mojo::Webqq::Request);
@@ -27,8 +28,6 @@ has auth     => undef;
 has server =>  sub { Mojo::Webqq::Server->new };
 has listen => sub { [{host=>"0.0.0.0",port=>4000},] };
 
-has keep_cookie => 0;
-has cookie_path => undef;
 has http_debug          => sub{$ENV{MOJO_WEBQQ_CONTROLLER_HTTP_DEBUG} || 0 } ;
 has ua_debug            => sub{$_[0]->http_debug};
 has ua_debug_req_body   => sub{$_[0]->ua_debug};
@@ -48,6 +47,8 @@ has ua  => sub {
 };
 
 has tmpdir              => sub {File::Spec->tmpdir();};
+has keep_cookie         => 0;
+has cookie_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_controller_cookie','.dat'))};
 has pid_path            => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_controller_process','.pid'))};
 has backend_path        => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_controller_backend','.dat'))};
 has template_path        => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_controller_template','.pl'))};
@@ -234,10 +235,18 @@ sub start_client {
     $ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_PORT} = $backend_port;
     $ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POST_API} = $post_api;
     $ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POLL_API} = $poll_api;
+
+    $ENV{MOJO_WEBQQ_LOG_PATH} = $self->log_path;
+    $ENV{MOJO_WEBQQ_LOG_ENCODING} = $self->log_encoding;
+    $ENV{MOJO_WEBQQ_LOG_CONSOLE} = $self->log_console;
+    $ENV{MOJO_WEBQQ_DISABLE_COLOR} = $self->disable_color;
+    $ENV{MOJO_WEBQQ_HTTP_DEBUG} = $self->http_debug;
+    $ENV{MOJO_WEBQQ_LOG_LEVEL} = $self->log_level;
+
     $ENV{MOJO_WEBQQ_TMPDIR} = $self->tmpdir if not defined $ENV{MOJO_WEBQQ_TMPDIR};
-    $ENV{MOJO_WEBQQ_STATE_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_weixin_state_',$ENV{MOJO_WEBQQ_ACCOUNT},'.json')) if not defined $ENV{MOJO_WEBQQ_STATE_PATH};
-    $ENV{MOJO_WEBQQ_QRCODE_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_weixin_qrcode_',$ENV{MOJO_WEBQQ_ACCOUNT},'.jpg')) if not defined $ENV{MOJO_WEBQQ_QRCODE_PATH};
-    $ENV{MOJO_WEBQQ_PID_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_weixin_pid_',$ENV{MOJO_WEBQQ_ACCOUNT},'.pid')) if not defined $ENV{MOJO_WEBQQ_PID_PATH};
+    $ENV{MOJO_WEBQQ_STATE_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_webqq_state_',$ENV{MOJO_WEBQQ_ACCOUNT},'.json')) if not defined $ENV{MOJO_WEBQQ_STATE_PATH};
+    $ENV{MOJO_WEBQQ_QRCODE_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_webqq_qrcode_',$ENV{MOJO_WEBQQ_ACCOUNT},'.jpg')) if not defined $ENV{MOJO_WEBQQ_QRCODE_PATH};
+    $ENV{MOJO_WEBQQ_PID_PATH} = File::Spec->catfile($ENV{MOJO_WEBQQ_TMPDIR},join('','mojo_webqq_pid_',$ENV{MOJO_WEBQQ_ACCOUNT},'.pid')) if not defined $ENV{MOJO_WEBQQ_PID_PATH};
     local $ENV{PERL5LIB} = join( ($^O eq "MSWin32"?";":":"),@INC);
     if(!-f $self->template_path or -z $self->template_path){
         my $template =<<'MOJO_WEBQQ_CLIENT_TEMPLATE';

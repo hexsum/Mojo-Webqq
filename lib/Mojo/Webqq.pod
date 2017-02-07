@@ -151,7 +151,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $client->print("好友分组为: ",$friend->category,"\n"); #使用$client->print()可以自动检测终端编码，防止乱码
     $friend->dump();
 
-    $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
+    $friend->send("hello world"); #比$client->send_friend_message($friend,"hello world")更简洁
 
     #遍历好友
     $client->each_friend(sub{
@@ -501,7 +501,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 定时执行任务
     
     #支持的时间格式为 HH:MM 或 HH:MM:SS
-    $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
+    $client->add_job("定时提醒","07:00",sub{$client->send_friend_message($friend,"起床啦");});
 
 =head2 spawn(%opt) 执行外部命令
 
@@ -686,13 +686,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 遍历所有讨论组中的所有讨论组成员，和遍历好友或群类似 不再赘述
 
-=head2 send_message($friend,$content,[$callback]) 发送好友消息
+=head2 send_friend_message($friend,$content,[$callback]) 发送好友消息
     
     my $friend = $client->search_friend(id=>xxx);#$friend是一个Mojo::Webqq::Friend的对象
-    $client->send_message($friend,"hello world");#发送内容必须是utf8编码
+    $client->send_friend_message($friend,"hello world");#发送内容必须是utf8编码
 
     在callback中对发送的消息进行预处理
-    $client->send_message($friend,"hello world",sub{
+    $client->send_friend_message($friend,"hello world",sub{
         my ($client,$msg) = @_;
         #对即将发送的消息进行预处理
         $msg->msg_from("自定义的来源标识");
@@ -731,7 +731,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 =head2 reply_message($msg,$content,[$callback]) 对收到的消息进行回复
 
-send_message()/send_group_message()/send_discuss_message()/send_sess_message()
+send_friend_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 这一类方法适合对特定的对象主动发送消息，但很多场景下，我们不需要关心对方是谁
 
@@ -1454,7 +1454,7 @@ CPAN文档可能比较旧或者表达的信息不够丰富，请参加github上A
     #auth函数示例：
 
     #简单的时间戳过期防盗链 
-    #http://127.0.0.1/openqq/send_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
+    #http://127.0.0.1/openqq/send_friend_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
     sub {
         my $param = shift;
         my $secret = 'this is your secret key';

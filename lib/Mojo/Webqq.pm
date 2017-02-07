@@ -9,7 +9,7 @@ use Time::HiRes qw(gettimeofday);
 use File::Spec ();
 use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Plugin Mojo::Webqq::Request Mojo::Webqq::Util);
 
-has account             => sub{ $ENV{MOJO_WEIXIN_ACCUNT} || 'default'};
+has account             => sub{ $ENV{MOJO_WEBQQ_ACCUNT} || 'default'};
 has start_time          => time;
 has pwd                 => undef;
 has security            => 0;
@@ -237,6 +237,7 @@ sub new {
         $self->error(Carp::longmess($err));
     });
     $self->check_pid();
+    $self->load_cookie();
     $self->save_state();
     $SIG{CHLD} = 'IGNORE';
     $SIG{INT} = $SIG{TERM} = $SIG{HUP} = sub{
