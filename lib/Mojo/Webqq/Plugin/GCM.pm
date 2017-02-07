@@ -21,10 +21,12 @@ sub call {
         my $title;
         my $message;
         my $msgId;
+        my $senderType;
         if($msg->type eq 'friend_message'){
             $msgId = $msg->sender->id;
             $title = $msg->sender->displayname;
             $message = $msg->content;
+            $senderType = '1';
         }
         elsif($msg->type eq 'group_message'){
             return if ref $data->{ban_group}  eq "ARRAY" and @{$data->{ban_group}} and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
@@ -32,6 +34,7 @@ sub call {
             $msgId = $msg->group->id;
             $title = $msg->group->displayname;
             $message = $msg->sender->displayname . ": " . $msg->content;
+            $senderType = '2';
         }
         elsif($msg->type eq 'discuss_message'){
             return if ref $data->{ban_discuss}  eq "ARRAY" and @{$data->{ban_discuss}} and first {$_=~/^\d+$/?$msg->discuss->uid eq $_:$msg->discuss->displayname eq $_} @{$data->{ban_discuss}};
@@ -39,6 +42,7 @@ sub call {
             $msgId= $msg->discuss->id;
             $title = $msg->discuss->displayname;
             $message = $msg->sender->displayname . ": " . $msg->content;
+            $senderType = '3';
         }
         elsif($msg->type eq 'sess_message'){
             
@@ -50,7 +54,7 @@ sub call {
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
                 priority=> $data->{priority} // 'high',
-                data=>{type=>$type,title=>$title,message=>$message,msgId=>$msgId},
+                data=>{type=>$type,title=>$title,message=>$message,msgId=>$msgId,senderType=>$senderType},
             },
             sub{
                 #"{"multicast_id":9016211065189210367,"success":1,"failure":0,"canonical_ids":0,"results":[{"message_id":"0:1484103730761325%9b9e6c13f9fd7ecd"}]}"
