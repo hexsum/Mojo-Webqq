@@ -1,3 +1,25 @@
+2017-02-08 Mojo::Webqq v2.0.6
+1）IRCShell插件完善 /query xxxx 如果用户不存在时，会实时从好友中搜索并创建用户
+2）GCM插件加入发送者类别实现消息回复功能
+3）修复在开启事件上报之后短时内内重启程序，无法重用之前的登录cookie实现免扫码登录的bug
+4）修复controller设置了log_path的情况下，创建的客户端运行日志无法打印到log_path指定路径的bug
+
+2017-02-03 Mojo::Webqq v2.0.5
+1）帐号登录成功日志中包含真实的登录QQ号
+2）FAQ中添加修复screen乱码的问题的解决方案
+3）新增 is_load_plugin 方法 检测客户端是否加载某个插件
+4）GCM插件支持推送事件，bug修复，无视GCM插件设置allow_group=>[]的情况
+5）IRCShell插件完善
+    插件参数master_irc_user更名为master_irc_nick
+    插件参数image_api更名为upload_api
+    上传api替换为https://sm.ms/api/upload接口
+    新增群组、群组名称修改irc上也能够自动同步
+6）完善MakeFile.PL文件
+
+2017-01-16 Mojo::Webqq v2.0.4
+1）GCM插件完善
+2）Dockerfile完善，充分利用cache机制，加快build速度，设置镜像为北京时区
+
 2017-01-10 Mojo::Webqq v2.0.3
 1）对于请求失败重试，debug日志增加了n/m的重试过程，例如:
 [17/01/11 10:08:25] [warn] http://127.0.0.1:80/ 请求(0/2)失败: 404 Not Found

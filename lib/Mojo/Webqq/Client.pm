@@ -125,7 +125,7 @@ sub relogin{
     $self->login_state("relogin");
     $self->sess_sig_cache(Mojo::Webqq::Cache->new);
     $self->id_to_qq_cache(Mojo::Webqq::Cache->new);
-    $self->clear_cookie();
+    #$self->clear_cookie();
     $self->poll_failure_count(0);
     $self->send_failure_count(0);
     $self->qrcode_count(0);
@@ -167,7 +167,7 @@ sub login {
         $self->is_first_login(0);
     }
     if($self->is_first_login){
-        $self->load_cookie();
+        #$self->load_cookie(); #转移到new的时候就调用，这里不再需要
         my $ptwebqq = $self->search_cookie("ptwebqq");
         my $skey = $self->search_cookie("skey");
         $self->ptwebqq($ptwebqq) if defined $ptwebqq;
@@ -233,7 +233,7 @@ sub login {
     }
     else{
         $self->qrcode_count(0);
-        $self->info("帐号(" . $self->account . ")登录成功");
+        $self->info("帐号(" .( $self->uid // $self->account) . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
         $self->state('updating');
         $self->update_user;
@@ -445,4 +445,9 @@ sub save_state{
     $self->warn("客户端状态信息保存失败：$@") if $@;
 }
 
+sub is_load_plugin {
+    my $self = shift;
+    my $plugin = shift;
+    return exists $self->plugins->{ substr($plugin,0,1) eq '+'?$plugin:"Mojo::Webqq::Plugin::$plugin" };
+}
 1;

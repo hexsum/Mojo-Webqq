@@ -15,8 +15,8 @@ sub call{
     my $client = shift;
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server::Chinese") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
-    my $master_irc_user = $data->{master_irc_user} || $client->uid;
-    my $image_api = $data->{image_api}; # ||  'http://img.vim-cn.com/';
+    my $master_irc_nick = $data->{master_irc_nick};
+    my $upload_api = $data->{upload_api} // 'https://sm.ms/api/upload';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
     my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
@@ -36,9 +36,9 @@ sub call{
                 $content =~s/^([^\s]+?): /\@$at_nick / if  $ircd->search_user(nick=>$at_nick);
                 $raw_content = $content;
             }
-            if($user->user ne $master_irc_user and !$user->is_localhost){
-                $content = $user->nick . ": $content"; 
-                #$content .= " (来自 ".$user->nick.")"; 
+            if($user->nick ne $master_irc_nick and !$user->is_localhost){
+                #$content = $user->nick . ": $content"; 
+                $content .= "\n(来自irc用户 - ".$user->nick.")"; 
             }
             $group->send($content,sub{
                 $_[1]->from("irc");
@@ -56,11 +56,28 @@ sub call{
                 });
             });
         }
-        elsif($user->user eq $master_irc_user or $user->is_localhost){
+        elsif($user->nick eq $master_irc_nick or $user->is_localhost){
             my $nick =  $msg->{params}[0];
             my $content = $msg->{params}[1];
-            my $u = $ircd->search_user(nick=>$nick,virtual=>1);
-            return if not defined $u;
+            my $u = $ircd->search_user(nick=>$nick);
+            #return if not defined $u;
+            if(not defined $u){
+                my $friend = $client->search_friend(displayname=>$nick);
+                return if not defined $friend;
+                my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+                return if not defined $channel;
+                $u = $ircd->new_user(
+                    id      =>$friend->id,
+                    name    =>$friend->displayname . ":虚拟用户",,
+                    user    =>$friend->id,
+                    nick    =>$friend->displayname,
+                    virtual => 1,
+                );
+                $u->join_channel($channel);
+                $user->send($user->ident,"PRIVMSG",$nick,"[系统提示]已从QQ好友中搜索到对应昵称好友并生成irc用户，现在可以
+继续和好友聊天了");
+
+            }
             my $friend = $client->search_friend(id=>$u->id);
             if(defined $friend){
                 $friend->send($content,sub{
@@ -135,8 +152,28 @@ sub call{
         });
         $ircd->remove_channel($_) for values %delete_channel;
     };
+    $client->on(new_group=>sub{
+        my($client,$group) = @_;
+        return if(@groups and not first {$group->displayname eq $_} @groups);
+        my $mode = defined $mode{$group->displayname}?$mode{$group->displayname}:"Pi";
+        my $channel_name = '#'.$group->displayname;$channel_name=~s/\s|,|&//g;
+        my $channel = $ircd->search_channel(name=>$channel_name);
+        if(defined $channel){
+            $channel->id($group->id);
+            $channel->remove_user($_) for grep {$_->is_virtual} $channel->users;
+        }
+        else{ $ircd->new_channel(id=>$group->id,name=>'#'.$group->displayname,mode=>$mode);}
+    });
+    $client->on(lose_group=>sub{
+        my($client,$group) = @_;
+        return if(@groups and not first {$group->displayname eq $_} @groups);
+        my $mode = defined $mode{$group->displayname}?$mode{$group->displayname}:"Pi";
+        my $channel_name = '#'.$group->displayname;$channel_name=~s/\s|,|&//g;
+        my $channel = $ircd->search_channel(name=>$channel_name);
+        $ircd->remove_channel($channel) if defined $channel;
+    });
     $client->on(ready=>sub{
-        $master_irc_user = $data->{master_irc_user} || $client->uid;
+        $master_irc_nick //= $client->user->displayname ;
         $callback->();
         $client->on(login=>$callback);
     });
@@ -160,7 +197,7 @@ sub call{
             else{
                 $user->join_channel($channel) if $user->is_virtual and !$user->is_join_channel($channel);
             }
-            for (grep { $_->user eq $master_irc_user or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
+            for (grep { $_->nick eq $master_irc_nick or $_->is_localhost} grep {!$_->is_virtual} $ircd->users){
                 for my $line (split /\r?\n/,$msg->content){
                     $_->send($user->ident,"PRIVMSG",$_->nick,$line);
                     $user->send($user->ident,"PRIVMSG",$_->nick,$line);
@@ -191,7 +228,7 @@ sub call{
             }
 
             for(
-                grep {$_->user eq $master_irc_user or $_->is_localhost}
+                grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                 grep {!$_->is_virtual} $ircd->users
             )
             {
@@ -223,9 +260,9 @@ sub call{
             elsif($user->is_virtual){
                 $user->join_channel($channel)  if not $user->is_join_channel($channel);
             }
-            #else{
-            #    #$user->join_channel($channel) if not $user->is_join_channel($channel);
-            #}
+            else{
+                $user->join_channel($channel) if not $user->is_join_channel($channel);
+            }
             for(grep {!$_->is_virtual} $channel->users){
                 my @content = split /\r?\n/,$msg->content;
                 if($content[0]=~/^\@([^\s]+?) /){
@@ -263,7 +300,7 @@ sub call{
                 $user->join_channel($channel)  if not $user->is_join_channel($channel);
             }
             for(
-                grep {$_->user eq $master_irc_user or $_->is_localhost} 
+                grep {$_->nick eq $master_irc_nick or $_->is_localhost} 
                 grep {!$_->is_virtual} $ircd->users
             )
             {
@@ -295,7 +332,7 @@ sub call{
                 $user->join_channel($channel) if $user->is_virtual and !$user->is_join_channel($channel);
             }
             for(
-                grep {$_->user eq $master_irc_user or $_->is_localhost}
+                grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                 grep {!$_->is_virtual } $ircd->users
             )
             {
@@ -311,7 +348,7 @@ sub call{
             my $channel = $ircd->search_channel(id=>$msg->group->id);
             return unless defined $channel;
             for my $master_irc_client (
-                grep {$_->user eq $master_irc_user or $_->is_localhost}
+                grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                 grep {!$_->is_virtual} $ircd->users
             ){
                 for(grep {!$_->{virtual}} $channel->users){
@@ -330,7 +367,7 @@ sub call{
             }
         }
     });
-    if(defined $image_api){
+    if(defined $upload_api){
         $client->on(receive_group_pic=>sub{
             my($client,$file_path,$sender) = @_;
             my $channel = $ircd->search_channel(id=>$sender->id);
@@ -338,11 +375,17 @@ sub call{
             return unless defined $user;
             return unless defined $channel;
             return unless $user->is_join_channel($channel);
-            $client->http_post($image_api,form=>{image=>{file=>$file_path}},sub{
-                my($data,$ua,$tx)=@_;
-                return unless defined $data;
-                return unless $data=~/https?:\/\//;
-                $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $data");
+            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
+                my($json,$ua,$tx)=@_;
+                if(not defined $json){
+                    $client->warn("二维码图片上传云存储失败: 响应数据异常");
+                    return;
+                }
+                elsif(defined $json and $json->{code} ne 'success' ){
+                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
+                    return;
+                }
+                $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $json->{data}{url}");
             });  
         });
         
@@ -350,16 +393,22 @@ sub call{
             my($client,$file_path,$sender) = @_;
             my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
             return unless defined $user;
-            $client->http_post($image_api,form=>{image=>{file=>$file_path}},sub{
-                my($data,$ua,$tx)=@_;
-                return unless defined $data;
-                return unless $data=~/https?:\/\//;
+            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
+                my($json,$ua,$tx)=@_;
+                if(not defined $json){
+                    $client->warn("二维码图片上传云存储失败: 响应数据异常");
+                    return;
+                }
+                elsif(defined $json and $json->{code} ne 'success' ){
+                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
+                    return;
+                }
                 for(
-                    grep {$_->user eq $master_irc_user or $_->is_localhost}
+                    grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                     grep {!$_->is_virtual } $ircd->users
                 ){
-                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
-                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
+                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
+                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
                 }
             });
         });
@@ -369,16 +418,22 @@ sub call{
             return if not $sender->is_group_member;
             my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
             return unless defined $user;
-            $client->http_post($image_api,form=>{image=>{file=>$file_path}},sub{
-                my($data,$ua,$tx)=@_;
-                return unless defined $data;
-                return unless $data=~/https?:\/\//;
+            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
+                my($json,$ua,$tx)=@_;
+                if(not defined $json){
+                    $client->warn("二维码图片上传云存储失败: 响应数据异常");
+                    return;
+                }
+                elsif(defined $json and $json->{code} ne 'success' ){
+                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
+                    return;
+                }
                 for(
-                    grep {$_->user eq $master_irc_user or $_->is_localhost}
+                    grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                     grep {!$_->is_virtual } $ircd->users
                 ){
-                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
-                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $data");
+                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
+                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
                 }
             });
         });
@@ -399,9 +454,17 @@ sub call{
             return unless defined $user;
             $user->set_nick($object->displayname) if $object->displayname ne $user->nick;
         }
+        elsif($object->is_group){
+            return if $property ne "name";
+            my $channel = $ircd->search_channel(id=>$object->id);
+            return unless defined $channel;
+            my $channel_name = '#'.$object->displayname;$channel_name=~s/\s|,|&//g;
+            $channel->name($channel_name);
+        }
     };
     $client->on("friend_property_change"=>$property_change_callback,
-                "group_member_property_change"=>$property_change_callback
+                "group_member_property_change"=>$property_change_callback,
+                "group_property_change"=>$property_change_callback
     );
 
     $ircd->ready();

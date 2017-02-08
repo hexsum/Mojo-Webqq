@@ -151,7 +151,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     $client->print("好友分组为: ",$friend->category,"\n"); #使用$client->print()可以自动检测终端编码，防止乱码
     $friend->dump();
 
-    $friend->send("hello world"); #比$client->send_message($friend,"hello world")更简洁
+    $friend->send("hello world"); #比$client->send_friend_message($friend,"hello world")更简洁
 
     #遍历好友
     $client->each_friend(sub{
@@ -501,7 +501,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 定时执行任务
     
     #支持的时间格式为 HH:MM 或 HH:MM:SS
-    $client->add_job("定时提醒","07:00",sub{$client->send_message($friend,"起床啦");});
+    $client->add_job("定时提醒","07:00",sub{$client->send_friend_message($friend,"起床啦");});
 
 =head2 spawn(%opt) 执行外部命令
 
@@ -686,13 +686,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 遍历所有讨论组中的所有讨论组成员，和遍历好友或群类似 不再赘述
 
-=head2 send_message($friend,$content,[$callback]) 发送好友消息
+=head2 send_friend_message($friend,$content,[$callback]) 发送好友消息
     
     my $friend = $client->search_friend(id=>xxx);#$friend是一个Mojo::Webqq::Friend的对象
-    $client->send_message($friend,"hello world");#发送内容必须是utf8编码
+    $client->send_friend_message($friend,"hello world");#发送内容必须是utf8编码
 
     在callback中对发送的消息进行预处理
-    $client->send_message($friend,"hello world",sub{
+    $client->send_friend_message($friend,"hello world",sub{
         my ($client,$msg) = @_;
         #对即将发送的消息进行预处理
         $msg->msg_from("自定义的来源标识");
@@ -731,7 +731,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
 
 =head2 reply_message($msg,$content,[$callback]) 对收到的消息进行回复
 
-send_message()/send_group_message()/send_discuss_message()/send_sess_message()
+send_friend_message()/send_group_message()/send_discuss_message()/send_sess_message()
 
 这一类方法适合对特定的对象主动发送消息，但很多场景下，我们不需要关心对方是谁
 
@@ -1094,16 +1094,16 @@ send_message()/send_group_message()/send_discuss_message()/send_sess_message()
     $client->load("IRCShell",data=>{
         listen=>[ {host=>"0.0.0.0",port=>6667},], #可选，IRC服务器监听的地址+端口，默认0.0.0.0:6667
         load_friend => 1, #默认是1 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
-        master_irc_user => "你的QQ号码", #用于识别哪个irc用户是你自己
+        master_irc_nick => "你的QQ昵称", #用于识别哪个irc用户是你自己
     });
     #支持的参数包括：
     listen              #监听的地址和端口，数组的形式来支持多个地址
                         # listen=>[ {host=>"127.0.0.1",port=>6667}, {host=>"127.0.0.1",port=>6668}]
                         # 表示监听127.0.0.1:6667和 127.0.0.1:6668两个端口
-    master_irc_user     #和qq匹配的irc user帐号，默认按照和qq号相同的user或者客户端ip是本机地址作为识别规则
+    master_irc_nick     #和qq匹配的irc帐号昵称，默认按照和qq号相同的昵称或者客户端ip是本机地址作为识别规则
     load_friend         #0|1 默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
-    image_api           #兼容elimage图床api地址，将qq图片转为连接，方便在irc上查看图片，默认没有启用
-                        #推荐依云的elimage http://img.vim-cn.com/
+    upload_api          #图床api地址，将qq图片转为连接，方便在irc上查看图片
+                        #默认采用的是 https://sm.ms/api/upload 接口文档 https://sm.ms/doc/
 
 当设置了 load_friend =>1 参数，qq好友会默认加入到irc的 '#我的好友' 频道中，可能影响加载速度
 
@@ -1405,7 +1405,6 @@ QQ群每日签到插件
         api_url         => 'https://gcm-http.googleapis.com/gcm/send',
         api_key         =>'xxx', #需要向谷歌申请
         registration_ids=>["xxx"],#android设备的注册id
-        type            =>'Mojo-Webqq',#可选，可以不用设置，默认Mojo-Webqq
         allow_group     =>["允许推送消息的群名称1","允许推送消息的群名称2","或者群号码"],
         ban_group       =>["禁止推送消息的群名称","或者群号码"],
         allow_dicuss    =>["允许推送消息的讨论组名称1","允许推送消息的讨论组名称2"],
@@ -1455,7 +1454,7 @@ CPAN文档可能比较旧或者表达的信息不够丰富，请参加github上A
     #auth函数示例：
 
     #简单的时间戳过期防盗链 
-    #http://127.0.0.1/openqq/send_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
+    #http://127.0.0.1/openqq/send_friend_message?id=xxxx&content=xxxx&key=xxxx&exp=xxxx
     sub {
         my $param = shift;
         my $secret = 'this is your secret key';

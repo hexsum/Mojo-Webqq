@@ -1,4 +1,4 @@
-Mojo-Webqq v2.0.3 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq) [![Join the chat at https://gitter.im/sjdy521/Mojo-Webqq](https://badges.gitter.im/sjdy521/Mojo-Webqq.svg)](https://gitter.im/sjdy521/Mojo-Webqq?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![API列表](https://img.shields.io/badge/doc-API%E5%88%97%E8%A1%A8-brightgreen.svg)](API.md) [![QQ群-498880156](https://img.shields.io/badge/QQ%E7%BE%A4-498880156-blue.svg)](http://jq.qq.com/?_wv=1027&k=kjVJzo) [![IRC](https://img.shields.io/badge/IRC-%E5%AE%98%E6%96%B9%E9%A2%91%E9%81%93-yellow.svg)](http://irc.perfi.wang/?channel=#Mojo-Webqq)
+Mojo-Webqq v2.0.6 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?branch=master)](https://travis-ci.org/sjdy521/Mojo-Webqq) [![Join the chat at https://gitter.im/sjdy521/Mojo-Webqq](https://badges.gitter.im/sjdy521/Mojo-Webqq.svg)](https://gitter.im/sjdy521/Mojo-Webqq?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![API列表](https://img.shields.io/badge/doc-API%E5%88%97%E8%A1%A8-brightgreen.svg)](API.md) [![QQ群-498880156](https://img.shields.io/badge/QQ%E7%BE%A4-498880156-blue.svg)](http://jq.qq.com/?_wv=1027&k=kjVJzo) [![IRC](https://img.shields.io/badge/IRC-%E5%AE%98%E6%96%B9%E9%A2%91%E9%81%93-yellow.svg)](http://irc.perfi.wang/?channel=#Mojo-Webqq)
 ========================
 
 使用Perl语言编写的Smartqq客户端框架，基于Mojolicious，要求Perl版本5.10+，可通过插件提供基于HTTP协议的api接口供其他语言或系统调用
@@ -117,7 +117,7 @@ Mojo-Webqq v2.0.3 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   
     注意：
     
-    [Mojo-CentosPerl](https://github.com/sjdy521/Mojo-CentosPerl)是基于Centos系统编译打包而成，适合Centos6.5已上的x86_64系统
+    [Mojo-CentosPerl](https://github.com/sjdy521/Mojo-CentosPerl)是基于Centos系统编译打包而成，适合Centos6.5以上的x86_64系统
     
     [Mojo-ActivePerl](https://github.com/sjdy521/Mojo-ActivePerl)是基于ActivePerl打包的而成，适用于linux x86_64系统，并且系统glibc 2.15+
     
@@ -205,12 +205,12 @@ Mojo-Webqq v2.0.3 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
     
     发送好友消息的接口调用示例
     
-        http://127.0.0.1:5000/openqq/send_message?qq=xxxxx&content=hello
+        http://127.0.0.1:5000/openqq/send_friend_message?uid=xxxxx&content=hello
         
         * About to connect() to 127.0.0.1 port 5000 (#0)
         *   Trying 127.0.0.1...
         * Connected to 127.0.0.1 (127.0.0.1) port 5000 (#0)
-        > GET /openqq/send_message?qq=xxxxx&content=hello HTTP/1.1
+        > GET /openqq/send_friend_message?uid==xxxxx&content=hello HTTP/1.1
         > User-Agent: curl/7.29.0
         > Host: 127.0.0.1:5000
         > Accept: */*
