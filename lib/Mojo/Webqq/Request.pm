@@ -168,7 +168,7 @@ sub load_cookie{
     my $cookie_jar;
     my $cookie_path = $self->cookie_path;
     return if not -f $cookie_path;
-    eval{$cookie_jar = Storable::retrieve($cookie_path);};
+    eval{require Storable;$cookie_jar = Storable::retrieve($cookie_path);};
     if($@){
         $self->warn("客户端加载cookie[ $cookie_path ]失败: $@");
         return;
@@ -182,7 +182,7 @@ sub save_cookie{
     my $self = shift;
     return if not $self->keep_cookie;
     my $cookie_path = $self->cookie_path;
-    eval{Storable::nstore($self->ua->cookie_jar,$cookie_path);};
+    eval{require Storable;Storable::nstore($self->ua->cookie_jar,$cookie_path);};
     $self->warn("客户端保存cookie[ $cookie_path ]失败: $@") if $@;
 }
 
