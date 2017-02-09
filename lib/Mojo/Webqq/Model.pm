@@ -29,6 +29,17 @@ use Mojo::Webqq::Model::Remote::_set_group_member_card;
 use Mojo::Webqq::Model::Remote::_shutup_group_member;
 use Mojo::Webqq::Model::Remote::_qiandao;
 
+sub hash33{
+    use integer;
+    my $self = shift;
+    my $t = shift;
+    my $n = length($t);
+    my $e = 0;
+    for(my $i=0;$n>$i;$i++ ){
+        $e += ($e << 5) + ord(substr($t,$i,1));
+    }
+    return 2147483647 & $e;
+}
 sub hash {
     my $self = shift;
     my $ptwebqq = shift;

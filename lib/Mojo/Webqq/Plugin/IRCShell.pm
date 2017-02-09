@@ -17,7 +17,7 @@ sub call{
     $client->die("请先安装模块 Mojo::IRC::Server::Chinese") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_nick = $data->{master_irc_nick};
     my $upload_api = $data->{upload_api} // 'https://sm.ms/api/upload';
-    my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:1;
+    my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
     my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);

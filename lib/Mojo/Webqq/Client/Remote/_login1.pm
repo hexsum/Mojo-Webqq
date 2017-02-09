@@ -78,6 +78,7 @@ sub Mojo::Webqq::Client::_login1{
     }
     elsif($login_type eq "qrlogin"){
         @query_string = (
+            ptqrtoken       => $self->hash33($self->search_cookie("qrsig")),
             webqq_type      =>  10,
             remember_uin    =>  1,
             login2qq        =>  1,
