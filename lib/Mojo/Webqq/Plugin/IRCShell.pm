@@ -16,7 +16,7 @@ sub call{
     my $data = shift;
     $client->die("请先安装模块 Mojo::IRC::Server::Chinese") if not $Mojo::Webqq::Plugin::IRCShell::has_mojo_irc_server;
     my $master_irc_nick = $data->{master_irc_nick};
-    my $upload_api = $data->{upload_api} // 'https://sm.ms/api/upload';
+    my $upload_api = $data->{upload_api}; #'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
     my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
@@ -375,17 +375,13 @@ sub call{
             return unless defined $user;
             return unless defined $channel;
             return unless $user->is_join_channel($channel);
-            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
-                my($json,$ua,$tx)=@_;
-                if(not defined $json){
+            $client->http_post($upload_api,form=>{image=>{file=>$file_path}},sub{
+                my($url,$ua,$tx)=@_;
+                if(not defined $url or $url!~/https?:\/\//){
                     $client->warn("二维码图片上传云存储失败: 响应数据异常");
                     return;
                 }
-                elsif(defined $json and $json->{code} ne 'success' ){
-                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
-                    return;
-                }
-                $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $json->{data}{url}");
+                $channel->broadcast($user->ident,"PRIVMSG",$channel->name,"图片链接: $url");
             });  
         });
         
@@ -393,22 +389,18 @@ sub call{
             my($client,$file_path,$sender) = @_;
             my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
             return unless defined $user;
-            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
-                my($json,$ua,$tx)=@_;
-                if(not defined $json){
+            $client->http_post($upload_api,form=>{image=>{file=>$file_path}},sub{
+                my($url,$ua,$tx)=@_;
+                if(not defined $url or $url!~/https?:\/\//){
                     $client->warn("二维码图片上传云存储失败: 响应数据异常");
-                    return;
-                }
-                elsif(defined $json and $json->{code} ne 'success' ){
-                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
                     return;
                 }
                 for(
                     grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                     grep {!$_->is_virtual } $ircd->users
                 ){
-                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
-                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
+                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $url");
+                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $url");
                 }
             });
         });
@@ -418,22 +410,18 @@ sub call{
             return if not $sender->is_group_member;
             my $user = $ircd->search_user(id=>$sender->id,virtual=>1)||$ircd->search_user(nick=>$sender->displayname,virtual=>0);
             return unless defined $user;
-            $client->http_post($upload_api,{json=>1},form=>{format=>'json',smfile=>{file=>$file_path}},sub{
-                my($json,$ua,$tx)=@_;
-                if(not defined $json){
+            $client->http_post($upload_api,form=>{image=>{file=>$file_path}},sub{
+                my($url,$ua,$tx)=@_;
+                if(not defined $url or $url!~/https?:\/\//){
                     $client->warn("二维码图片上传云存储失败: 响应数据异常");
-                    return;
-                }
-                elsif(defined $json and $json->{code} ne 'success' ){
-                    $client->warn("二维码图片上传云存储失败: " . $json->{msg});
                     return;
                 }
                 for(
                     grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                     grep {!$_->is_virtual } $ircd->users
                 ){
-                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
-                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $json->{data}{url}");
+                    $_->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $url");
+                    $user->send($user->ident,"PRIVMSG",$_->nick,"图片链接: $url");
                 }
             });
         });
