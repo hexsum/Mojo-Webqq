@@ -1101,6 +1101,7 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
                         # listen=>[ {host=>"127.0.0.1",port=>6667}, {host=>"127.0.0.1",port=>6668}]
                         # 表示监听127.0.0.1:6667和 127.0.0.1:6668两个端口
     master_irc_nick     #和qq匹配的irc帐号昵称，默认按照和qq号相同的昵称或者客户端ip是本机地址作为识别规则
+    auto_join_channel   #0|1 默认为1，开启该选项，收到未加入的频道消息会自动加入频道并接收消息，主要为了防止漏收
     load_friend         #0|1 默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
     upload_api          #图床api地址，将图片转为连接，方便在irc上查看图片
                         #支持兼容 http://img.vim-cn.com/ 的接口，考虑到隐私问题，默认不开启

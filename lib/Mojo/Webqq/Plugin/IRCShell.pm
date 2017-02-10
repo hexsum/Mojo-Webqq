@@ -20,6 +20,7 @@ sub call{
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
     my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
+    $data->{auto_join_channel} = 1 if not defined $data->{auto_join_channel};
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
@@ -263,6 +264,15 @@ sub call{
             else{
                 $user->join_channel($channel) if not $user->is_join_channel($channel);
             }
+
+            #master用户如果没有加入到该频道就自动加入，防止漏收消息
+            if($data->{auto_join_channel}){
+                for(grep {$_->nick eq $master_irc_nick or $_->is_localhost}
+                    grep {!$_->is_virtual} $ircd->users){
+                    $_->join_channel($channel);
+                }
+            }
+
             for(grep {!$_->is_virtual} $channel->users){
                 my @content = split /\r?\n/,$msg->content;
                 if($content[0]=~/^\@([^\s]+?) /){
@@ -281,7 +291,7 @@ sub call{
     });
     $client->on(send_message=>sub{
         my($client,$msg) = @_;
-        return if $msg->msg_from eq "irc";
+        return if $msg->from eq "irc";
         if($msg->type eq "friend_message"){
             my $friend = $msg->receiver;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
@@ -347,6 +357,15 @@ sub call{
             return if @groups and not first {$msg->group->name eq $_} @groups;
             my $channel = $ircd->search_channel(id=>$msg->group->id);
             return unless defined $channel;
+
+            #master用户如果没有加入到该频道就自动加入，防止漏收消息
+            if($data->{auto_join_channel}){
+                for(grep {$_->nick eq $master_irc_nick or $_->is_localhost}
+                    grep {!$_->is_virtual} $ircd->users){
+                    $_->join_channel($channel);
+                }
+            }
+
             for my $master_irc_client (
                 grep {$_->nick eq $master_irc_nick or $_->is_localhost}
                 grep {!$_->is_virtual} $ircd->users
