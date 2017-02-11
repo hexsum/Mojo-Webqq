@@ -21,7 +21,7 @@ sub call{
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $data->{auto_join_channel} = 1 if not defined $data->{auto_join_channel};
     $data->{create_chanserv_user} = 1 if not defined $data->{create_chanserv_user};
-    $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
+    $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log,auth=>$data->{auth});
     if($data->{create_chanserv_user}){
         my $chanserv= $ircd->new_user(id=>"__ChanServ__",name=>"ChanServ",user=>"__ChanServ__",nick=>"ChanServ",virtual=>1);
         $ircd->on(new_channel=>sub{
