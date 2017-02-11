@@ -1093,19 +1093,20 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
 
     $client->load("IRCShell",data=>{
         listen=>[ {host=>"0.0.0.0",port=>6667},], #可选，IRC服务器监听的地址+端口，默认0.0.0.0:6667
-        load_friend => 1, #默认是1 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
-        master_irc_nick => "你的QQ昵称", #用于识别哪个irc用户是你自己
+        load_friend => 0, #可选,是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
     });
     #支持的参数包括：
     listen              #监听的地址和端口，数组的形式来支持多个地址
                         # listen=>[ {host=>"127.0.0.1",port=>6667}, {host=>"127.0.0.1",port=>6668}]
                         # 表示监听127.0.0.1:6667和 127.0.0.1:6668两个端口
-    master_irc_nick     #和qq匹配的irc帐号昵称，默认按照和qq号相同的昵称或者客户端ip是本机地址作为识别规则
+    allow_group         # allow_group=>["群组1名称","群组2号码",], #可选，允许在irc上创建的QQ群名称或群号码
+    ban_group           # ban_group=>["群组1名称","群组1号码"],  #可选，禁止在irc上创建的QQ群名称
+    master_irc_nick     # 和QQ关联的irc客户端昵称，默认按照和QQ相同的昵称或者客户端ip是本机地址作为识别规则
+                        # 用于识别哪个连接到服务器上的irc用户是你自己
     auto_join_channel   #0|1 默认为1，开启该选项，收到未加入的频道消息会自动加入频道并接收消息，主要为了防止漏收
     load_friend         #0|1 默认是0 是否初始为每个好友生成irc虚拟帐号并加入频道 #我的好友
     upload_api          #图床api地址，将图片转为连接，方便在irc上查看图片
                         #支持兼容 http://img.vim-cn.com/ 的接口，考虑到隐私问题，默认不开启
-                        #注意：smartqq现在已经不支持接收图片，已被腾讯屏蔽
 
 当设置了 load_friend =>1 参数，qq好友会默认加入到irc的 '#我的好友' 频道中，可能影响加载速度
 

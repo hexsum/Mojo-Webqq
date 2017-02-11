@@ -18,10 +18,18 @@ sub call{
     my $master_irc_nick = $data->{master_irc_nick};
     my $upload_api = $data->{upload_api}; #'http://img.vim-cn.com/';
     my $is_load_friend = defined $data->{load_friend}?$data->{load_friend}:0;
-    my @groups = ref($data->{allow_group}) eq "ARRAY"?@{$data->{allow_group}}:();
     my %mode = ref($data->{mode}) eq "HASH"?%{$data->{mode}}:();
     $data->{auto_join_channel} = 1 if not defined $data->{auto_join_channel};
+    $data->{create_chanserv_user} = 1 if not defined $data->{create_chanserv_user};
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log);
+    if($data->{create_chanserv_user}){
+        my $chanserv= $ircd->new_user(id=>"__ChanServ__",name=>"ChanServ",user=>"__ChanServ__",nick=>"ChanServ",virtual=>1);
+        $ircd->on(new_channel=>sub{
+            my ($ircd,$channel) = @_;
+            return if index( $channel->mode ,"v" ) == -1;
+            $chanserv->join_channel($channel) if not $chanserv->is_join_channel($channel);
+        });
+    }
     $ircd->on(privmsg=>sub{
         my($ircd,$user,$msg) = @_;
         if(substr($msg->{params}[0],0,1) eq "#" ){
@@ -65,7 +73,7 @@ sub call{
             if(not defined $u){
                 my $friend = $client->search_friend(displayname=>$nick);
                 return if not defined $friend;
-                my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+                my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pivs");
                 return if not defined $channel;
                 $u = $ircd->new_user(
                     id      =>$friend->id,
@@ -109,7 +117,7 @@ sub call{
     my $callback = sub{
         my %delete_channel  = map {$_->id => $_} grep {$_->name ne "#我的好友"}  $ircd->channels;
         $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
-        my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+        my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pivs");
         if($is_load_friend){
             $client->each_friend(sub{
                 my($client,$friend) = @_;
@@ -140,8 +148,10 @@ sub call{
         }
         $client->each_group(sub{
             my($client,$group) = @_;
-            return if(@groups and not first {$group->name eq $_} @groups);
-            my $mode = defined $mode{$group->name}?$mode{$group->name}:"Pi";
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
+            my $mode = defined $mode{$group->name}?$mode{$group->name}."":"Piv";
+            $mode .= "v" if index($mode,"v")==-1;
             my $channel_name = '#'.$group->name;$channel_name=~s/\s|,|&//g;
             my $channel = $ircd->search_channel(name=>$channel_name);
             if(defined $channel){
@@ -155,21 +165,23 @@ sub call{
     };
     $client->on(new_group=>sub{
         my($client,$group) = @_;
-        return if(@groups and not first {$group->displayname eq $_} @groups);
-        my $mode = defined $mode{$group->displayname}?$mode{$group->displayname}:"Pi";
-        my $channel_name = '#'.$group->displayname;$channel_name=~s/\s|,|&//g;
+        return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+        return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
+        my $mode = defined $mode{$group->name}?$mode{$group->name}:"Piv";
+        $mode .= "v" if index($mode,"v")==-1;
+        my $channel_name = '#'.$group->name;$channel_name=~s/\s|,|&//g;
         my $channel = $ircd->search_channel(name=>$channel_name);
         if(defined $channel){
             $channel->id($group->id);
             $channel->remove_user($_) for grep {$_->is_virtual} $channel->users;
         }
-        else{ $ircd->new_channel(id=>$group->id,name=>'#'.$group->displayname,mode=>$mode);}
+        else{ $ircd->new_channel(id=>$group->id,name=>'#'.$group->name,mode=>$mode);}
     });
     $client->on(lose_group=>sub{
         my($client,$group) = @_;
-        return if(@groups and not first {$group->displayname eq $_} @groups);
-        my $mode = defined $mode{$group->displayname}?$mode{$group->displayname}:"Pi";
-        my $channel_name = '#'.$group->displayname;$channel_name=~s/\s|,|&//g;
+        return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{ban_group}};
+        return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$group->uid eq $_:$group->name eq $_} @{$data->{allow_group}};
+        my $channel_name = '#'.$group->name;$channel_name=~s/\s|,|&//g;
         my $channel = $ircd->search_channel(name=>$channel_name);
         $ircd->remove_channel($channel) if defined $channel;
     });
@@ -183,7 +195,7 @@ sub call{
         if($msg->type eq "friend_message"){
             my $friend = $msg->sender;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
-            my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+            my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pivs");
             return if not defined $channel;
             if(not defined $user){
                 $user = $ircd->new_user(
@@ -208,7 +220,8 @@ sub call{
 
         if($msg->type eq "sess_message"){
             my $member  = $msg->sender;
-            return if @groups and not first {$member->group->name eq $_} @groups;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{allow_group}};
             return if $msg->via ne "group";
             my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
             my $channel = $ircd->search_channel(id=>$member->group->id) ||
@@ -242,7 +255,8 @@ sub call{
 
         elsif($msg->type eq "group_message"){
             my $member = $msg->sender;
-            return if @groups and not first {$member->group->name eq $_} @groups;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{allow_group}};
             my $user = $ircd->search_user(id=>$member->id,virtual=>1) || $ircd->search_user(nick=>$member->displayname,virtual=>0);
             my $channel = $ircd->search_channel(id=>$member->group->id) ||
                     $ircd->new_channel(id=>$member->group->id,name=>'#'.$member->group->name,);
@@ -295,7 +309,7 @@ sub call{
         if($msg->type eq "friend_message"){
             my $friend = $msg->receiver;
             my $user = $ircd->search_user(id=>$friend->id,virtual=>1) || $ircd->search_user(nick=>$friend->displayname,virtual=>0);
-            my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pis");
+            my $channel = $ircd->search_channel(name=>'#我的好友') || $ircd->new_channel(name=>'#我的好友',mode=>"Pivs");
             if(not defined $user){
                 $user=$ircd->new_user(
                     id      =>$friend->id,
@@ -323,8 +337,9 @@ sub call{
 
         if($msg->type eq "sess_message"){
             my $member  = $msg->receiver;
-            return if @groups and not first {$member->group->name eq $_} @groups;
             return if $msg->via ne "group";
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$member->group->uid eq $_:$member->group->name eq $_} @{$data->{allow_group}};
             my $user = $ircd->search_user(id=>$member->id,virtual=>1)||$ircd->search_user(nick=>$member->displayname,virtual=>0);
             my $channel = $ircd->search_channel(id=>$member->group->id) ||
                     $ircd->new_channel(id=>$member->id,name=>'#'.$member->group->name,);
@@ -354,7 +369,8 @@ sub call{
         }
 
         elsif($msg->type eq "group_message"){
-            return if @groups and not first {$msg->group->name eq $_} @groups;
+            return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
+            return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}};
             my $channel = $ircd->search_channel(id=>$msg->group->id);
             return unless defined $channel;
 
