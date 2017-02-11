@@ -1108,6 +1108,9 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
     upload_api          #图床api地址，将图片转为连接，方便在irc上查看图片
                         #支持兼容 http://img.vim-cn.com/ 的接口，考虑到隐私问题，默认不开启
 
+    create_chanserv_user #0|1 默认为1，是否创建频道时自动生成昵称为 ChanServ 的虚拟用户
+                         #主要用于解决频道人数为空时，HexChat等某些客户端/list无法获取到频道信息的问题
+
 当设置了 load_friend =>1 参数，qq好友会默认加入到irc的 '#我的好友' 频道中，可能影响加载速度
 
 每个qq群也会在irc上创建对应的频道，比如qq群[PERL学习交流]对应的irc频道为'#PERL学习交流'
