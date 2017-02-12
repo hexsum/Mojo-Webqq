@@ -23,7 +23,7 @@ sub call{
     $data->{create_chanserv_user} = 1 if not defined $data->{create_chanserv_user};
     $ircd = Mojo::IRC::Server::Chinese->new(listen=>$data->{listen},log=>$client->log,auth=>$data->{auth});
     if($data->{create_chanserv_user}){
-        my $chanserv= $ircd->new_user(id=>"__ChanServ__",name=>"ChanServ",user=>"__ChanServ__",nick=>"ChanServ",virtual=>1);
+        my $chanserv= $ircd->new_user(id=>"__ChanServ__",name=>"ChanServ:虚拟用户",user=>"__ChanServ__",nick=>"ChanServ",virtual=>1);
         $ircd->on(new_channel=>sub{
             my ($ircd,$channel) = @_;
             return if index( $channel->mode ,"v" ) == -1;
@@ -116,6 +116,7 @@ sub call{
 
     my $callback = sub{
         my %delete_channel  = map {$_->id => $_} grep {$_->name ne "#我的好友"}  $ircd->channels;
+        #$ircd->remove_user($_) for grep {$_->id ne '__ChanServ__' and $_->is_virtual} $ircd->users;
         $ircd->remove_user($_) for grep {$_->is_virtual} $ircd->users;
         my $friend_channel = $ircd->new_channel(name=>'#我的好友',mode=>"Pivs");
         if($is_load_friend){
