@@ -1110,7 +1110,18 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
 
     #以下参数需要 Mojo::IRC::Server::Chinese v1.8.1及以上版本
 
-    #TLS支持，详细参数使用说明参见 https://metacpan.org/pod/Mojo::IOLoop::Server#tls
+    #TLS支持
+
+    #代码示例
+    $client->load("IRCShell",data=>{
+        listen=>[ 
+            {host=>"0.0.0.0",port=>6667},         #监听普调端口
+            {host=>"0.0.0.0",port=>6697,tls=>1},  #监听6697端口，开启TLS加密
+        ],
+    });
+
+    #支持的TLS参数：
+    #更多详细参数使用说明参见 https://metacpan.org/pod/Mojo::IOLoop::Server#tls
     tls                 #0|1 是否启用tls加密
     tls_ca              #可选，本地ca证书路径 例如 /etc/tls/ca.crt
     tls_cert            #可选，服务器证书路径，默认会生成一个测试证书
