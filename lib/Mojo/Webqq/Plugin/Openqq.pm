@@ -475,7 +475,26 @@ sub call{
         $server->listen([ map { 'http://' . (defined $_->{host}?$_->{host}:"0.0.0.0") .":" . (defined $_->{port}?$_->{port}:5000)} @$data]);
     }
     elsif(ref $data eq "HASH" and ref $data->{listen} eq "ARRAY"){
-        $server->listen([ map { 'http://' . (defined $_->{host}?$_->{host}:"0.0.0.0") .":" . (defined $_->{port}?$_->{port}:5000)} @{ $data->{listen}} ]) ;
+        my @listen;
+        for my $listen (@{$data->{listen}}) {
+            if($listen->{tls}){
+                my $listen_url = 'https://' . ($listen->{host} // "0.0.0.0") . ":" . ($listen->{port}//443);
+                my @ssl_option;
+                for(keys %$listen){
+                    next if ($_ eq 'tls' or $_ eq 'host' or $_ eq 'port');
+                    my $key = $_;
+                    my $val = $listen->{val};
+                    $key=~s/^tls_//g;
+                    push @ssl_option,"$_=$listen->{$_}";
+                }
+                $listen_url .= "?" . join("&",@ssl_option) if @ssl_option;
+                push @listen,$listen_url;
+            }
+            else{
+                push @listen,'http://' . ($listen->{host} // "0.0.0.0") . ":" . ($listen->{port}//5000) ;
+            }
+        }   
+        $server->listen(\@listen) ;
     }
     $server->start;
 }

@@ -1108,7 +1108,16 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
     upload_api          #图床api地址，将图片转为连接，方便在irc上查看图片
                         #支持兼容 http://img.vim-cn.com/ 的接口，考虑到隐私问题，默认不开启
 
-    #以下参数需要 Mojo::IRC::Server::Chinese v1.8.0及以上版本
+    #以下参数需要 Mojo::IRC::Server::Chinese v1.8.1及以上版本
+
+    #TLS支持，详细参数使用说明参见 https://metacpan.org/pod/Mojo::IOLoop::Server#tls
+    tls                 #0|1 是否启用tls加密
+    tls_ca              #可选，本地ca证书路径 例如 /etc/tls/ca.crt
+    tls_cert            #可选，服务器证书路径，默认会生成一个测试证书
+    tls_ciphers         #可选，加密套件，例如 AES128-GCM-SHA256:RC4:HIGH:!MD5:!aNULL:!EDH
+    tls_key             #可选，服务器证书key文件路径
+    tls_verify          #可选，验证模式
+    tls_version         #可选，协议版本，例如 TLSv1_2
 
     create_chanserv_user #0|1 默认为1，是否创建频道时自动生成昵称为 ChanServ 的虚拟用户
                          #主要用于解决频道人数为空时，HexChat等某些客户端/list无法获取到频道信息的问题
@@ -1459,11 +1468,28 @@ QQ群每日签到插件
 
 提供HTTP API接口，方便获取客户端帐号、好友、群、讨论组信息，以及通过接口发送和接收好友消息、群消息、群临时消息和讨论组临时消息
 
-CPAN文档可能比较旧或者表达的信息不够丰富，请参加github上API相关说明L<https://github.com/sjdy521/Mojo-Webqq/API.md>
+CPAN文档可能比较旧或者表达的信息不够丰富，请参考github上API相关说明L<https://github.com/sjdy521/Mojo-Webqq/blob/master/API.md>
 
+    #同时支持http/https请求
+    $client->load("Openqq",data=>{
+        listen => [
+            {   host=>"0.0.0.0",
+                port=>5000,                     #监听5000端口的http请求
+            },
+            {
+                host    =>"0.0.0.0",
+                port    =>443,                    #可选，https请求监听端口，默认443
+                tls         =>1,                      #必选，开启https请求支持
+                tls_ca      =>"/etc/tls/ca.crt"       #可选，ca证书路径
+                tls_cert    =>"/etc/tls/server.crt"   #可选，服务器证书路径，默认生成一个测试证书
+                tls_key     =>"/etc/tls/server.key"   #可选，证书对应的key文件，默认生成一个测试key文件
+            },#更多tls参数支持参考 https://metacpan.org/pod/Mojo::IOLoop::Server#tls
+        ],
+    });
+    
     #data是一个HASH引用
     $client->load("Openqq",data=>{                                                 
-        listen => [ {host=>"127.0.0.1",port=>5000}, ] , #监听的地址和端口，支持多个
+        listen => [ {host=>"0.0.0.0",port=>5000}, ] , #监听的地址和端口，支持多个
         auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
         post_api => 'http://xxxx',                      #可选，自定义的接收消息上报接口,并可以根据接口返回内容回复消息
     });
@@ -1575,7 +1601,7 @@ CPAN文档可能比较旧或者表达的信息不够丰富，请参加github上A
     http://127.0.0.1:5000/openqq/send_friend_message?id=xxx&content=hello 
     http://127.0.0.1:5000/openqq/send_friend_message?id=xxx&content=%e4%bd%a0%e5%a5%bd (中文需要utf8编码并进行urlencode)
 
-请参加github上API相关说明L<https://github.com/sjdy521/Mojo-Webqq/API.md>
+更多完整文档请参考github上API相关说明L<https://github.com/sjdy521/Mojo-Webqq/blob/master/API.md>
 
 =head2 Mojo::Webqq::Plugin::Pu
 
