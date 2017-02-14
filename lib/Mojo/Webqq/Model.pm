@@ -150,7 +150,7 @@ sub each_group_member{
     }
     else{
         for( @{$self->group}){
-            $_->upadte_group_member(is_blocking=>1,) if $_->is_empty;   
+            $_->update_group_member(is_blocking=>1,) if $_->is_empty;   
         }
     }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->group};
@@ -167,7 +167,7 @@ sub each_discuss_member{
     }
     else{
         for( @{$self->discuss}){
-            $_->upadte_discuss_member(is_blocking=>1,) if $_->is_empty;
+            $_->update_discuss_member(is_blocking=>1,) if $_->is_empty;
         }
     }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->discuss};
@@ -628,7 +628,7 @@ sub search_group_member {
     }
     else{
         for( @{$self->group}){
-            $_->upadte_group_member(is_blocking=>1,) if $_->is_empty;
+            $_->update_group_member(is_blocking=>1,) if $_->is_empty;
         }
     }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->group};
@@ -804,7 +804,7 @@ sub search_discuss_member {
     }
     else{
         for( @{$self->discuss}){
-            $_->upadte_discuss_member(is_blocking=>1,) if $_->is_empty;
+            $_->update_discuss_member(is_blocking=>1,) if $_->is_empty;
         }
     }
     my @member = map {@{$_->member}} grep {ref $_->member eq "ARRAY"}  @{$self->discuss};
