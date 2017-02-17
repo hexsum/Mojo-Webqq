@@ -26,7 +26,7 @@ sub call{
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
-        return if $msg->type !~ /^message|group_message|sess_message$/;
+        return if $msg->type !~ /^friend_message|group_message|sess_message$/;
         return if exists $ban{$msg->sender->id};
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
