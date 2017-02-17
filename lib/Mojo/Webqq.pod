@@ -1087,7 +1087,7 @@ send_friend_message()/send_group_message()/send_discuss_message()/send_sess_mess
 
 =head2 Mojo::Webqq::Plugin::IRCShell
 
-将qq协议转换成irc协议，启动一个本地的irc服务器，使用任意irc客户端（irc user设置为qq号）连接后即可以按照irc的方式使用qq
+将qq协议转换成irc协议，启动一个本地的irc服务器，使用任意irc客户端（irc nick设置为qq昵称）连接后即可以按照irc的方式使用qq
 
 需要依赖模块 L<Mojo::IRC::Server::Chinese>
 

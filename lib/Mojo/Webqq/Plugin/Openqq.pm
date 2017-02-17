@@ -226,6 +226,18 @@ sub call{
     use Mojolicious::Lite;
     no utf8;
     app->controller_class('Mojo::Webqq::Plugin::Openqq::App::Controller');
+    app->hook(after_render=>sub{
+        my ($c, $output, $format) = @_;
+
+        $c->res->headers->header("Access-Control-Allow-Origin" => "*");
+
+        my $datatype =  $c->param("datatype");
+        return if not defined $datatype;
+        return if defined $datatype and $datatype ne 'jsonp';
+        my $jsoncallback = $c->param("callback") || 'jsoncallback' . time;
+        return if not defined $jsoncallback;
+        $$output = "$jsoncallback($$output)";
+    });
     under sub {
         my $c = shift;
         if(ref $data eq "HASH" and ref $data->{auth} eq "CODE"){

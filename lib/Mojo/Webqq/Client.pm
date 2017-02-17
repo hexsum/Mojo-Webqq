@@ -448,6 +448,12 @@ sub save_state{
 sub is_load_plugin {
     my $self = shift;
     my $plugin = shift;
-    return exists $self->plugins->{ substr($plugin,0,1) eq '+'?$plugin:"Mojo::Webqq::Plugin::$plugin" };
+    if(substr($plugin,0,1) eq '+'){
+        substr($plugin,0,1) = "";
+    }
+    else{
+        $plugin = "Mojo::Webqq::Plugin::$plugin";
+    }
+    return exists $self->plugins->{$plugin};
 }
 1;
