@@ -252,7 +252,7 @@ sub new {
     });
     $self->on(state_change=>sub{
         my $self = shift;
-        $self->save_state();
+        $self->save_state(@_);
     });
     $self->on(qrcode_expire=>sub{
         my($self) = @_;
