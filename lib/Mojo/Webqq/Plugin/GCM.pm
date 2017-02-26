@@ -22,6 +22,10 @@ sub call {
         my $message;
         my $msgId;
         my $senderType;
+        my $isAt = 0;
+        if($msg->is_at) {
+        $isAt=1;
+        }
         if($msg->type eq 'friend_message'){
             $msgId = $msg->sender->id;
             $title = $msg->sender->displayname;
@@ -29,8 +33,10 @@ sub call {
             $senderType = '1';
         }
         elsif($msg->type eq 'group_message'){
+         if(!$isAt)  {
             return if ref $data->{ban_group}  eq "ARRAY" and @{$data->{ban_group}} and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
             return if ref $data->{allow_group}  eq "ARRAY" and  @{$data->{allow_group}} and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{allow_group}};
+            }
             $msgId = $msg->group->id;
             $title = $msg->group->displayname;
             $message = $msg->sender->displayname . ": " . $msg->content;
@@ -54,7 +60,7 @@ sub call {
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
                 priority=> $data->{priority} // 'high',
-                data=>{type=>$type,title=>$title,message=>$message,msgId=>$msgId,senderType=>$senderType},
+                data=>{isAt=>$isAt,type=>$type,title=>$title,message=>$message,msgId=>$msgId,senderType=>$senderType},
             },
             sub{
                 #"{"multicast_id":9016211065189210367,"success":1,"failure":0,"canonical_ids":0,"results":[{"message_id":"0:1484103730761325%9b9e6c13f9fd7ecd"}]}"
