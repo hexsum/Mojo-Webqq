@@ -274,6 +274,9 @@ sub call{
         }
         else{$c->safe_render(json=>{id=>undef,code=>100,status=>"friend not found"});}
     };
+    get '/openqq/relogin' => sub {
+            $client->relogin();
+        };
     any [qw(GET POST)] => 'openqq/send_group_message'    => sub{
         my $c = shift;
         my $p = $c->params;
