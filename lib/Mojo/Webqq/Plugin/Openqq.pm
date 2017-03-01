@@ -275,7 +275,13 @@ sub call{
         else{$c->safe_render(json=>{id=>undef,code=>100,status=>"friend not found"});}
     };
     get '/openqq/relogin' => sub {
-            $client->relogin();
+            my $c = shift;
+            $c->safe_render(json=>{
+                    code=>0,
+                    account=>$client->account,
+                    status=>"success, client($$) will relogin in 3 seconds",
+                });
+            $client->timer(3=>sub{$client->relogin()});#3秒后再执行，让客户端可以收到该api的响应
         };
     any [qw(GET POST)] => 'openqq/send_group_message'    => sub{
         my $c = shift;
