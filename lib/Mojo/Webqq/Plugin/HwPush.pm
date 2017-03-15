@@ -9,7 +9,7 @@ sub call {
     my $client = shift;
     my $data  = shift;
     $client->load("UploadQRcode") if !$client->is_load_plugin('UploadQRcode');
-    my $api_url = $data->{api_url} // 'https://https://api.vmall.com/rest.php';
+    my $api_url = $data->{api_url} // 'https://api.vmall.com/rest.php';
     my $hwfile  = $data->{hwfile} // 'hw_access_token_gcm.txt';
 	
 	my $deviceToken = $data->{registration_ids} // [];
