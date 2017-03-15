@@ -55,7 +55,7 @@ sub call {
         }
         return if !$title or !$message;
         $client->http_post($api_url, 
-            {'Authorization'=>"key=$api_key",},
+            {'Authorization'=>"key=$api_key",json=>1},
             json=>{
                 registration_ids=> $registration_ids,
                 $collapse_key?(collapse_key=> $collapse_key):(),
@@ -97,6 +97,7 @@ sub call {
         else{return}
         $client->http_post($api_url,
             {   'Authorization'=>"key=$api_key",
+                json=>1,
                 blocking=>1,
                 ua_connect_timeout=>5,
                 ua_request_timeout=>5,
