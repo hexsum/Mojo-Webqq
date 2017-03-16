@@ -14,10 +14,11 @@ sub call {
     my $api_url = $data->{api_url} // 'https://api-push.meizu.com/garcia/api/server/push/unvarnished/pushByPushId';
 	my $api_key = 'eb034b0b4f42414baedaa04ddc7e6981';
 	my $app_id = '110370';
-	my $registration_id = $data->{registration_ids} // [];
-    if(ref $registration_id ne 'ARRAY' or @{$registration_id} == 0){
+	my $registration_ids = $data->{registration_ids} // [];
+    if(ref $registration_ids ne 'ARRAY' or @{$registration_ids} == 0){
         $client->die("[".__PACKAGE__."]registration_ids无效");
     }
+    	my $registration_id = $registration_ids->[0];
 
     $client->on(receive_message=>sub{
         my($client,$msg) = @_;
