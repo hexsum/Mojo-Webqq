@@ -12,8 +12,8 @@ sub call {
     my $data  = shift;
     $client->load("UploadQRcode") if !$client->is_load_plugin('UploadQRcode');
     my $api_url = $data->{api_url} // 'https://api-push.meizu.com/garcia/api/server/push/unvarnished/pushByPushId';
-	my $api_key = 'f1df8e25089e49e0b5b38b2b10bb33c2';
-	my $app_id = '110347';
+	my $api_key = 'eb034b0b4f42414baedaa04ddc7e6981';
+	my $app_id = '110370';
 	my $registration_id = $data->{registration_ids} // [];
     if(ref $registration_id ne 'ARRAY' or @{$registration_id} == 0){
         $client->die("[".__PACKAGE__."]registration_ids无效");
