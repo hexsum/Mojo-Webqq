@@ -226,7 +226,7 @@ sub new {
         }
     }
     $self->info("当前正在使用 Mojo-Webqq v" . $self->version);
-    $self->warn("当前版本与1.x.x版本不兼容，改动详情参见更新日志");
+    #$self->warn("当前版本与1.x.x版本不兼容，改动详情参见更新日志");
     $self->ioloop->reactor->on(error=>sub{
         my ($reactor, $err) = @_;
         $self->error("reactor error: " . Carp::longmess($err));
