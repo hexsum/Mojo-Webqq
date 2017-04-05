@@ -11,12 +11,15 @@ $client->on(input_qrcode=>sub
                  my $command;
                  if($^O=~/^MSWin32/i) # Windows
                  {
-   	                $command="start $qrcode_path";
-   	                eval(system($command));
+                    $command="start $qrcode_path";
+                    eval(system($command));
                     $client->error($@) if $@;
                  }
                  elsif($^O=~/^linux/i) # Linux
                  {
+                    $command="xdg-open $qrcode_path";
+                    eval(system($command));
+                    $client->error($@) if $@;
                  }
                  elsif($^O=~/^darwin/i) # Mac OS X
                  {
