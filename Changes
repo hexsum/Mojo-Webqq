@@ -1,3 +1,14 @@
+2017-04-14 Mojo::Webqq v2.0.9
+1）Openqq插件完善
+    增加 jsonp 跨域支持
+    增加跨域响应头 Access-Control-Allow-Origin: *
+    增加重新登录api接口 /openqq/relogin
+2）修复SmartReply插件无法回复好友消息的bug(https://github.com/sjdy521/Mojo-Webqq/issues/73)
+3）state.json文件中增加previous_state属性，记录当前状态的前一个状态
+4）新增MiPush/HwPush/FmPush等插件，支持小米手机、华为手机、魅族手机的消息推送 感谢 @heipidage
+5）ShowQRcode插件增加linux系统支持
+6）修复同时设定了is_need_at和keyword, 会导致判定出错不会执行下方命令的bug 感谢 @BendustiK
+
 2017-02-14 Mojo::Webqq v2.0.8
 1）IRCShell插件完善(非常感谢 @eleven @csrgxtu 等人在整个过程中的支持)
     新增auto_join_channel参数，默认为1，收到未加入的频道消息会自动加入频道并接收消息，主要为了防止漏收
