@@ -331,6 +331,7 @@ sub update_friend {
     }
 }
 sub search_friend {
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
@@ -606,6 +607,7 @@ sub update_group {
 }
 
 sub search_group {
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
@@ -620,6 +622,7 @@ sub search_group {
 }
 
 sub search_group_member {
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
@@ -782,6 +785,7 @@ sub update_discuss {
 }
 
 sub search_discuss {
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
@@ -796,6 +800,7 @@ sub search_discuss {
 }
 
 sub search_discuss_member {
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;

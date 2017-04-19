@@ -1,5 +1,6 @@
 sub Mojo::Webqq::Model::get_qq_from_id{
     my $self = shift;
+    return ;
     my $uin = shift;
     my $cache_data =  $self->id_to_qq_cache->retrieve($uin);
     return $cache_data if defined $cache_data;

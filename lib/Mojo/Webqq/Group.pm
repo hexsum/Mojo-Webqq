@@ -68,6 +68,7 @@ sub members {
     return @{$self->member};
 }
 sub search_group_member{
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;

@@ -52,6 +52,7 @@ sub each_discuss_member{
 }
 
 sub search_discuss_member{
+    no warnings 'uninitialized';
     my $self = shift;
     my %p = @_;
     return if 0 == grep {defined $p{$_}} keys %p;
