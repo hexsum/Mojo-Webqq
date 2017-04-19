@@ -30,6 +30,14 @@ has check_account       => 0;           #是否检查预设账号与实际登录
 has disable_color       => 0;           #是否禁用终端打印颜色
 has ignore_retcode      => sub{[0,1202,100100]}; #对发送消息返回这些状态码不认为发送失败，不重试
 
+#原始信息中包含id/name/card
+#扩展信息中包含uid/name/card
+#二者没办法直接建立关联，只能够通过 name+card 相同时认为是匹配同一个用户，并非严谨，但大部分情况下可以满足要求
+#group_member_identify_callback提供了对name和card进行自定义处理
+#传递给group_member_identify_callback的参数是群成员的 ($name,$card)
+#默认 group_member_identify_callback 不设置，相当于sub { my($name,$card)=@_; return $name . $card};
+has group_member_identify_callback => undef;
+
 has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
 has is_init_group          => 1;                            #是否在首次登录时初始化群组信息
 has is_init_discuss        => 1;                            #是否在首次登录时初始化讨论组信息

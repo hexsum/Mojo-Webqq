@@ -254,6 +254,13 @@ sub update_friend_ext {
                 next if not exists $ext->{$id};
                 $f->{uid} = $ext->{$id}{uid};
             }
+            
+            if($self->log_level eq 'debug'){
+                for(@{$self->friend}){
+                    $self->debug("更新好友[" . $_->displayname . "|" . $_->category . "]扩展信息uid失败") if not $_->uid;
+                }
+            }
+
             $self->emit("model_update"=>"friend_ext",1);
         }
         else{
@@ -462,12 +469,27 @@ sub update_group_member_ext {
         my $group_info_ext = shift;
         if(defined $group_info_ext){
             $self->info("更新群组[ ". $group->name . " ]成员扩展信息");
-            my(undef,$mext) = $self->array_unique($group_info_ext->{member},sub{ $_[0]->{name} . (defined($_[0]->{card})?$_[0]->{card}:"")},$group->name . " member_ext");
-            my $unique_member = $self->array_unique($group->member,sub{$_[0]->name . (defined($_[0]->card)?$_[0]->card:"")},$group->name . " member");
+            my $unique_sub = sub{
+                my $name = $_[0]->{name} // "";
+                my $card = $_[0]->{card} // "";
+                if($self->group_member_identify_callback eq 'CODE'){
+                    return $self->group_member_identify_callback->($name,$card);
+                }
+                else{
+                    return $name . $card;
+                }
+            };
+            my(undef,$mext) = $self->array_unique($group_info_ext->{member},$unique_sub,$group->name . " member_ext");
+            my $unique_member = $self->array_unique($group->member,$unique_sub,$group->name . " member");
             for(@$unique_member){
-                my $id = $_->name . (defined($_->card)?$_->card:"");
+                my $id = $unique_sub->($_);
                 next if not exists $mext->{$id};
                 $_->update($mext->{$id});
+            }
+            if($self->log_level eq 'debug'){
+                for(@{$group->member}){
+                    $self->debug("更新群成员[".$_->name . "|" . $group->name ."]扩展信息uid失败") if not  $_->uid;
+                }
             }
             $group->{max_member} //= $group_info_ext->{max_member};
             $group->{max_admin} //= $group_info_ext->{max_admin};

@@ -3,12 +3,17 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
     my $self = shift;
     my $uid = shift;
     my $callback = shift;
-    my $api = "http://qinfo.clt.qq.com/cgi-bin/qun_info/get_group_members_new";
+    #my $api = "http://qinfo.clt.qq.com/cgi-bin/qun_info/get_group_members_new";
+    my $api = "http://qinfo.clt.qq.com/cgi-bin/qun_info/get_group_members";
     my $is_blocking = ref $callback eq "CODE"?0:1;
     my $handle = sub {
         my $json = shift;
         return if not defined $json;
         return if $json->{ec}!=0;
+        if(ref $json->{mems} ne 'ARRAY'){
+            $self->warn("更新群[$uid]扩展信息失败: 返回数据异常");
+            return;
+        }
         my %levelname; 
         for(keys %{$json->{levelname}}){
             $levelname{$_} = $json->{levelname}{$_};
