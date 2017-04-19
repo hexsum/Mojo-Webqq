@@ -22,7 +22,7 @@ has [qw(
 
 has uid => sub{
     my $self = shift;
-    return $self->{qq} if defined $self->{qq};
+    return $self->{uid} if defined $self->{uid};
     return $self->client->get_qq_from_id($self->id);
 };
 sub qq {$_[0]->uid}
