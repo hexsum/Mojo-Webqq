@@ -1,3 +1,7 @@
+2017-04-19 Mojo::webqq v2.1.0
+1）修复由于腾讯官方限制导致的无法获取群号码、群成员QQ号码的问题
+2）http://s.web2.qq.com/api/get_friend_uin2接口已经失效，从代码中屏蔽调用
+
 2017-04-14 Mojo::Webqq v2.0.9
 1）Openqq插件完善
     增加 jsonp 跨域支持
