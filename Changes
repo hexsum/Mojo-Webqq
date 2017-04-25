@@ -1,3 +1,16 @@
+2017-04-25 Mojo::Webqq v2.1.1
+1）修复某些情况下获取群成员uid异常问题 感谢 @chateau 反馈
+2）增加更新好友或者群成员uid失败的debug日志
+3）new中新增group_member_identify_callback参数,参数说明如下：
+    原始信息中包含id/name/card
+    扩展信息中包含uid/name/card
+    二者没办法直接建立关联，只能够通过 name+card 相同时认为是匹配同一个用户，并非严谨，但大部分情况下可以满足要求
+    group_member_identify_callback提供了对群成员name和card进行自定义处理
+    传递给group_member_identify_callback的参数是群成员的 ($name,$card)
+    默认 group_member_identify_callback 不设置，相当于sub { my($name,$card)=@_; return $name . $card};
+4）忽略接收消息返回1202异常状态码导致客户端认为在线异常而主动注销重新登录的情况
+5）GCM插件新增 allow_group_member 参数，上报指定群成消息，优先级高于allow_group/ban_group参数
+
 2017-04-19 Mojo::webqq v2.1.0
 1）修复由于腾讯官方限制导致的无法获取群号码、群成员QQ号码的问题
 2）http://s.web2.qq.com/api/get_friend_uin2接口已经失效，从代码中屏蔽调用
