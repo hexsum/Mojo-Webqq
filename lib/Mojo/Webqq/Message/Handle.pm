@@ -504,7 +504,8 @@ sub parse_receive_msg {
     #可以忽略的消息，暂时不做任何处理
     elsif ($json->{retcode} == 102
         or $json->{retcode} == 109
-        or $json->{retcode} == 110 )
+        or $json->{retcode} == 110 
+        or $json->{retcode} == 1202 )
     {
         $self->poll_failure_count(0);
     }

@@ -33,9 +33,18 @@ sub call {
             $senderType = '1';
         }
         elsif($msg->type eq 'group_message'){
-         if(!$isAt)  {
-            return if ref $data->{ban_group}  eq "ARRAY" and @{$data->{ban_group}} and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
-            return if ref $data->{allow_group}  eq "ARRAY" and  @{$data->{allow_group}} and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{allow_group}};
+            if(!$isAt){
+                if(ref $data->{allow_group_member} eq "ARRAY"){
+                    my $id1 = $msg->sender->displayname . "|" . $msg->group->displayname;
+                    my $id2 = $msg->sender->uid . "|" . $msg->group->displayname;
+                    my $id3 = $msg->sender->displayname . "|" . $msg->group->uid;
+                    my $id4 = $msg->sender->uid . "|" . $msg->group->uid;
+                    return if !first {$id1 eq $_ or $id2 eq $_ or $id3 eq $_ or $id4 eq $_} @{$data->{allow_group_member}};
+                }
+                else{
+                    return if ref $data->{ban_group}  eq "ARRAY" and @{$data->{ban_group}} and first {($_=~/^\d+$/)?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{ban_group}};
+                    return if ref $data->{allow_group}  eq "ARRAY" and  @{$data->{allow_group}} and !first {($_=~/^\d+$/)?$msg->group->uid eq $_:$msg->group->displayname eq $_} @{$data->{allow_group}};
+                }
             }
             $msgId = $msg->group->id;
             $title = $msg->group->displayname;
