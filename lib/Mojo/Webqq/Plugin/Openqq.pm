@@ -439,7 +439,7 @@ sub call{
         }
         else{$c->safe_render(json=>{code=>200,status=>"member id empty"});}
     };
-    any [qw(GET POST)] => '/openwx/check_event'          => sub{
+    any [qw(GET POST)] => '/openqq/check_event'          => sub{
         my $c = shift;
         $c->render_later;
         if($check_event_list->size > 0){
