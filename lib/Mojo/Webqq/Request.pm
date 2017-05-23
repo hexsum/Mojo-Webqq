@@ -115,8 +115,13 @@ sub _http_request{
                 $cb->($r,$ua,$tx);
             }
             elsif(defined $tx){
-                $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message}));
-                $cb->(undef,$ua,$tx);
+                unless(     $tx->req->url->host eq 'd1.web2.qq.com' 
+                    and $tx->req->url->path eq '/channel/poll2' 
+                    and first { $tx->res->code == $_ } @{$self->ignore_poll_http_code}
+                ){
+                    $self->warn($tx->req->url->to_abs . " 请求失败: " . ($tx->error->{code}||"-") . " " . $self->encode_utf8($tx->error->{message}));
+                    $cb->(undef,$ua,$tx);
+                }
             }
         });
     }
