@@ -7,6 +7,7 @@ has [qw(
     state
     client_type
     _discuss_id
+    _flag
 )];
 
 has uid => sub{

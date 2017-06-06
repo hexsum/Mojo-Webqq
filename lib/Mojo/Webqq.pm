@@ -30,6 +30,7 @@ has check_account       => 0;           #是否检查预设账号与实际登录
 has disable_color       => 0;           #是否禁用终端打印颜色
 has ignore_retcode      => sub{[0,1202,100100]}; #对发送消息返回这些状态码不认为发送失败，不重试
 has ignore_poll_http_code => sub{[504,502]}; #忽略接收消息请求返回的502/504状态码，因为并不影响消息接收，以免引起恐慌
+has ignore_unknown_id   => 1; #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到，id还未知,是否忽略掉这种消息
 
 #原始信息中包含id/name/card
 #扩展信息中包含uid/name/card

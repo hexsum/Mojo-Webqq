@@ -625,6 +625,7 @@ sub msg_put{
                     id          =>  $msg->{sender_id},
                     name        =>  "昵称未知",
                     category    =>  "陌生人",
+                    _flag       =>  1,
                 );
                 $self->add_friend($sender,1);
             }
@@ -649,6 +650,7 @@ sub msg_put{
                         id=>$msg->{sender_id},
                         name=>"昵称未知",   
                         _group_id=>$group->id,
+                        _flag=>1,
                     );
                     $group->add_group_member($sender,1); 
                 }
@@ -665,6 +667,7 @@ sub msg_put{
                     id  =>  $msg->{sender_id},  
                     name=>"昵称未知",
                     _group_id =>  $group->id,
+                    _flag=>1,
                 );
                 $group->add_group_member($sender,1);
             }
@@ -692,6 +695,7 @@ sub msg_put{
                             _group_id=>$msg->{group_id},
                             id=>$msg->{sender_id},
                             name=>"昵称未知",
+                            _flag=>1,
                         ); 
                         $group->add_group_member($sender,1);
                     }
@@ -708,6 +712,7 @@ sub msg_put{
                         _group_id=>$msg->{group_id},
                         id=>$msg->{sender_id},
                         name=>"昵称未知",
+                        _flag=>1,
                     ); 
                     $group->add_group_member($sender,1);
                 }
@@ -732,6 +737,7 @@ sub msg_put{
                             _discuss_id=>$msg->{discuss_id},
                             id=>$msg->{sender_id},
                             name=>"昵称未知",
+                            _flag=>1,
                         );
                         $discuss->add_discuss_member($sender,1);
                     }
@@ -747,7 +753,8 @@ sub msg_put{
                     $sender = Mojo::Webqq::Discuss::Member->new(
                         _discuss_id=>$msg->{discuss_id},
                         id=>$msg->{sender_id},
-                        name=>"昵称未知"
+                        name=>"昵称未知",
+                        _flag=>1,
                     );
                     $discuss->add_discuss_member($sender,1);
                 }
@@ -771,7 +778,7 @@ sub msg_put{
                 $self->update_discuss($discuss);
                 $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
                 unless(defined $sender){
-                    $sender = Mojo::Webqq::Discuss::Member->new(_discuss_id=>$msg->{discuss_id},id=>$msg->{sender_id},name=>"昵称未知");
+                    $sender = Mojo::Webqq::Discuss::Member->new(_discuss_id=>$msg->{discuss_id},id=>$msg->{sender_id},name=>"昵称未知",_flag=>1);
                     $discuss->add_discuss_member($sender,1);
                 }
             }
@@ -783,7 +790,7 @@ sub msg_put{
             $sender = $discuss->search_discuss_member(id=>$msg->{sender_id});
             $receiver = $discuss->search_discuss_member(id=>$msg->{receiver_id}) || $self->user;
             unless(defined $sender){
-                $sender = Mojo::Webqq::Discuss::Member->new(_discuss_id=>$msg->{discuss_id},id=>$msg->{sender_id},name=>"昵称未知");
+                $sender = Mojo::Webqq::Discuss::Member->new(_discuss_id=>$msg->{discuss_id},id=>$msg->{sender_id},name=>"昵称未知",_flag=>1);
                 $discuss->add_discuss_member($sender,1);
             }
         }
@@ -803,7 +810,12 @@ sub msg_put{
     else{
         return;
     }
-    $self->message_queue->put($msg);
+    if($self->ignore_unknown_id){
+        $self->message_queue->put($msg) if $msg->sender->_flag != 1;
+    }
+    else{
+        $self->message_queue->put($msg);
+    }
 }
 
 sub format_msg{

@@ -17,9 +17,9 @@ has [qw(
     level
     role
     bad_record
+    _flag
     _group_id
 )];
-
 has uid => sub{
     my $self = shift;
     return $self->{uid} if defined $self->{uid};

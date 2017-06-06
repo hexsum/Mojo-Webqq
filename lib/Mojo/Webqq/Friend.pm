@@ -12,6 +12,7 @@ has [qw(
     vip_level   
     state       
     client_type 
+    _flag
 )];
 has uid => sub{
     my $self = shift;
