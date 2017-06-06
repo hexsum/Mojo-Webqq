@@ -1,3 +1,10 @@
+2017-06-06 Mojo::Webqq v2.1.2
+1）增加RikkaGCM插件
+2）Openqq插件/openqq/check_event api的bug修复
+3）增加了一个默认的参数 ignore_poll_http_code=>[502,504]
+   对于http://d1.web2.qq.com/channel/poll2请求出现参数中的状态码不产生warn警告 
+4）增加 ignore_unknown_id 参数,默认开启，屏蔽webqq上也会收到其他设备上自己发送的消息的问题，以避免很多功能受到影响
+
 2017-04-25 Mojo::Webqq v2.1.1
 1）修复某些情况下获取群成员uid异常问题 感谢 @chateau 反馈
 2）增加更新好友或者群成员uid失败的debug日志
