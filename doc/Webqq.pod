@@ -413,6 +413,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     http_debug        #设置该参数，打印调试信息
     keep_cookie       #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
     disable_color     #默认为0，是否禁用终端彩色打印
+    send_interval     #默认为3s，全局发送消息时间间隔，间隔太小会导致消息发送频繁，可能有被封号的风险
     ignore_retcode    #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用，默认 [1202,100100]
                       #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
 

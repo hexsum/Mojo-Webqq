@@ -262,15 +262,21 @@ sub call{
         my $p = $c->params;
         my $friend = $client->search_friend(id=>$p->{id},uid=>$p->{uid});
         if(defined $friend){
-            $c->render_later;
-            $client->send_friend_message($friend,$p->{content},sub{
-                my $msg= $_[1];
-                $msg->cb(sub{
-                    my($client,$msg)=@_;
-                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});  
+            if($p->{async}){
+                $client->send_friend_message($friend,$p->{content},sub{$_[1]->from("api")});
+                $c->safe_render(json=>{code=>0,status=>"request already in execution"});
+            }
+            else{
+                $c->render_later;
+                $client->send_friend_message($friend,$p->{content},sub{
+                    my $msg= $_[1];
+                    $msg->cb(sub{
+                        my($client,$msg)=@_;
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});  
+                    });
+                    $msg->from("api");
                 });
-                $msg->from("api");
-            });
+            }
         }
         else{$c->safe_render(json=>{id=>undef,code=>100,status=>"friend not found"});}
     };
@@ -288,15 +294,21 @@ sub call{
         my $p = $c->params;
         my $group = $client->search_group(id=>$p->{id},uid=>$p->{uid},);
         if(defined $group){
-            $c->render_later;
-            $client->send_group_message($group,$p->{content},sub{
-                my $msg = $_[1];
-                $msg->cb(sub{
-                    my($client,$msg)=@_;
-                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+            if($p->{async}){
+                $client->send_group_message($group,$p->{content},sub{$_[1]->from("api")});
+                $c->safe_render(json=>{code=>0,status=>"request already in execution"});
+            }
+            else{
+                $c->render_later;
+                $client->send_group_message($group,$p->{content},sub{
+                    my $msg = $_[1];
+                    $msg->cb(sub{
+                        my($client,$msg)=@_;
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                    });
+                    $msg->from("api");
                 });
-                $msg->from("api");
-            });
+            }
         }
         else{$c->safe_render(json=>{id=>undef,code=>101,status=>"group not found"});}
     };
@@ -305,15 +317,21 @@ sub call{
         my $p = $c->params;
         my $discuss = $client->search_discuss(id=>$p->{id});
         if(defined $discuss){
-            $c->render_later;
-            $client->send_discuss_message($discuss,$p->{content},sub{
-                my $msg = $_[1];
-                $msg->cb(sub{
-                    my($client,$msg)=@_;
-                    $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+            if($p->{async}){
+                $client->search_discuss($discuss,$p->{content},sub{$_[1]->from("api")});
+                $c->safe_render(json=>{code=>0,status=>"request already in execution"});
+            }
+            else{
+                $c->render_later;
+                $client->send_discuss_message($discuss,$p->{content},sub{
+                    my $msg = $_[1];
+                    $msg->cb(sub{
+                        my($client,$msg)=@_;
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                    });
+                    $msg->from("api");
                 });
-                $msg->from("api");
-            });
+            }
         }
         else{$c->safe_render(json=>{id=>undef,code=>102,status=>"discuss not found"});}
     };
