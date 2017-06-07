@@ -261,7 +261,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     sex             #性别
     country         #国家
     city            #城市
-    card            #群名片
+    card            #群名片（由于smartqq限制，当前只能获取到群名片的前21个字节，过长会被截断）
     displayname     #设置了card就返回card否则返回nick
     state           #状态
     client_type     #客户端类型

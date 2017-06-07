@@ -261,7 +261,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     sex             #性别
     country         #国家
     city            #城市
-    card            #群名片
+    card            #群名片（由于smartqq限制，当前只能获取到群名片的前21个字节，过长会被截断）
     displayname     #设置了card就返回card否则返回nick
     state           #状态
     client_type     #客户端类型
@@ -413,6 +413,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     http_debug        #设置该参数，打印调试信息
     keep_cookie       #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
     disable_color     #默认为0，是否禁用终端彩色打印
+    send_interval     #默认为3s，全局发送消息时间间隔，间隔太小会导致消息发送频繁，可能有被封号的风险
     ignore_retcode    #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用，默认 [1202,100100]
                       #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
 

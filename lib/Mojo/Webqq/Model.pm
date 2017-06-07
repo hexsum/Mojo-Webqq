@@ -476,7 +476,7 @@ sub update_group_member_ext {
                     return $self->group_member_identify_callback->($name,$card);
                 }
                 else{
-                    return $name . $self->encode("utf8",substr($self->decode("utf8",$card),0,4));
+                    return $name . $card;
                 }
             };
             my(undef,$mext) = $self->array_unique($group_info_ext->{member},$unique_sub,$group->name . " member_ext");
