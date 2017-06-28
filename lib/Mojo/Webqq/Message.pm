@@ -12,6 +12,7 @@ has [qw(state client_type)];
 has code    => -2;
 has msg     =>'未初始化';
 has info    =>'未初始化';
+has send_real_comp_sign => undef; #是否使用「真正的」大于/小于号。undef意为与$client->default_send_real_comp_sign一致。
 
 #兼容老版本属性msg_class/msg_id/msg_time
 sub AUTOLOAD {

@@ -16,6 +16,11 @@ sub Mojo::Webqq::xmlescape_parse {
     return $data if not defined $data;
     $data=~s/&nbsp;/ /g;
     $data = Mojo::Util::html_unescape($data);
+    eval { if($data =~ /[><]/) {
+        $data = Encode::decode('utf8', $data); #才不会发生乱码。暂时还没有发现别的字符。
+        Encode::_utf8_off($data);
+        }       
+    };
     return $data;
 }
 1;

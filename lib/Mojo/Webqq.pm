@@ -33,6 +33,9 @@ has ignore_retcode      => sub{[0,1202,100100]}; #对发送消息返回这些状
 has ignore_poll_http_code => sub{[504,502]}; #忽略接收消息请求返回的502/504状态码，因为并不影响消息接收，以免引起恐慌
 has ignore_unknown_id   => 1; #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到，id还未知,是否忽略掉这种消息
 
+has default_send_real_comp_sign => 0; #设为真值则不对发送出的<>进行转化。
+# 然而这样便只能送出&lt;&gt;。
+
 #原始信息中包含id/name/card
 #扩展信息中包含uid/name/card
 #二者没办法直接建立关联，只能够通过 name+card 相同时认为是匹配同一个用户，并非严谨，但大部分情况下可以满足要求
@@ -280,6 +283,10 @@ sub new {
     });
     $self->on(before_send_message=>sub{
         my($self,$msg) = @_;
+        if ($msg->send_real_comp_sign
+            // $self->default_send_real_comp_sign) {
+            return;
+        }
         my $content = $msg->content;
         $content =~s/>/＞/g;
         $content =~s/</＜/g;
