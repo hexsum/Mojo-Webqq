@@ -57,7 +57,7 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
                 $member->{role} = 'member';
             }
             $member->{card} = (defined $card{$member->{uid}} and $card{$member->{uid}} ne "")?$self->xmlescape_parse($card{$member->{uid}}): undef;
-            $member->{card} = substr($member->{card},0,21) if defined $member->{card};
+            #$member->{card} = substr($member->{card},0,21) if defined $member->{card};
             $member->{name} = $self->xmlescape_parse($_->{n});
             $member->{last_speak_time} = $last_speak_time{$member->{uid}};
             $member->{join_time} = $join_time{$member->{uid}};
