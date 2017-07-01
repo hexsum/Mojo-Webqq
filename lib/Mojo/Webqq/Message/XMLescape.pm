@@ -17,7 +17,7 @@ sub Mojo::Webqq::xmlescape_parse {
     $data=~s/&nbsp;/ /g;
     my $newdata = Mojo::Util::html_unescape($data);
     eval {
-        if($newdata ne $data or $data =~ /\&/) {
+        if ($data =~ /\&/ or $newdata =~ /[><&]/) {
             $newdata = Encode::decode('utf8', $newdata);
             Encode::_utf8_off($newdata);
         }       
