@@ -55,7 +55,7 @@ has is_update_discuss       => 1;                            #是否定期更新
 has update_interval         => 600;                          #定期更新的时间间隔
 
 has encrypt_method      => "perl";     #perl|js
-has tmpdir              => sub {$ENV{MOJO_WEIXIN_TMPDIR} || File::Spec->tmpdir();};
+has tmpdir              => sub {$ENV{MOJO_WEBQQ_TMPDIR} || File::Spec->tmpdir();};
 has pic_dir             => sub {$_[0]->tmpdir};
 has cookie_path         => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_cookie_',$_[0]->account || 'default','.dat'))};
 has verifycode_path     => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_webqq_verifycode_',$_[0]->account || 'default','.jpg'))};
@@ -65,6 +65,7 @@ has state_path          => sub {File::Spec->catfile($_[0]->tmpdir,join('','mojo_
 has ioloop              => sub {Mojo::IOLoop->singleton};
 has keep_cookie         => 1;
 has msg_ttl             => 3;
+has controller_pid      => sub{$ENV{MOJO_WEBQQ_CONTROLLER_PID}};
 
 has version => $Mojo::Webqq::VERSION;
 has user    => sub {+{}};
@@ -251,11 +252,15 @@ sub new {
         $self->error(Carp::longmess($err));
     });
     $self->check_pid();
+    $self->check_controller(1);
     $self->load_cookie();
     $self->save_state();
     $SIG{CHLD} = 'IGNORE';
     $SIG{INT} = $SIG{TERM} = $SIG{HUP} = sub{
-        return if $^O ne 'MSWin32' and $_[0] eq 'INT' and !-t;
+        if($^O ne 'MSWin32' and $_[0] eq 'INT' and !-t){
+            $self->warn("后台程序捕获到信号[$_[0]]，已将其忽略，程序继续运行");
+            return;
+        }
         $self->info("捕获到停止信号[$_[0]]，准备停止...");
         $self->stop();
     };

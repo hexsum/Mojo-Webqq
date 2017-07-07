@@ -1,5 +1,6 @@
 package Mojo::Webqq::Client;
 use strict;
+use POSIX ();
 use Mojo::IOLoop;
 use Mojo::IOLoop::Delay;
 $Mojo::Webqq::Client::CLIENT_COUNT  = 0;
@@ -189,6 +190,7 @@ sub login {
 
     ){
         while(1){
+            $self->check_controller();
             my $ret = $self->_login1();
             if($ret == -1){#验证码输入错误
                 $self->_get_img_verify_code();
@@ -457,5 +459,25 @@ sub is_load_plugin {
         $plugin = "Mojo::Webqq::Plugin::$plugin";
     }
     return exists $self->plugins->{$plugin};
+}
+
+sub check_controller {
+    my $self = shift;
+    my $once = shift;
+    if($^O ne 'MSWin32' and defined $self->controller_pid ){
+        if($once){
+            $self->info("启用Controller[". $self->controller_pid ."]状态检查");
+            $self->interval(5=>sub{
+                $self->check_controller();
+            });
+        }
+        else{
+            my $ppid = POSIX::getppid();
+            if( $ppid=~/^\d+$/ and $ppid == 1 or $ppid != $self->controller_pid ) {
+                $self->warn("检测到脱离Controller进程管理，程序即将终止");
+                $self->stop();
+            }
+        }
+    }
 }
 1;
