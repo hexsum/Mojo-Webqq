@@ -171,6 +171,7 @@ sub clean_pid {
 
 sub kill_process {
     my $self = shift;
+    my $ret = 0;
     if(!$_[0] or $_[0]!~/^\d+$/){
         $self->error("pid无效，无法终止进程");
         return;
@@ -179,12 +180,14 @@ sub kill_process {
     #    my $exitcode = 0;
     #    Win32::Process::KillProcess($_[0],$exitcode);
     #    return $exitcode;
-        kill POSIX::SIGINT,$_[0] ;
+        $ret = kill POSIX::SIGINT,$_[0] ;
     }
     else{ 
-        kill POSIX::SIGTERM,$_[0] ;
+        $ret = kill POSIX::SIGTERM,$_[0] ;
     }
-    return !$self->check_process($_[0]);
+    #client进程退出没有那么快，马上检查的话，仍然是存在的，干脆先不检查了
+    #return !$self->check_process($_[0]);
+    return $ret;
 }
 sub check_process {
     my $self = shift;
