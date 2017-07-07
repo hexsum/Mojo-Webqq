@@ -473,9 +473,6 @@ sub update_group_member_ext {
             my $unique_sub = sub{
                 my $name = $_[0]->{name} // "";
                 my $card = $_[0]->{card} // "";
-                Encode::_utf8_on($card);
-                $card = substr $card, 0, 7;
-                Encode::_utf8_off($card);
                 if(ref $self->group_member_identify_callback eq 'CODE'){
                     return $self->group_member_identify_callback->($name,$card);
                 }
