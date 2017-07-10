@@ -36,6 +36,9 @@ has ignore_unknown_id   => 1; #其他设备上自己发送的消息，在webqq�
 has default_send_real_comp_sign => 0; #设为真值则不对发送出的<>进行转化。
 # 然而这样便只能送出&lt;&gt;。
 
+has group_member_card_cut_length => 21; #群名片截取长度
+has group_member_card_ext_only => 0; #群名片信息是否只从扩展接口中获取，这样能够获取到完整的群名片，但并不是100%可靠
+
 #原始信息中包含id/name/card
 #扩展信息中包含uid/name/card
 #二者没办法直接建立关联，只能够通过 name+card 相同时认为是匹配同一个用户，并非严谨，但大部分情况下可以满足要求
