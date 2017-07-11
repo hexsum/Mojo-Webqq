@@ -112,16 +112,42 @@ sub safe_truncate {
     my $self = shift;
     my $input = shift;
     my $truncate_length = shift // 21;
-    my $unicode = Encode::decode("utf8",$input);
-    my $cut_length = 0 ;
-    my $cut_string = '';
-    for(my $offset = 0;$offset <= length($unicode)-1;$offset++){
-        my $char = substr($unicode,$offset,1);
-        $cut_length += length( Encode::encode("utf8",$char) );
-        last if $cut_length > $truncate_length;
-        $cut_string .= $char;
+
+    return $input if (length($input) < $truncate_length);
+
+    my @bytes = unpack('C*', $input);
+    my $i = 0;
+    while (1)
+    {
+        my $utf8_bytes;
+        if (($bytes[$i] & 0x80) == 0) {
+            $utf8_bytes = 1;
+        }
+        elsif (($bytes[$i] & 0xc0) != 0 and ($bytes[$i] & 0x20) == 0) {
+            $utf8_bytes = 2;
+        }
+        elsif (($bytes[$i] & 0xe0) != 0 and ($bytes[$i] & 0x10) == 0) {
+            $utf8_bytes = 3;
+        }
+        elsif (($bytes[$i] & 0xf0) != 0 and ($bytes[$i] & 0x08) == 0) {
+            $utf8_bytes = 4;
+        }
+        else {
+            $utf8_bytes = 1;
+        }
+
+        if ($i + $utf8_bytes > $truncate_length) {
+            last;
+        }
+        elsif ($i + $utf8_bytes == $truncate_length) {
+            $i = $truncate_length;
+            last;
+        }
+        else {
+            $i += $utf8_bytes;
+        }
     }
-    return Encode::encode("utf8",$cut_string);
+    return substr($input, 0, $i);
 }
 
 sub truncate {
