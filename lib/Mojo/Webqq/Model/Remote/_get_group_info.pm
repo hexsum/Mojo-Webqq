@@ -51,7 +51,7 @@ sub Mojo::Webqq::Model::_get_group_info {
             for my $m(@{ $json->{result}{minfo} }){
                 if( not $self->group_member_card_ext_only){
                     $m->{card} = $self->xmlescape_parse($cards{$m->{uin}}) if exists $cards{$m->{uin}};
-                    $m->{card} = substr($m->{card},0,$self->group_member_card_cut_length);
+                    $m->{card} = $self->safe_truncate($m->{card},$self->group_member_card_cut_length);
                 }
                 $m->{name} = $self->xmlescape_parse(delete $m->{nick});
                 if(exists $state{$m->{uin}}){

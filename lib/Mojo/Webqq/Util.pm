@@ -107,6 +107,23 @@ sub encode_json{
         return $r;
     }
 }
+
+sub safe_truncate {
+    my $self = shift;
+    my $input = shift;
+    my $truncate_length = shift // 21;
+    my $unicode = Encode::decode("utf8",$input);
+    my $cut_length = 0 ;
+    my $cut_string = '';
+    for(my $offset = 0;$offset <= length($unicode)-1;$offset++){
+        my $char = substr($unicode,$offset,1);
+        $cut_length += length( Encode::encode("utf8",$char) );
+        last if $cut_length > $truncate_length;
+        $cut_string .= $char;
+    }
+    return Encode::encode("utf8",$cut_string);
+}
+
 sub truncate {
     my $self = shift;
     my $out_and_err = shift || '';
