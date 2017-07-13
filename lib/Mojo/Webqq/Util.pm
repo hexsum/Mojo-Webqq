@@ -111,6 +111,7 @@ sub encode_json{
 sub safe_truncate {
     my $self = shift;
     my $input = shift;
+    return $input if not defined $input;
     my $truncate_length = shift // 21;
     my $unicode = Encode::decode("utf8",$input);
     my $cut_length = 0 ;

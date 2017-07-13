@@ -29,7 +29,7 @@ sub dump{
     my $self = shift;
     my $clone = {};
     my $obj_name = blessed($self);
-    for(keys %$self){
+    for(grep {substr($_,0,1) ne '_' } keys %$self){
         if(my $n=blessed($self->{$_})){
              $clone->{$_} = "Object($n)";
         }
