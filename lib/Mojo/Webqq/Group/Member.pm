@@ -8,7 +8,7 @@ has [qw(
     id
     country
     city
-    card
+    fullcard
     state
     client_type
     qage
@@ -20,6 +20,14 @@ has [qw(
     _flag
     _group_id
 )];
+sub card { # from Mojo::Webqq::Base
+    my $self = shift;
+    if (@_ == 0) {
+        return defined $self->fullcard ? $self->fullcard : $self->{card};
+    }
+    $self->{card} = shift;
+    $self;
+};
 has uid => sub{
     my $self = shift;
     return $self->{uid} if defined $self->{uid};

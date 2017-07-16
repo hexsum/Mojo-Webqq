@@ -57,6 +57,9 @@ sub Mojo::Webqq::Model::_get_group_info_ext {
                 $member->{role} = 'member';
             }
             $member->{card} = (defined $card{$member->{uid}} and $card{$member->{uid}} ne "")?$self->xmlescape_parse($card{$member->{uid}}): undef;
+            if ($self->group_member_use_fullcard) {
+                $member->{fullcard} = $member->{card};
+            }
             if(not $self->group_member_card_ext_only){
                 $member->{card} = $self->safe_truncate($member->{card},$self->group_member_card_cut_length) if defined $member->{card};
             }
