@@ -423,6 +423,12 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     default_send_real_comp_sign #设为真值则不对发送出的<>进行转化。
                                 #然而这样便只能送出&lt;&gt;。
                                 #默认0
+    group_member_card_cut_length #群名片截取长度
+                                 #默认21
+    group_member_card_ext_only  #群名片信息是否只从扩展接口中获取，这样能够获取到完整的群名片，但并不是100%可靠
+                                # 默认0
+    group_member_use_fullcard   #使用完整的群名片。
+                                # 默认0
 
     log_console     #打印到文件的同时也打印到屏幕，方便调试，默认 1
     log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
