@@ -60,6 +60,7 @@ has log_encoding        => undef;      #utf8|gbk|...
 has log_head            => "[wqc][$$]";
 has log_console         => 1;
 has disable_color       => 0;
+has max_clients         => 100;
 
 has version             => sub{$Mojo::Webqq::Controller::VERSION};
 
@@ -206,6 +207,9 @@ sub start_client {
     my $param = shift;
     if(!$param->{client}){
         return {code => 1, status=>'client not found',};
+    }
+    elsif($self->max_client < keys %{$self->backend}){
+        return {code => 5, status=>'max clients exceed'};
     }
     elsif(exists $self->backend->{$param->{client}}){
         if( $self->check_process($self->backend->{$param->{client}}{pid}) ){
