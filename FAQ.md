@@ -16,7 +16,7 @@
 
 每个账号的代码保存到不同的pl文件中,并设置好account参数
     
-##### acb.pl文件
+##### abc.pl文件
 
     use Mojo::Webqq;
     my $client = Mojo::Webqq->new(account=>"abc"); 
