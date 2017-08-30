@@ -1,3 +1,15 @@
+2017-08-30 Mojo::Webqq v2.1.3
+1）new中增加send_interval参数可以自定义全局发送消息时间间隔
+2）Openwx插件中 /openqq/send_friend_message 和 /openqq/send_group_message接口增加async=1来实现异步发送消息
+3）修复 GroupManage插件产生大量 群名片更新提醒的消息 的bug
+4）修复终端打印消息无法显示群名称的bug
+5）增加controller状态检查，当controller退出后，所有client也自动退出
+6）修复linux环境下无法通过/openqq/stop_client接口来终止程序的bug（升级后请手动清除模板文件） 感谢 @Aspirin 协助
+7）修复 /openwx/stop_client 返回结果不正确的问题
+8）controller增加max_clients 参数，默认允许创建的最大客户端数量100
+9）新增FFM插件
+10）其他大量bug修复和代码细节完善
+
 2017-06-06 Mojo::Webqq v2.1.2
 1）增加RikkaGCM插件
 2）Openqq插件/openqq/check_event api的bug修复
