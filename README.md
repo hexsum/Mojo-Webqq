@@ -277,6 +277,4 @@ Mojo-Webqq v2.1.4 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
 Copyright (C) 2014 by sjdy521
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.1 or,
-at your option, any later version of Perl 5 you may have available.
+This library is free software; you can redistribute it and/or modify it under [GNU General Public License v3.0](LICENSE)
