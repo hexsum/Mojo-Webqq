@@ -208,7 +208,7 @@ sub start_client {
     if(!$param->{client}){
         return {code => 1, status=>'client not found',};
     }
-    elsif($self->max_client < keys %{$self->backend}){
+    elsif($self->max_clients < keys %{$self->backend}){
         return {code => 5, status=>'max clients exceed'};
     }
     elsif(exists $self->backend->{$param->{client}}){
