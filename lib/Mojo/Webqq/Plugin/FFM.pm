@@ -38,7 +38,6 @@ sub call {
             elsif ( $msg->type eq 'discuss_message' ) {
                 $chat{type} = 2;
                 $chat{id}   = $msg->discuss->id;
-                $chat{uid}  = $msg->discuss->uid;
                 $chat{name} = $msg->discuss->displayname;
             }
             elsif ( $msg->type eq 'sess_message' ) {
