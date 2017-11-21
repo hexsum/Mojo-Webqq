@@ -6,6 +6,7 @@ use Fcntl ':flock';
 use Encode;
 use POSIX qw();
 use Encode::Locale;
+use IO::Handle;
 BEGIN{
     eval{require Term::ANSIColor};
     $Mojo::Webqq::Log::is_support_color = 1 unless $@;
@@ -15,7 +16,7 @@ sub has { Mojo::Base::attr(__PACKAGE__, @_) };
 has format => sub { \&_format };
 has handle => sub {
   # STDERR
-  return \*STDOUT unless my $path = shift->path;
+  return \*STDERR unless my $path = shift->path;
   # File
   croak qq{Can't open log file "$path": $!} unless open my $file, '>>', $path;
   return $file;
@@ -120,7 +121,7 @@ sub append {
                             .  $self->colored($_,$log->{content_color})
                             . "\n";
             }              
-            print STDOUT $color_msg;#or croak "Can't write to log: $!"
+            print STDERR $color_msg;#or croak "Can't write to log: $!"
         }
     }
     flock $handle, LOCK_UN;

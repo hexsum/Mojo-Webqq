@@ -482,6 +482,7 @@ $client->load("Openqq",data=>{
     listen => [{host=>xxx,port=>xxx}],           #可选，发送消息api监听端口
     post_api=> 'http://127.0.0.1:5000/post_api', #可选，接收消息或事件的上报地址
     post_event => 1,                             #可选，是否上报事件，为了向后兼容性，默认值为1
+    post_stdout => 0,                            #可选，上报数据是否打印到stdout，适合管道交互信息方式，默认0
     post_event_list => ['login','stop','state_change','input_qrcode'], #可选，上报事件列表
 });
 ```

@@ -369,5 +369,12 @@ sub print {
     $self->log->info({time=>'',level=>'',}, join defined $,?$,:'',@_);
     $self;
 }
+sub stdout_line {
+    my $self = shift;
+    my $data = $_[0];
+    $data=~s/[\r\n]+$//s;
+    print $data . "\n";
+    $self;
+}   
 
 1;

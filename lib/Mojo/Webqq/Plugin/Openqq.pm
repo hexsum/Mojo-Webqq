@@ -16,6 +16,7 @@ sub call{
     $data->{post_event} = 1 if not defined $data->{post_event};
     $data->{post_event_list} = [qw(login stop state_change input_qrcode new_group new_friend new_group_member lose_group lose_friend lose_group_member)]
         if ref $data->{post_event_list} ne 'ARRAY';
+    $data->{post_stdout} = 0 if not defined $data->{post_stdout};
 
     if(defined $data->{poll_api}){
         $client->on('_mojo_webqq_plugin_openqq_poll_over' => sub{
@@ -34,6 +35,7 @@ sub call{
             $post_json->{post_type} = "event";
             $post_json->{event} = $event;
             $post_json->{params} = [@args];
+            $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
             my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>1},json=>$post_json);
             if($tx->success){
                 $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "](@args)上报成功");
@@ -54,6 +56,7 @@ sub call{
             $post_json->{event} = $event;
             $post_json->{params} = [$qrcode_path,$qrcode_data];
             push @{$post_json->{params} },$client->qrcode_upload_url if defined $client->qrcode_upload_url;
+            $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
             my($data,$ua,$tx) = $client->http_post($data->{post_api},json=>$post_json);
             if($tx->success){
                 $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "]上报成功");
@@ -73,6 +76,7 @@ sub call{
                 $post_json->{params} = [$args[0]->to_json_hash(0)];
             }
             $check_event_list->append($post_json);
+            $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
             $client->http_post($data->{post_api},json=>$post_json,sub{
                 my($data,$ua,$tx) = @_;
                 if($tx->success){
@@ -91,6 +95,7 @@ sub call{
                 params    => [$object->to_json_hash(0),$property,$old,$new],
             };
             $check_event_list->append($post_json);
+            $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
             $client->http_post($data->{post_api},json=>$post_json,sub{
                 my($data,$ua,$tx) = @_;
                 if($tx->success){
@@ -109,6 +114,7 @@ sub call{
                 event     => $event,
                 params    => [$event eq 'update_user'?$ref->to_json_hash():map {$_->to_json_hash()} @{$ref}], 
             };
+            $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
             $client->http_post($data->{post_api},json=>$post_json,sub{
                 my($data,$ua,$tx) = @_;
                 if($tx->success){
@@ -128,6 +134,7 @@ sub call{
         #delete $post_json->{media_data} if ($post_json->{format} eq "media" and ! $data->{post_media_data});
         $post_json->{post_type} = "receive_message";
         $check_event_list->append($post_json);
+        $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
         $client->http_post($data->{post_api},json=>$post_json,sub{
             my($data,$ua,$tx) = @_;
             if($tx->success){
@@ -169,6 +176,7 @@ sub call{
         #delete $post_json->{media_data} if ($post_json->{format} eq "media" and ! $data->{post_media_data});
         $post_json->{post_type} = "send_message";
         $check_event_list->append($post_json);
+        $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
         $client->http_post($data->{post_api},json=>$post_json,sub{
             my($data,$ua,$tx) = @_;
             if($tx->success){

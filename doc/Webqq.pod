@@ -1508,6 +1508,7 @@ CPAN文档可能比较旧或者表达的信息不够丰富，请参考github上A
         listen => [ {host=>"0.0.0.0",port=>5000}, ] , #监听的地址和端口，支持多个
         auth   => sub {my($param,$controller) = @_},    #可选，认证回调函数，用于进行请求鉴权
         post_api => 'http://xxxx',                      #可选，自定义的接收消息上报接口,并可以根据接口返回内容回复消息
+        post_stdout => 0                                #可选，上报数据是否打印到stdout，适合管道交互信息方式，默认0
     });
 
     #若data中设置了auth函数引用，则表示api接口开启认证
