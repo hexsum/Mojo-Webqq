@@ -79,6 +79,13 @@ sub gen_message_queue{
             $self->emit(receive_message=>$msg);
         }
         elsif($msg->class eq "send"){
+            if($msg->source ne "local"){
+                $msg->send_status(code=>0,msg=>"发送成功",info=>"来自其他设备");
+                $msg->cb->($self,$msg) if ref $msg->cb eq 'CODE';
+                $self->emit(send_message=>$msg);
+                return;
+            }
+
             #消息的ttl值减少到0则丢弃消息
             if($msg->ttl <= 0){
                 $self->warn("消息[ " . $msg->id.  " ]已被消息队列丢弃，当前TTL: ". $msg->ttl);
@@ -351,6 +358,7 @@ sub parse_receive_msg {
             if ( $m->{poll_type} eq 'sess_message' ) {
                 my $msg = {
                     type        => "sess_message",
+                    class       => "recv",
                     id      => $m->{value}{msg_id},
                     sender_id   => $m->{value}{from_uin},
                     receiver_id => $m->{value}{to_uin},
@@ -359,6 +367,11 @@ sub parse_receive_msg {
                     #service_type=>  $m->{value}{service_type},
                     #ruin        =>  $m->{value}{ruin},
                 };
+                if($msg->{sender_id} eq $self->user->id){
+                    $msg->{class} = 'send';
+                    $msg->{source} = 'outer';
+                    next if not $self->allow_message_sync ;
+                }
 
                 #service_type =0 表示群临时消息，1 表示讨论组临时消息
                 if ( $m->{value}{service_type} == 0 ) {
@@ -369,7 +382,7 @@ sub parse_receive_msg {
                     $msg->{discuss_id} = $m->{value}{id};
                     $msg->{via} = 'discuss';
                 }
-                else { return }
+                else { next }
                 $self->msg_put($msg);
             }
 
@@ -377,13 +390,18 @@ sub parse_receive_msg {
             elsif ( $m->{poll_type} eq 'message' ) {
                 my $msg = {
                     type        => "friend_message",
-                    class       => 'recv',
+                    class       => "recv",
                     id      => $m->{value}{msg_id},
                     sender_id   => $m->{value}{from_uin},
                     receiver_id => $m->{value}{to_uin},
                     time    => $m->{value}{'time'},
                     content     => $m->{value}{content},
                 };
+                if($self->allow_message_sync and $msg->{sender_id} eq $self->user->id){
+                    $msg->{class} = 'send';
+                    $msg->{source} = 'outer';
+                    next if not $self->allow_message_sync ;
+                }
                 $self->msg_put($msg);
             }
 
@@ -392,7 +410,7 @@ sub parse_receive_msg {
                 next if " \x{0000}\n\x{0000}\x{0000}\x{0000}\x{0000}\x{0002}\x{5B8B}\x{4F53}\r" eq $m->{value}{content}[1];
                 my $msg = {
                     type        => "group_message",
-                    class       => 'recv',
+                    class       => "recv",
                     id      => $m->{value}{msg_id},
                     group_id    => $m->{value}{from_uin},
                     receiver_id => $m->{value}{to_uin},
@@ -405,6 +423,11 @@ sub parse_receive_msg {
                 #){
                 #    $msg->{type} = "system_message";
                 #}
+                if($msg->{sender_id} eq $self->user->id){
+                    $msg->{class} = 'send';
+                    $msg->{source} = 'outer';
+                    next if not $self->allow_message_sync ;
+                }
                 $self->msg_put($msg);
             }
 
@@ -412,7 +435,7 @@ sub parse_receive_msg {
             elsif ( $m->{poll_type} eq 'discu_message' ) {
                 my $msg = {
                     type        => "discuss_message",
-                    class       => 'recv',
+                    class       => "recv",
                     discuss_id  => $m->{value}{did},
                     id    => $m->{value}{msg_id},
                     sender_id => $m->{value}{send_uin},
@@ -420,6 +443,11 @@ sub parse_receive_msg {
                     receiver_id  =>  $m->{value}{'to_uin'},
                     content => $m->{value}{content},
                 };
+                if($msg->{sender_id} eq $self->user->id){
+                    $msg->{class} = 'send';
+                    $msg->{source} = 'outer';
+                    next if not $self->allow_message_sync ;
+                }
                 $self->msg_put($msg);
             }
             elsif ( $m->{poll_type} eq 'buddies_status_change' ) {
@@ -481,7 +509,7 @@ sub parse_receive_msg {
                     if(defined $info{type} and $info{type} eq 'share-file'){
                         my $msg = {
                             type        => "group_message",
-                            class       => 'recv',
+                            class       => "recv",
                             id      => $m->{value}{msg_id},
                             group_id    => $m->{value}{from_uin},
                             time    => time,
@@ -489,6 +517,11 @@ sub parse_receive_msg {
                             sender_id   => $m->{value}{send_uin},
                             
                         };
+                        if($msg->{sender_id} eq $self->user->id){
+                            $msg->{class} = 'send';
+                            $msg->{source} = 'outer';
+                            next if not $self->allow_message_sync ;
+                        }
                         $self->msg_put($msg);
                     }
                 }

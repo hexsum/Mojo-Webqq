@@ -1,6 +1,7 @@
 package Mojo::Webqq::Message;
 use Mojo::Webqq::Base 'Mojo::Webqq::Message::Base';
 has time     => sub{time};
+has source   => 'local';
 has from     => "none";
 has ttl      => 5;
 has cb       => undef;

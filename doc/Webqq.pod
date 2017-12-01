@@ -420,6 +420,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     ignore_unknown_id #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到
                       #消息发送者是一个未知的id，非常影响很多功能的正常工作，该选项决定是否忽略掉这种消息
                       #默认值为 1
+    allow_message_sync #是否允许同步来自其他设备登录账号发送的消息 默认为0
+                       #由于webqq自身发送消息后也会收到服务端重复的消息
+                       #且没办法和来自其他设备的消息区分，会导致出现一些不期望的结果，比如某些插件会陷入死循环等
+                       #因此默认不开启消息同步，如果你只是用来irc聊天，则可以考虑开启此选项
+                       #可以同步来自其他设备的消息，体验会更好一些
 
     log_console     #打印到文件的同时也打印到屏幕，方便调试，默认 1
     log_level       #默认级别为info，可以设置debug|info|warn|error|fatal
