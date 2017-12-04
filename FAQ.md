@@ -119,3 +119,47 @@ screen -U -S test
 screen -U -r xxx
 
 ```
+
+#### 8. 修改用户cookie目录和记录消息目录
+
+`Mojo::Webqq` 在类构造方法new函数中提供相关配置项,详见(https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#new)
+默认是用户cookie是保存在/tmp目录下，如果出现登陆问题时候需要手动删除/tmp
+下的相关文件，可以在启动脚本中增加参数，例子：
+
+现在启动脚本中创建两个个目录msg 和 cookie
+
+修改启动脚本：
+
+    use POSIX;
+    my $date=strftime("%Y%m%d",localtime());
+    
+    my $client=Mojo::Webqq->new(
+    ua_debug    =>  0,         #是否打印详细的debug信息
+    log_level   => "info",     #日志打印级别
+    is_update_group => 0,
+    is_update_discuss => 0,
+    log_path=>"msg/qqmsg-$date",
+    tmpdir=>"cookie",
+    login_type  =>  "qrlogin", #"qrlogin"表示二维码登录
+    );
+
+这样消息就会保存在目录msg,session文件，二维码文件就保存在cookie目录下，
+以qqmsg-20171204等保存文件中tail -f qqmsg-20171204就可以实时查看消息了。
+
+#### 9. 发送二维码到邮箱
+
+首先通过PostQRcode模块，如果涉及其他模块也安装下`cpanm PostQRcode`
+
+修改启动脚本，在插件部分，增加如下脚本：
+
+    $client->load("PostQRcode",data=>{
+        smtp    =>  'smtp.ijz.me', #邮箱的smtp地址
+        port    =>  '25', #smtp服务器端口，默认25
+        from    =>  'mojoqq@ijz.me', #发件人
+        to      =>  '10010@qq.com', #收件人
+        user    =>  'mojoqq@ijz.me', #smtp登录帐号
+        pass    =>  'Mojo-Webqq123',
+        tls     =>  0,      #可选，是否使用SMTPS协议，默认为0
+    });
+
+收件人和发件人按照你实际信息填写。
