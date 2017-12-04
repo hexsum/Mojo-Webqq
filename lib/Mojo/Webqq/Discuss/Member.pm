@@ -27,7 +27,13 @@ sub AUTOLOAD {
 }
 sub displayname {
     my $self = shift;
-    return $self->name;
+    my $f = $self->client->search_friend(id=>$self->id);
+    if(defined $f){
+        return $f->markname // $self->name;
+    }
+    else{
+        return $self->name;
+    }
 }
 sub update{
     my $self = shift;
