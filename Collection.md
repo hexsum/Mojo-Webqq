@@ -6,7 +6,7 @@
 
 作者：[wsdjeg](https://github.com/wsdjeg)
 
-项目地址：https://github.com/wsdjeg/DotFiles
+项目地址：https://github.com/vim-chat/vim-chat
 
 ![作品预览](https://github.com/wsdjeg/DotFiles/raw/master/pic/Vim-QQ.png)
 
