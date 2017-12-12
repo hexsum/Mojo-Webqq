@@ -148,7 +148,7 @@ screen -U -r xxx
 
 #### 9. 发送二维码到邮箱
 
-首先通过PostQRcode模块，如果涉及其他模块也安装下`cpanm PostQRcode`
+首先通过PostQRcode模块，如果涉及其他模块也安装下`cpanm Mojo::SMTP::Client`
 
 修改启动脚本，在插件部分，增加如下脚本：
 
