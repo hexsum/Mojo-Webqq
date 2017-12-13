@@ -101,9 +101,9 @@ wqclient:
 
 ```
 use Mojo::Webqq;
+$|=1;
 my $client = Mojo::Webqq->new(log_head=>"[$ENV{MOJO_WEBQQ_ACCOUNT}][$$]");
 $0 = "wqclient(" . $client->account . ")" if $^O ne "MSWin32";
-$SIG{INT} = 'IGNORE' if ($^O ne 'MSWin32' and !-t);
 $client->load(["ShowMsg","UploadQRcode"]);
 $client->load("Openqq",data=>{listen=>[{host=>"127.0.0.1",port=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_PORT} }], post_api=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POST_API} || undef,post_event=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POST_EVENT} // 1,post_media_data=> $ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POST_MEDIA_DATA} // 1, poll_api=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POLL_API} || undef, poll_interval => $ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POLL_INTERVAL} },call_on_load=>1);
 $client->run();
