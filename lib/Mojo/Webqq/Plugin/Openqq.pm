@@ -27,24 +27,28 @@ sub call{
         $client->emit('_mojo_webqq_plugin_openqq_poll_over');
     }
 
+    $client->die("Openqq插件参数缺失：必须明确设置post_api或者设置post_stdout=>1") if (!$data->{post_stdout} and !$data->{post_api}) ;
+
     $client->on(all_event => sub{
         my($client,$event,@args) =@_;
         return if not first {$event eq $_} @{ $data->{post_event_list} };
-        if(defined $data->{post_api} and ($event eq  'login' or $event eq 'stop' or $event eq 'state_change') ){
+        if($event eq  'login' or $event eq 'stop' or $event eq 'state_change' ){
             my $post_json = {};
             $post_json->{post_type} = "event";
             $post_json->{event} = $event;
             $post_json->{params} = [@args];
             $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
-            my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>1},json=>$post_json);
-            if($tx->success){
-                $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "](@args)上报成功");
+            if(defined $data->{post_api}){
+                my($data,$ua,$tx) = $client->http_post($data->{post_api},{ua_connect_timeout=>5,ua_request_timeout=>5,ua_inactivity_timeout=>5,ua_retry_times=>1},json=>$post_json);
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "](@args)上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]事件[".$event."](@args)上报失败:" . $client->encode("utf8",$tx->error->{message}));
+                } 
             }
-            else{
-                $client->warn("插件[".__PACKAGE__ . "]事件[".$event."](@args)上报失败:" . $client->encode("utf8",$tx->error->{message}));
-            } 
         }
-        elsif(defined $data->{post_api} and $event eq 'input_qrcode'){
+        elsif($event eq 'input_qrcode'){
             my ($qrcode_path,$qrcode_data) = @args;
             eval{ $qrcode_data = Mojo::Util::b64_encode($qrcode_data);};
             if($@){
@@ -57,12 +61,14 @@ sub call{
             $post_json->{params} = [$qrcode_path,$qrcode_data];
             push @{$post_json->{params} },$client->qrcode_upload_url if defined $client->qrcode_upload_url;
             $client->stdout_line($client->to_json($post_json)) if $data->{post_stdout};
-            my($data,$ua,$tx) = $client->http_post($data->{post_api},json=>$post_json);
-            if($tx->success){
-                $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "]上报成功");
-            }
-            else{
-                $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败:" . $client->encode("utf8",$tx->error->{message}));
+            if(defined $data->{post_api}){
+                my($data,$ua,$tx) = $client->http_post($data->{post_api},json=>$post_json);
+                if($tx->success){
+                    $client->debug("插件[".__PACKAGE__ ."]事件[".$event . "]上报成功");
+                }
+                else{
+                    $client->warn("插件[".__PACKAGE__ . "]事件[".$event."]上报失败:" . $client->encode("utf8",$tx->error->{message}));
+                }
             }
         }
         elsif($event =~ /^new_group|lose_group|new_friend|lose_friend|new_discuss|lose_discuss|new_group_member|lose_group_member|new_discuss_member|lose_discuss_member$/){

@@ -56,6 +56,7 @@ sub ready{
     ){
         $self->call($_);
     }
+    $self->state('loading');
     $self->emit("after_load_plugin");
     $self->login() if $self->login_state ne 'success';
     $self->relogin() if $self->get_model_status() == 0;
