@@ -27,8 +27,6 @@ sub call{
         $client->emit('_mojo_webqq_plugin_openqq_poll_over');
     }
 
-    $client->die("Openqq插件参数缺失：必须明确设置post_api或者设置post_stdout=>1") if (!$data->{post_stdout} and !$data->{post_api}) ;
-
     $client->on(all_event => sub{
         my($client,$event,@args) =@_;
         return if not first {$event eq $_} @{ $data->{post_event_list} };
