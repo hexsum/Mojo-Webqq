@@ -522,11 +522,8 @@ sub call{
     $server->app($server->build_app("Mojo::Webqq::Plugin::Openqq::App"));
     $server->app->secrets("hello world");
     $server->app->log($client->log);
-    if(ref $data eq "ARRAY"){#旧版本兼容性
-        $server->listen([ map { 'http://' . (defined $_->{host}?$_->{host}:"0.0.0.0") .":" . (defined $_->{port}?$_->{port}:5000)} @$data]);
-    }
-    elsif(ref $data eq "HASH" and ref $data->{listen} eq "ARRAY"){
-        my @listen;
+    my @listen;
+    if(ref $data eq "HASH" and ref $data->{listen} eq "ARRAY"){
         for my $listen (@{$data->{listen}}) {
             if($listen->{tls}){
                 my $listen_url = 'https://' . ($listen->{host} // "0.0.0.0") . ":" . ($listen->{port}//443);
@@ -545,8 +542,10 @@ sub call{
                 push @listen,'http://' . ($listen->{host} // "0.0.0.0") . ":" . ($listen->{port}//5000) ;
             }
         }   
-        $server->listen(\@listen) ;
     }
+    else{ @listen = ( 'http://0.0.0.0:5000' ); }
+    $server->listen(\@listen) ;
+    $client->info("插件[Mojo::Webqq::Plugin::Openqq]监听地址: [ " . join(", ",@listen) . " ]");
     $server->start;
 }
 1;
