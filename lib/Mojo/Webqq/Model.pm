@@ -73,10 +73,11 @@ sub hash {
 
 sub is_support_model_ext {
     my $self = shift;
-    return 1 if $self->model_ext;
-    my $ret = $self->search_cookie("p_skey") && $self->search_cookie("skey");
-    $self->model_ext($ret || 0);
-    return $ret;
+    return $self->model_ext;
+    #return $self->uid && $self->pwd
+    #my $ret = $self->search_cookie("p_skey") && $self->search_cookie("skey");
+    #$self->model_ext($ret || 0);
+    #return $ret;
 }
 sub get_model_status{
     my $self = shift;
