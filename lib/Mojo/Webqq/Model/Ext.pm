@@ -75,7 +75,7 @@ sub _model_ext_check {
         $_is_rand_salt = $is_rand_salt;
     }
     else{
-        $self->error("群扩展信息授权失败: check!=0"); 
+        $self->error("群扩展信息授权失败: 可能因为登录环境变化引起，解决方法参见：https://github.com/sjdy521/Mojo-Webqq/issues/183"); 
     }
     return $retcode == 0? 1 : 0;
 }
