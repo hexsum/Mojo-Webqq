@@ -3,3 +3,4 @@
     由于腾讯的限制，需要设置授权密码才能够正常获取到这部分数据
     设置方式如下：
     Mojo::Webqq->new(pwd=>'你的QQ账号密码的md5值');
+    shell下通过echo -n xxx|md5sum生成md5值
