@@ -1,5 +1,12 @@
 package Mojo::Webqq::Model::Ext;
-use Webqq::Encryption 1.6;
+BEGIN{
+    eval{
+        require Webqq::Encryption;
+    };
+    unless($@){
+        $Mojo::Webqq::Model::Ext::has_webqq_encryption = 1;
+    }
+}
 our $_retcode;
 our $_verifycode;
 our $_md5_salt;
@@ -9,6 +16,11 @@ our $_api_check_sig;
 
 sub model_ext_authorize{
     my $self = shift;
+    if(not $Mojo::Webqq::Model::Ext::has_webqq_encryption){
+        $self->warn("未安装 Webqq::Encryption 模块，无法获取扩展信息，安装方法参见: https://metacpan.org/pod/distribution/Webqq-Encryption/lib/Webqq/Encryption.pod");
+        $self->model_ext(0);
+        return;
+    } 
     if($self->uid and $self->pwd){
         $self->info("开始扩展信息授权...");
         my $ret = $self->_model_ext_prepare() && $self->_model_ext_check() && $self->_model_ext_login() && $self->_model_ext_check_sig();

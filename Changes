@@ -1,4 +1,20 @@
-2017-08-31 Mojo::Weixin v2.1.4
+2018-01-08 Mojo::Webqq v2.1.5
+1）更新LICENSE为 BSD 2-clause "Simplified" license
+2）win系统默认禁用终端颜色显示
+3）Openqq插件完善
+    端口监听失败会终止程序运行
+    新增post_stdout参数，上报数据是否打印到stdout，适合管道交互信息方式
+4）增加公告系统
+5）修复无法获取uid，导致无法通过uid发送信息问题
+6）显示显示讨论组和群成员的好友备注名 https://github.com/sjdy521/Mojo-Webqq/issues/170
+7）new中增加allow_message_sync参数，默认是0
+    是否允许同步来自其他设备登录账号发送的消息 默认为0
+    由于webqq自身发送消息后也会收到服务端重复的消息
+    且没办法和来自其他设备的消息区分，会导致出现一些不期望的结果，比如某些插件会陷入死循环等
+    因此默认不开启消息同步，如果你只是用来irc聊天，则可以考虑开启此选项
+    可以同步来自其他设备的消息，体验会更好一些
+
+2017-08-31 Mojo::Webqq v2.1.4
 1）修复controller运行过程中报max_client异常的bug
 
 2017-08-30 Mojo::Webqq v2.1.3
