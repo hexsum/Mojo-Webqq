@@ -49,7 +49,7 @@ has group_member_use_fullcard => 0; #使用完整的群名片。
 #默认 group_member_identify_callback 不设置，相当于sub { my($name,$card)=@_; return $name . $card};
 has group_member_identify_callback => undef;
 
-has noitce_api => 'https://raw.githubusercontent.com/sjdy521/Mojo-Webqq/master/NOTICE';
+has notice_api => 'https://raw.githubusercontent.com/sjdy521/Mojo-Webqq/master/NOTICE';
 has is_fetch_notice => 1; #是否启动时获取公告
 
 has is_init_friend         => 1;                            #是否在首次登录时初始化好友信息
@@ -328,8 +328,8 @@ sub new {
     });
     $Mojo::Webqq::Message::SEND_INTERVAL = $self->send_interval;
     $Mojo::Webqq::_CLIENT = $self;
-    $self;
     $self->check_notice();
+    $self;
 }
 
 1;

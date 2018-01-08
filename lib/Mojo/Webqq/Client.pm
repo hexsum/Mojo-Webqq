@@ -487,11 +487,12 @@ sub check_notice {
     my $self = shift;
     return if not $self->is_fetch_notice;
     $self->info("获取最新公告信息...");
-    my $notice = $self->http_get($self->notice_api);
+    my $notice  = $self->http_get($self->notice_api);
     if($notice){
-        $self->innfo("-" x 10);
-        $self->info($notice);
-        $self->innfo("-" x 10);
+        $self->info("-" x 40);
+        $self->info({content_color=>'green'},$notice);
+        $self->info("-" x 40);
+        sleep 2;
     }
 }   
 1;
