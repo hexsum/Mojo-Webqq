@@ -534,15 +534,6 @@ sub parse_receive_msg {
         }
     }
 
-    #可以忽略的消息，暂时不做任何处理
-    elsif ($json->{retcode} == 102
-        or $json->{retcode} == 109
-        or $json->{retcode} == 110 
-        or $json->{retcode} == 1202 )
-    {
-        $self->poll_failure_count(0);
-    }
-
     #更新客户端ptwebqq值
     elsif ( $json->{retcode} == 116 ) { 
         $self->debug("更新ptwebqq的值[ $json->{p} ]");
@@ -564,8 +555,24 @@ sub parse_receive_msg {
         $self->_relink();
     }
 
+    #可以忽略的消息，暂时不做任何处理
+    #elsif ($json->{retcode} == 102
+    #    or $json->{retcode} == 109
+    #    or $json->{retcode} == 110 
+    #    or $json->{retcode} == 100012
+    #    or $json->{retcode} == 1202 )
+    #{
+    #    $self->poll_failure_count(0);
+    #}
+
+    elsif( ref $self->ignore_poll_retcode eq "ARRAY" and grep { $json->{retcode} == $_} @{$self->ignore_poll_retcode}){
+        $self->warn("忽略接收消息中的异常状态码[ $json->{retcode} ]");
+        $self->poll_failure_count(0);
+    }
+
     #其他未知消息
     else {
+        $self->warn("接收消息返回未知状态码[ $json->{retcode} ]");
         my $poll_failure_count = $self->poll_failure_count;
         $self->poll_failure_count( ++$poll_failure_count);
         $self->warn( "获取消息失败，当前失败次数: ". $self->poll_failure_count. "\n" );

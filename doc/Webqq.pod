@@ -414,8 +414,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     keep_cookie       #默认为1，0表示不保存登录cookie，1表示保存登录cookie方便下次直接恢复登录
     disable_color     #默认为0，是否禁用终端彩色打印
     send_interval     #默认为3s，全局发送消息时间间隔，间隔太小会导致消息发送频繁，可能有被封号的风险
-    ignore_retcode    #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用，默认 [1202,100100]
-                      #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
+    ignore_send_retcode #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用
+                        #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
+                        #默认值 [1202,100100] 不清楚作用请不要随意设置
+
+    ignore_poll_retcode #对接收消息返回这些状态码不认为接收失败，不重新登录，避免频繁掉线
+                        #设置示例 Mojo::Webqq->new(ignore_retcode=>[102,109,110,1202,100012]);
+                        #默认值 [102,109,110,1202,100012] 不清楚作用请不要随意设置
 
     ignore_unknown_id #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到
                       #消息发送者是一个未知的id，非常影响很多功能的正常工作，该选项决定是否忽略掉这种消息

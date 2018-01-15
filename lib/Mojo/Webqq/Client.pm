@@ -492,7 +492,6 @@ sub check_notice {
         $self->info("-" x 40);
         $self->info({content_color=>'green'},$notice);
         $self->info("-" x 40);
-        sleep 2;
     }
 }   
 1;

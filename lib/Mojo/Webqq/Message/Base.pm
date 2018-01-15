@@ -151,7 +151,7 @@ sub parse_send_status_msg{
             if($json->{retcode}==0){
                 $self->send_status(code=>0,msg=>"发送成功",info=>'发送正常');
             }
-            elsif( ref $self->client->ignore_retcode eq "ARRAY" and first { $json->{retcode} == $_ } @{$self->client->ignore_retcode} ){
+            elsif( ref $self->client->ignore_send_retcode eq "ARRAY" and first { $json->{retcode} == $_ } @{$self->client->ignore_send_retcode} ){
                 $self->send_status(code=>0,msg=>"发送成功",info=>"忽略返回值: $json->{retcode}");
             }
             else{
