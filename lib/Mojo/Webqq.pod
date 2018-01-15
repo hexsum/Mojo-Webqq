@@ -415,11 +415,11 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     disable_color     #默认为0，是否禁用终端彩色打印
     send_interval     #默认为3s，全局发送消息时间间隔，间隔太小会导致消息发送频繁，可能有被封号的风险
     ignore_send_retcode #对发送消息返回这些状态码不认为发送失败不重试,参数是一个数组引用
-                        #设置示例 Mojo::Webqq->new(ignore_retcode=>[1202,100100]);
+                        #设置示例 Mojo::Webqq->new(ignore_send_retcode=>[1202,100100]);
                         #默认值 [1202,100100] 不清楚作用请不要随意设置
 
     ignore_poll_retcode #对接收消息返回这些状态码不认为接收失败，不重新登录，避免频繁掉线
-                        #设置示例 Mojo::Webqq->new(ignore_retcode=>[102,109,110,1202,100012]);
+                        #设置示例 Mojo::Webqq->new(ignore_poll_retcode=>[102,109,110,1202,100012]);
                         #默认值 [102,109,110,1202,100012] 不清楚作用请不要随意设置
 
     ignore_unknown_id #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到
@@ -458,6 +458,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     is_update_friend    #是否定期更新好友信息，默认值 1
     is_update_discuss   #是否定期更新讨论组信息，默认值 1
     update_interval     #定时更新群组、好友、讨论组等信息的时间间隔，默认600秒
+
+    is_fetch_notice     #是否获取公告信息，默认值 1
 
     msg_ttl             #发送失败的消息，重试次数，默认是5
 
