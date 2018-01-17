@@ -30,6 +30,17 @@ use Mojo::Webqq::Model::Remote::_shutup_group_member;
 use Mojo::Webqq::Model::Remote::_qiandao;
 
 use Encode ();
+sub time33 {
+    use integer;
+    my $self = shift;
+    my $t = shift;
+    my $e = 0;
+    my $i = 0;
+    for( my $n = length($t); $i<$n; $i++ ){
+        $e  = ( 33 * $e + ord(substr($t,$i,1)) ) % 4294967296;
+    }
+    return $e;
+}
 sub hash33{
     use integer;
     my $self = shift;

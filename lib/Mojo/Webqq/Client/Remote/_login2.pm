@@ -1,6 +1,6 @@
 sub Mojo::Webqq::Client::_login2{
     my $self = shift;
-    $self->info("尝试进行登录(2)...\n");
+    $self->info("正在进行登录(2)...");
     my $api_url = 'http://d1.web2.qq.com/channel/login2';
     my $headers = {
         Referer     => 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',
@@ -10,7 +10,7 @@ sub Mojo::Webqq::Client::_login2{
         status      =>  $self->mode,
         ptwebqq     =>  $self->ptwebqq,
         clientid    =>  $self->clientid,
-        psessionid  =>  $self->psessionid,  
+        psessionid  =>  $self->psessionid,
     );    
     
     #if($self->{type} eq 'webqq'){

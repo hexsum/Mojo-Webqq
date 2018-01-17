@@ -8,6 +8,7 @@ use Mojo::Webqq::Message::Handle;
 use Mojo::Webqq::Client::Remote::_prepare_for_login;
 use Mojo::Webqq::Client::Remote::_check_verify_code;
 use Mojo::Webqq::Client::Remote::_get_img_verify_code;
+use Mojo::Webqq::Client::Remote::_check_login;
 use Mojo::Webqq::Client::Remote::_get_qrlogin_pic;
 use Mojo::Webqq::Client::Remote::_login1;
 use Mojo::Webqq::Client::Remote::_check_sig;
@@ -175,56 +176,76 @@ sub login {
         $self->ptwebqq($ptwebqq) if defined $ptwebqq;
         $self->skey($skey) if defined $skey;
     }
-    if(defined $self->ptwebqq and defined $self->skey){
-        $self->info("检测到最近登录活动，尝试直接恢复登录...");
-        if(not $self->_get_vfwebqq() && $self->_login2()){
+    
+    if($self->_prepare_for_login() && $self->_check_login()){
+        if(not $self->_check_sig() && $self->_get_vfwebqq() && $self->_login2()){
             $self->relogin();
             return;
         }
         $is_scan = 0;
-    } 
-    elsif(
-        $self->_prepare_for_login()    
-        && $self->_check_verify_code()     
-        && $self->_get_img_verify_code()
-        && $self->_get_qrlogin_pic()
-
-    ){
-        while(1){
-            $self->check_controller();
-            my $ret = $self->_login1();
-            if($ret == -1){#验证码输入错误
-                $self->_get_img_verify_code();
-                next;
-            }
-            elsif($ret == -2){#帐号或密码错误
-                $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
-                $self->encrypt_method("js");
-                $self->relogin();
-                return;
-            }
-            elsif($ret == -4 ){#等待二维码扫描
-                sleep 3;
-                next;
-            }
-            elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
-                sleep 3;
-                next;
-            }
-            elsif($ret == -6){#二维码已经过期，重新下载二维码
-                $self->emit("qrcode_expire");
-                $self->_get_qrlogin_pic();
-                next;
-            }
-            elsif($ret == 1){#登录成功
-                $is_scan = 1;
-                $self->_check_sig() 
-                && $self->_get_vfwebqq()
+    }
+    else{
+        if($self->login_type eq 'login'){
+            $is_scan = 0;
+            my $ret = $self->model_ext_authorize() 
+                && $self->_prepare_for_login()
+                && $self->_check_login() 
+                && $self->_check_sig() 
+                && $self->_get_vfwebqq() 
                 && $self->_login2();
-                last;
+            if($ret == 1){
+                $self->info("账号密码方式登录成功");
+                $self->uid($self->account);
+                $self->ptwebqq($self->search_cookie('ptwebqq'));
             }
             else{
-                last;
+                $self->warn("账号密码登录方式失败，尝试使用二维码登录");
+                $self->login_type('qrlogin');
+            }
+        }
+        if(
+            $self->login_type eq 'qrlogin'
+            && $self->_check_verify_code()     
+            && $self->_get_img_verify_code()
+            && $self->_get_qrlogin_pic()
+
+        ){
+            while(1){
+                $self->check_controller();
+                my $ret = $self->_login1();
+                #if($ret == -1){#验证码输入错误
+                #    $self->_get_img_verify_code();
+                #    next;
+                #}
+                #if($ret == -2){#帐号或密码错误
+                #    $self->error("登录失败，尝试更换加密算法计算方式，重新登录...");
+                #    $self->encrypt_method("js");
+                #    $self->relogin();
+                #    return;
+                #}
+                if($ret == -4 ){#等待二维码扫描
+                    sleep 3;
+                    next;
+                }
+                elsif($ret == -5 ){#二维码已经扫描 等待手机端进行授权登录
+                    sleep 3;
+                    next;
+                }
+                elsif($ret == -3 or $ret == -6){#二维码已经过期，或临时切换到二维码登录方式，重新下载二维码
+                    $self->emit("qrcode_expire");
+                    $self->_get_qrlogin_pic();
+                    next;
+                }
+                elsif($ret == 1){#登录成功
+                    $is_scan = 1;
+                    $self->_check_sig() 
+                    && $self->_get_vfwebqq()
+                    && $self->_login2();
+                    last;
+                }
+                else{
+                    last;
+                }
             }
         }
     }
@@ -238,8 +259,9 @@ sub login {
         $self->qrcode_count(0);
         $self->info("帐号(" .( $self->uid // $self->account) . ")登录成功");
         $self->login_type eq "qrlogin"?$self->clean_qrcode():$self->clean_verifycode();
+        #$self->model_ext_authorize() if $self->login_type eq 'qrlogin' and not defined $self->model_ext;
+        $self->model_ext_authorize() if not defined $self->model_ext;
         $self->state('updating');
-        $self->model_ext_authorize();
         $self->update_user;
         $self->update_friend(is_blocking=>1,is_update_friend_ext=>1) if $self->is_init_friend;
         $self->update_group(is_blocking=>1,is_update_group_ext=>1,is_update_group_member_ext=>0,is_update_group_member=>0)  if $self->is_init_group;

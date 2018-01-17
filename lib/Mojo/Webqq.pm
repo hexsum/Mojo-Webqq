@@ -158,9 +158,10 @@ has send_msg_id            => sub {
 has uid                    => undef;
 has clientid               => 53999199;
 has psessionid             => undef;
-has vfwebqq                => undef;
 has ptwebqq                => undef;
 has skey                   => undef;
+has vfwebqq                => undef;
+
 has passwd_sig             => '';
 has verifycode             => undef;
 has pt_verifysession       => undef,
@@ -168,16 +169,17 @@ has ptvfsession            => undef;
 has md5_salt               => undef;
 has cap_cd                 => undef;
 has isRandSalt             => 0;
-has api_check_sig          => undef;
-has g_login_sig            => undef;
-has g_style                => 16;
-has g_mibao_css            => 'm_webqq';
-has g_daid                 => 164;
-has g_appid                => 501004106;
-has g_pt_version           => 10179;
 has rc                     => 1;
+
+has api_check_sig          => undef;
+has pt_login_sig           => undef;
+#has pt_style                => 40;
+#has pt_mibao_css            => 'm_webqq';
+#has pt_daid                 => 164;
+#has pt_appid                => 501004106;
+
 has csrf_token             => undef;
-has model_ext              => 0;
+has model_ext              => undef;
 #{user=>0,friend=>0,friend_ext=>0,group=>0,group_ext=>0,discuss=>0}
 has model_status           => sub {+{}}; 
 
