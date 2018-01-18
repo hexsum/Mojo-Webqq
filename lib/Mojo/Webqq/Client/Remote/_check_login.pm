@@ -6,7 +6,7 @@ sub Mojo::Webqq::Client::_check_login {
         return 0 if not defined $content;
         my( $retcode,$api_check_sig) = $content=~/'(.*?)'/g;
         $self->debug("登录状态检查结果($retcode)");
-        if( $retcode == 2 and $api_check_sig =~ /^https?:\/\/[^\/]+\.qq\.com\/check_sig/){
+        if( $api_check_sig =~ /^https?:\/\/[^\/]+\.qq\.com\/check_sig/){
             $self->api_check_sig($api_check_sig . '&regmaster=&aid=501004106&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html');
             $self->info("检查结果：登录状态有效，尝试直接恢复登录...");
             return 1;

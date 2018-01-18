@@ -173,10 +173,6 @@ has rc                     => 1;
 
 has api_check_sig          => undef;
 has pt_login_sig           => undef;
-#has pt_style                => 40;
-#has pt_mibao_css            => 'm_webqq';
-#has pt_daid                 => 164;
-#has pt_appid                => 501004106;
 
 has csrf_token             => undef;
 has model_ext              => undef;
@@ -296,6 +292,10 @@ sub new {
         my($self,$type,$status)=@_;
         $self->model_status->{$type} = $status;
         $self->emit("model_update_fail") if $self->get_model_status == 0;
+    });
+    $self->on(model_update_fail=>sub{
+        my $self = shift;
+        $self->relogin() if $self->login_type eq 'login';
     });
     $self->on(before_send_message=>sub{
         my($self,$msg) = @_;

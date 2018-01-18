@@ -397,7 +397,7 @@ sub parse_receive_msg {
                     time    => $m->{value}{'time'},
                     content     => $m->{value}{content},
                 };
-                if($self->allow_message_sync and $msg->{sender_id} eq $self->user->id){
+                if($msg->{sender_id} eq $self->user->id){
                     $msg->{class} = 'send';
                     $msg->{source} = 'outer';
                     next if not $self->allow_message_sync ;
