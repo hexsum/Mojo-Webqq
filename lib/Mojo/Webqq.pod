@@ -23,15 +23,34 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     #推荐手机安装[QQ安全中心]APP，方便随时掌握自己帐号的情况
     #通过本程序登录QQ之前请先关闭帐号的密保功能
 
+    #初始化一个客户端，采用二维码登录方式
     use Mojo::Webqq;
-
-    #初始化一个客户端对象，设置登录的qq号
     my $client=Mojo::Webqq->new(
         http_debug  =>  0,         #是否打印详细的debug信息
         log_level   =>  "info"     #日志打印级别，debug|info|msg|warn|error|fatal
+        login_type  =>  "qrlogin"  #登录方式，qrlogin 表示二维码登录
     );
-    #注意: 腾讯可能已经关闭了帐号密码的登录方式，这种情况下只能使用二维码扫描登录
+
+    #初始化一个客户端，采用账号密码登录方式，需要显式设置账号和密码
+    use Mojo::Webqq;
+    use Digest::MD5 qw(md5_hex);
+    my $client=Mojo::Webqq->new(
+        account     => 123456      #QQ账号
+        pwd         => md5_hex('你的QQ账号登录密码')  #登录密码
+        http_debug  =>  0,         #是否打印详细的debug信息
+        log_level   =>  "info"     #日志打印级别，debug|info|msg|warn|error|fatal
+        login_type  =>  "login"    #登录方式，login 表示账号密码登录
+    );
+    
+    #注意: 原生的SmartQQ是不支持账号密码登录的
+    #程序实际上是通过 http://qun.qq.com 页面账号密码登录然后和SmartQQ共享登录状态，从而实现账号密码登录
+    #所以，账号密码的登录方式并不稳定，一旦失败，程序会再次自动尝试使用二维码扫描登录
     #请关闭帐号的密保功能，不支持密保登录
+    #另外，基于账号密码的登录方式，一旦登录所在地发生较大变化，则腾讯服务器可能需要你输入图片验证码
+    #这样就很难实现自动化操作，为了避免这种情况，你需要尽量在pl脚本所在的网络中用浏览器多登录一下 http://qun.qq.com
+    #让腾讯服务器消除登录异常的判断，你可以在服务端搭建ssh隧道，socks5代理，支持SSL转发（CONNECT方法）的http代理等方式
+    #然后浏览器通过服务端代理访问
+    #参考github issue: https://github.com/sjdy521/Mojo-Webqq/issues/183
 
     #客户端加载ShowMsg插件，用于打印发送和接收的消息到终端
     $client->load("ShowMsg");
