@@ -27,19 +27,19 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     use Mojo::Webqq;
     my $client=Mojo::Webqq->new(
         http_debug  =>  0,         #是否打印详细的debug信息
-        log_level   =>  "info"     #日志打印级别，debug|info|msg|warn|error|fatal
-        login_type  =>  "qrlogin"  #登录方式，qrlogin 表示二维码登录
+        log_level   =>  "info",     #日志打印级别，debug|info|msg|warn|error|fatal
+        login_type  =>  "qrlogin",  #登录方式，qrlogin 表示二维码登录
     );
 
     #初始化一个客户端，采用账号密码登录方式，需要显式设置账号和密码
     use Mojo::Webqq;
     use Digest::MD5 qw(md5_hex);
     my $client=Mojo::Webqq->new(
-        account     => 123456      #QQ账号
-        pwd         => md5_hex('你的QQ账号登录密码')  #登录密码
+        account     => 123456,      #QQ账号
+        pwd         => md5_hex('你的QQ账号登录密码'),  #登录密码
         http_debug  =>  0,         #是否打印详细的debug信息
-        log_level   =>  "info"     #日志打印级别，debug|info|msg|warn|error|fatal
-        login_type  =>  "login"    #登录方式，login 表示账号密码登录
+        log_level   =>  "info",     #日志打印级别，debug|info|msg|warn|error|fatal
+        login_type  =>  "login",    #登录方式，login 表示账号密码登录
     );
     
     #注意: 原生的SmartQQ是不支持账号密码登录的
