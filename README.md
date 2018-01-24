@@ -245,7 +245,7 @@ Mojo-Webqq v2.1.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 ### 相关文档
 
 * [更新日志](Changes)
-* [开发&配置文档](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod)
+* [开发&配置文档](doc/Webqq.pod)
 * [基于HTTP的API文档](API.md)
 * [FAQ](FAQ.md)
 
