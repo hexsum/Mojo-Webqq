@@ -27,8 +27,8 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     use Mojo::Webqq;
     my $client=Mojo::Webqq->new(
         http_debug  =>  0,         #是否打印详细的debug信息
-        log_level   =>  "info",     #日志打印级别，debug|info|msg|warn|error|fatal
-        login_type  =>  "qrlogin",  #登录方式，qrlogin 表示二维码登录
+        log_level   =>  "info",    #日志打印级别，debug|info|msg|warn|error|fatal
+        login_type  =>  "qrlogin", #登录方式，qrlogin 表示二维码登录
     );
 
     #初始化一个客户端，采用账号密码登录方式，需要显式设置账号和密码
@@ -37,7 +37,7 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     my $client=Mojo::Webqq->new(
         account     => 123456,      #QQ账号
         pwd         => md5_hex('你的QQ账号登录密码'),  #登录密码
-        http_debug  =>  0,         #是否打印详细的debug信息
+        http_debug  =>  0,          #是否打印详细的debug信息
         log_level   =>  "info",     #日志打印级别，debug|info|msg|warn|error|fatal
         login_type  =>  "login",    #登录方式，login 表示账号密码登录
     );
@@ -1498,6 +1498,8 @@ QQ群每日签到插件
 
     $client->load("SmartReply",data=>{
         apikey          => '4c53b48522ac4efdfe5dfb4f6149ae51', #可选，参考http://www.tuling123.com/html/doc/apikey.html
+        friend_reply    => 1, #是否针对好友消息智能回复
+        group_reply     => 1, #是否针对群消息智能回复
         allow_group     => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
         ban_group       => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
         ban_user        => ["坏蛋",123456], #可选，禁用该插件的用户，可以是用户的显示名称或qq号码

@@ -1498,6 +1498,8 @@ QQ群每日签到插件
 
     $client->load("SmartReply",data=>{
         apikey          => '4c53b48522ac4efdfe5dfb4f6149ae51', #可选，参考http://www.tuling123.com/html/doc/apikey.html
+        friend_reply    => 1, #是否针对好友消息智能回复
+        group_reply     => 1, #是否针对群消息智能回复
         allow_group     => ["PERL学习交流"],  #可选，允许插件的群，可以是群名称或群号码
         ban_group       => ["私人群",123456], #可选，禁用该插件的群，可以是群名称或群号码
         ban_user        => ["坏蛋",123456], #可选，禁用该插件的用户，可以是用户的显示名称或qq号码

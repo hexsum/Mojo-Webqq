@@ -19,6 +19,8 @@ sub call{
     my $warn_limit = $data->{warn_limit} || 10;
     my $ban_limit = $data->{ban_limit} || 12;
     my $ban_time = $data->{ban_time} || 1200;
+    my $friend_reply = $data->{friend_reply} // 1;
+    my $group_reply = $data->{group_reply} // 1;
     my $is_need_at = defined $data->{is_need_at}?$data->{is_need_at}:1;
 
     my $counter = $client->new_counter(id=>'SmartReply',period=>$data->{period} || 600);
@@ -27,11 +29,14 @@ sub call{
         my($client,$msg) = @_;
         return if not $msg->allow_plugin;
         return if $msg->type !~ /^friend_message|group_message|sess_message$/;
+        return if !$friend_reply and $msg->type eq 'friend_message';
+        return if !$group_reply and $msg->type eq 'group_message';
         return if exists $ban{$msg->sender->id};
+
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
-        return if $is_need_at and $msg->type eq "group_message" and !$msg->is_at;
-        if(ref $data->{keyword} eq "ARRAY"){
+
+        if(ref $data->{keyword} eq "ARRAY" and @{$data->{keyword}} > 0){
             return if not first { $msg->content =~ /\Q$_\E/} @{$data->{keyword}};
         }
         if($msg->type eq 'group_message'){
@@ -39,26 +44,29 @@ sub call{
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
             return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}};
             return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
-            my $limit = $counter->check($msg->group->id ."|" .$msg->sender->id);
-            if($is_need_at and $limit >= $ban_limit){
-                $ban{$msg->sender->id} = 1;
-                $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，$ban_time秒内提问无视",sub{$_[1]->msg_from("bot")});
-                $counter->clear($msg->group->id ."|" .$msg->sender->id);
-                $client->timer($ban_time ,sub{delete $ban{$msg->sender->id};});
-                return;
-            }
-            if($is_need_at and $limit >= $warn_limit){
-                $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->from("bot")});
-                return;
-            }
-            if($is_need_at and $limit >= $notice_limit){
-                $client->reply_message($msg,"\@$sender_nick " . $limit_reply->[int rand(@$limit_reply)],sub{$_[1]->from("bot")});
-                return;
-            }   
-        } 
+        }
         else{
             return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
         }
+
+        my $id = ($msg->type eq 'group_message'?$msg->group->id : 'placeholder') . "|" .$msg->sender->id;
+        my $limit = $counter->check( $id );
+        if($limit >= $ban_limit){
+            $ban{$msg->sender->id} = 1;
+            $client->reply_message($msg,"\@$sender_nick " . "您已被列入黑名单，$ban_time秒内提问无视",sub{$_[1]->msg_from("bot")});
+            $counter->clear( $id );
+            $client->timer($ban_time ,sub{delete $ban{$msg->sender->id};});
+            return;
+        }
+        if($limit >= $warn_limit){
+            $client->reply_message($msg,"\@$sender_nick " . "警告，您艾特过于频繁，即将被列入黑名单，请克制",sub{$_[1]->from("bot")});
+            return;
+        }
+        if($limit >= $notice_limit){
+            $client->reply_message($msg,"\@$sender_nick " . $limit_reply->[int rand(@$limit_reply)],sub{$_[1]->from("bot")});
+            return;
+        }   
+
         $msg->allow_plugin(0);
 
         my $input = $msg->content;

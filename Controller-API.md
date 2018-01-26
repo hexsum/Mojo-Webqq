@@ -150,6 +150,11 @@ $client->run();
 |请求参数|**client**: 自定义QQ帐号，用于唯一区分不同QQ帐号客户端<br>其他Mojo-Webqq new方法支持的参数，比如log_level/log_encoding/tmpdir等等，详见 [Mojo::Webqq#new](https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#new)|
 |调用示例|http://127.0.0.1:4000/openqq/start_client?client=webqq_client_01<br>http://127.0.0.1:4000/openqq/start_client?client=webqq_client_01&log_level=debug|
 
+注意：如果使用账号密码的登录方式，client参数需要设置成QQ账号，否则无法正常登录，参考如下：
+```
+http://127.0.0.1:4000/openqq/start_client?client=12345678&login_type=login&pwd=25d55ad283aa400af464c76d713c07ad
+```
+
 返回JSON数据:
 ```
 {"client":"webqq_client_01","code":0,"pid":32294,"port":5000,"status":"success"}
