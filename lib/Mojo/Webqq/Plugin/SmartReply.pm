@@ -36,18 +36,23 @@ sub call{
         my $sender_nick = $msg->sender->displayname;
         my $user_nick = $msg->receiver->displayname;
 
-        if(ref $data->{keyword} eq "ARRAY" and @{$data->{keyword}} > 0){
-            return if not first { $msg->content =~ /\Q$_\E/} @{$data->{keyword}};
-        }
+        my $trigger = 0;
+
         if($msg->type eq 'group_message'){
-            return if $data->{is_need_at} and $msg->type eq "group_message" and !$msg->is_at;
             return if ref $data->{ban_group}  eq "ARRAY" and first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{ban_group}};
             return if ref $data->{allow_group}  eq "ARRAY" and !first {$_=~/^\d+$/?$msg->group->uid eq $_:$msg->group->name eq $_} @{$data->{allow_group}};
             return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
+            $trigger = 1 if $data->{is_need_at} and $msg->type eq "group_message" and $msg->is_at;
         }
         else{
             return if ref $data->{ban_user} eq "ARRAY" and first {$_=~/^\d+$/?$msg->sender->uid eq $_:$sender_nick eq $_} @{$data->{ban_user}};
         }
+
+        if(ref $data->{keyword} eq "ARRAY" and @{$data->{keyword}} > 0){
+            $trigger = 1 if first { $msg->content =~ /\Q$_\E/} @{$data->{keyword}};
+        }
+
+        return if not $trigger;
 
         my $id = ($msg->type eq 'group_message'?$msg->group->id : 'placeholder') . "|" .$msg->sender->id;
         my $limit = $counter->check( $id );
