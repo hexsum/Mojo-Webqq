@@ -110,18 +110,14 @@ Mojo-Webqq v2.1.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
 
     建议大家尽量选择**Binaries**（二进制预编译）的版本，安装即可使用，比较方便
 
-    |平台    |推荐选择  |下载地址         |
-    |:-------|:--------|:---------------|
+    |平台    |推荐选择              |下载地址                    |
+    |:-------|:--------------------|:--------------------------|
     |Windows |1. **StrawberryPerl**<br>2. ActivePerl<br>3. **Mojo-StrawberryPerl**|[StrawberryPerl下载地址](http://strawberryperl.com/)<br>[Mojo-StrawberryPerl下载地址](https://github.com/sjdy521/Mojo-StrawberryPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>|
-    |Linux   |1. **系统自带**<br>2. **yum/apt等包管理器**<br>3. 官方源码编译<br>4. **Mojo-CentosPerl**<br>5. ActivePerl<br>6. Mojo-ActivePerl<br>7. DWIM-Perl|[Mojo-CentosPerl下载地址](https://github.com/sjdy521/Mojo-CentosPerl)<br>[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[Mojo-ActivePerl下载地址](https://github.com/sjdy521/Mojo-ActivePerl)<br>[DWIM-Perl下载地址](http://dwimperl.com/linux.html)|
+    |Linux   |1. **系统自带**<br>2. **yum/apt等包管理器**<br>3. 官方源码编译<br>4. ActivePerl<br>5. DWIM-Perl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)<br>[DWIM-Perl下载地址](http://dwimperl.com/linux.html)|
     |Mac     |1. **系统自带**<br>2. ActivePerl|[ActivePerl下载地址](http://www.activestate.com/activeperl/downloads)|
   
     注意：
-    
-    [Mojo-CentosPerl](https://github.com/sjdy521/Mojo-CentosPerl)是基于Centos系统编译打包而成，适合Centos6.5以上的x86_64系统
-    
-    [Mojo-ActivePerl](https://github.com/sjdy521/Mojo-ActivePerl)是基于ActivePerl打包的而成，适用于linux x86_64系统，并且系统glibc 2.15+
-    
+      
     [Mojo-StrawberryPerl](https://github.com/sjdy521/Mojo-StrawberryPerl)是基于StrawberryPerl精简打包而成，适用于windows 32位/64位系统
     
 2. *安装cpanm包管理工具*（如果系统已经安装了cpanm可以忽略此步骤）
