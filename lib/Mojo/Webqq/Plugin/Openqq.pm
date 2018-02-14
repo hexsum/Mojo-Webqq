@@ -284,7 +284,7 @@ sub call{
                     my $msg= $_[1];
                     $msg->cb(sub{
                         my($client,$msg)=@_;
-                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});  
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg,info=>$msg->info});  
                     });
                     $msg->from("api");
                 });
@@ -316,7 +316,7 @@ sub call{
                     my $msg = $_[1];
                     $msg->cb(sub{
                         my($client,$msg)=@_;
-                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg,info=>$msg->info});
                     });
                     $msg->from("api");
                 });
@@ -339,7 +339,7 @@ sub call{
                     my $msg = $_[1];
                     $msg->cb(sub{
                         my($client,$msg)=@_;
-                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg,info=>$msg->info});
                     });
                     $msg->from("api");
                 });
@@ -359,7 +359,7 @@ sub call{
                     my $msg = $_[1];
                     $msg->cb(sub{
                         my($client,$msg)=@_;
-                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg,info=>$msg->info});
                     });
                     $msg->from("api");
                 });
@@ -375,7 +375,7 @@ sub call{
                     my $msg = $_[1];
                     $msg->cb(sub{
                         my($client,$msg)=@_;
-                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg});
+                        $c->safe_render(json=>{id=>$msg->id,code=>$msg->code,status=>$msg->msg,info=>$msg->info});
                     });
                     $msg->from("api");
                 });
