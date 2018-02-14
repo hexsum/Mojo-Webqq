@@ -118,7 +118,7 @@ Mojo-Webqq v2.1.7 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
   
     注意：
       
-    [Mojo-StrawberryPerl](https://github.com/sjdy521/Mojo-StrawberryPerl)是基于StrawberryPerl精简打包而成，适用于windows 32位/64位系统
+    [Mojo-StrawberryPerl](https://github.com/sjdy521/Mojo-StrawberryPerl)是基于StrawberryPerl精简打包而成，适用于windows 32位/64位系统
     
 2. *安装cpanm包管理工具*（如果系统已经安装了cpanm可以忽略此步骤）
 
