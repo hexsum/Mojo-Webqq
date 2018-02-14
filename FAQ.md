@@ -163,3 +163,11 @@ screen -U -r xxx
     });
 
 收件人和发件人按照你实际信息填写。
+
+#### 10. 碰到 Can't locate Mojo/Webqq.pm in @INC
+
+说明Mojo::Webqq模块没有安装成功，通常是在执行`cpanm Mojo::Webqq`安装的过程中，由于其他依赖模块安装失败导致最终`Mojo::Webqq`没有安装成功
+
+需要逐个检查缺少哪些模块，Linux下你可以直接执行如下命令来检查模块的安装情况,并根据提示进行操作
+
+`curl -ks "https://raw.githubusercontent.com/sjdy521/Mojo-Webqq/master/script/check_dependencies.pl" |perl -`
