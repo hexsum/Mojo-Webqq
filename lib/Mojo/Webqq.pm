@@ -59,6 +59,8 @@ has is_init_discuss        => 1;                            #是否在首次登�
 
 has is_update_user          => 0;                            #是否定期更新个人信息
 has is_update_group         => 1;                            #是否定期更新群组信息
+has is_update_group_member  => 1;                            #是否定期更新群成员信息
+has is_update_group_member_ext => 0;                         #是否定期更新群成员扩展信息
 has is_update_friend        => 1;                            #是否定期更新好友信息
 has is_update_discuss       => 1;                            #是否定期更新讨论组信息
 has update_interval         => 600;                          #定期更新的时间间隔

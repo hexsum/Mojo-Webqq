@@ -506,6 +506,7 @@ sub update_group_member_ext {
             }
             $group->{max_member} //= $group_info_ext->{max_member};
             $group->{max_admin} //= $group_info_ext->{max_admin};
+            $group->{_is_hold_member_ext} = 1;
             $self->emit("model_update","group_member_ext",1);
         }
         else{$self->warn("更新群组[ " . $group->name . " ]成员扩展信息失败");}

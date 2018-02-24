@@ -400,7 +400,7 @@ sub call{
         my $c = shift;
         my @params = map {defined $_?Encode::encode("utf8",$_):$_} @{$c->req->params->pairs};
         my @objects = $client->search_group(@params);
-        for(@objects){$client->update_group_member($_,is_blocking=>1,is_update_group_member_ext=>1) if $_->is_empty};
+        for(@objects){$client->update_group_member($_,is_blocking=>1,is_update_group_member_ext=>1) if $_->is_empty or !$_->_is_hold_member_ext};
         if(@objects){
             $c->safe_render(json=>[map {$_->to_json_hash()} @objects]);
         }

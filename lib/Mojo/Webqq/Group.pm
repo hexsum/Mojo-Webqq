@@ -19,6 +19,7 @@ has [qw(
     max_admin
 )];
 has member => sub{[]};
+has _is_hold_member_ext => 0;
 sub member_count {0+@{$_[0]->member}}
 sub number {$_[0]->uid}
 sub AUTOLOAD {
