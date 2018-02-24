@@ -171,3 +171,29 @@ screen -U -r xxx
 需要逐个检查缺少哪些模块，Linux下你可以直接执行如下命令来检查模块的安装情况,并根据提示进行操作
 
 `curl -ks "https://raw.githubusercontent.com/sjdy521/Mojo-Webqq/master/script/check_dependencies.pl" |perl -`
+
+#### 11. 非root账号安装后无法使用问题
+
+解决方法：
+
+方法1、切换到root账号下重新安装使用
+
+方法2、在非root账号下依次执行如下操作（**不要在任何命令前面加sudo**）
+
+1）安装local::lib模块，执行命令如下：
+
+         cpanm --local-lib=~/perl5 local::lib  && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
+
+2）把相关环境变量写入启动文件中，执行命令如下：
+
+         echo 'eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"' >>~/.bashrc
+
+#### 12. 使用账号密码的方法无法成功登录
+
+可能的原因是，基于账号密码的登录方式，一旦登录所在地发生较大变化，则腾讯服务器可能需要你输入图片验证码，这样就很难实现自动化操作
+
+为了避免这种情况，你需要尽量在pl脚本所在的网络中用浏览器多登录一下 http://qun.qq.com 让腾讯服务器消除登录异常的判断
+
+你可以在服务端搭建ssh隧道，socks5代理，支持SSL转发（CONNECT方法）的http代理等方式，然后浏览器通过服务端代理访问
+
+参考issue： https://github.com/sjdy521/Mojo-Webqq/issues/183
