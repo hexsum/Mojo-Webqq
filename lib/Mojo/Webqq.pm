@@ -1,7 +1,7 @@
 package Mojo::Webqq;
 use strict;
 use Carp ();
-$Mojo::Webqq::VERSION = "2.1.7";
+$Mojo::Webqq::VERSION = "2.1.8";
 use Mojo::Webqq::Base 'Mojo::EventEmitter';
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -34,6 +34,7 @@ has ignore_poll_retcode      => sub{[102,109,110,1202,100012]}; #对接收消息
 has ignore_poll_http_code => sub{[504,502]}; #忽略接收消息请求返回的502/504状态码，因为并不影响消息接收，以免引起恐慌
 has ignore_unknown_id   => 1; #其他设备上自己发送的消息，在webqq上会以接受消息的形式再次接收到，id还未知,是否忽略掉这种消息
 has allow_message_sync => 0; #是否允许同步来自其他设备登录账号发送的消息，由于webqq自身发送消息后也会收到服务端重复的消息，且没办法和来自其他设备的消息区分，会导致出现一些不期望的结果，比如某些插件会陷入死循环等，因此默认不开启消息同步，如果你只是用来api发送消息或者irc聊天，则开启此选项，可以同步来自其他设备的消息，体验会更好一些
+has json_codec_mode     => 0;  #0表示使用from_json/to_json 1表示使用decode_json/encode_json
 
 has default_send_real_comp_sign => 0; #设为真值则不对发送出的<>进行转化。
 # 然而这样便只能送出&lt;&gt;。
@@ -41,7 +42,7 @@ has default_send_real_comp_sign => 0; #设为真值则不对发送出的<>进行
 has group_member_card_cut_length => 21; #群名片截取长度
 has group_member_card_ext_only => 0; #群名片信息是否只从扩展接口中获取，这样能够获取到完整的群名片，但并不是100%可靠
 has group_member_use_fullcard => 0; #使用完整的群名片。
-has group_member_use_markname => 1; #使用备注名(如果存在)。
+has group_member_use_friend_markname => 1; #使用备注名(如果存在)。
 
 #原始信息中包含id/name/card
 #扩展信息中包含uid/name/card

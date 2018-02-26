@@ -50,9 +50,19 @@ sub encode_utf8{
 sub from_json{
     my $self = shift;
     my $r = eval{
-        my $json  = Mojo::JSON::decode_json(@_);
-        $self->reform($json);
-        $json;
+        if($self->json_codec_mode == 0){
+            my $json = Mojo::JSON::from_json(@_);
+            $json;
+        }
+        elsif($self->json_codec_mode == 1){
+            my $json  = Mojo::JSON::decode_json(@_);
+            $self->reform($json);
+            $json;
+        }
+        else{
+            my $json = Mojo::JSON::from_json(@_);
+            $json;
+        }
     };
     if($@){
         $self->warn($@);

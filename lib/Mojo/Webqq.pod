@@ -474,9 +474,13 @@ Mojo::Webqq - A Webqq Client Framework base on Mojolicious
     #如果你完全不关注这些特性，可以关闭定期更新
     is_update_user      #是否定期更新个人信息，默认值 0
     is_update_group     #是否定期更新群组信息，默认值 1
+    is_update_group_member #是否定期更新群成员信息，默认值 1
+    is_update_group_member_ext  #是否定期更新群成员扩展信息，扩展信息包含QQ号，默认值0，即新增成员才会更新
     is_update_friend    #是否定期更新好友信息，默认值 1
     is_update_discuss   #是否定期更新讨论组信息，默认值 1
     update_interval     #定时更新群组、好友、讨论组等信息的时间间隔，默认600秒
+
+    group_member_use_friend_markname #群成员使用好友备注名(如果是好友关系并且备注存在)
 
     is_fetch_notice     #是否获取公告信息，默认值 1
 

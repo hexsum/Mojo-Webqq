@@ -45,10 +45,14 @@ sub AUTOLOAD {
 sub nick {$_[0]->name};
 sub displayname {
     my $self = shift;
-    my $enabled = $self->client->group_member_use_markname;
-    my $f = $self->client->search_friend(id=>$self->id);
-    if($enabled and defined $f){
-        return $f->markname // $self->card // $self->name;
+    if($self->client->group_member_use_friend_markname){
+        my $f = $self->client->search_friend(id=>$self->id);
+        if(defined $f){
+            return $f->markname // $self->card // $self->name;
+        }
+        else{
+            return defined $self->card?$self->card:$self->name;
+        }    
     }
     else{
         return defined $self->card?$self->card:$self->name;

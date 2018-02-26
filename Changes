@@ -1,3 +1,10 @@
+2018-02-26 Mojo::Webqq v2.1.8
+1）修复文档重要错误
+2）修复SmartReply插件 is_need_at 和 keyword 无法同时生效的问题
+3）修复某些情况下群成员扩展信息（QQ号）丢失问题 感谢 @雪米 的反馈
+4）增加选项，以决定群员是否显示好友备注名
+5）修复Openqq插件上报接口直接回复消息时，返回json格式中文包含\uxxxx转义形式时会报错的问题
+
 2018-01-22 Mojo::Webqq v2.1.7
 1）增加账号密码的登录方式
 2）SmartReply插件 is_need_at 和 keyword 改为“与”的关系
