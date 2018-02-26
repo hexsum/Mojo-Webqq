@@ -41,6 +41,7 @@ has default_send_real_comp_sign => 0; #设为真值则不对发送出的<>进行
 has group_member_card_cut_length => 21; #群名片截取长度
 has group_member_card_ext_only => 0; #群名片信息是否只从扩展接口中获取，这样能够获取到完整的群名片，但并不是100%可靠
 has group_member_use_fullcard => 0; #使用完整的群名片。
+has group_member_use_markname => 1; #使用备注名(如果存在)。
 
 #原始信息中包含id/name/card
 #扩展信息中包含uid/name/card
