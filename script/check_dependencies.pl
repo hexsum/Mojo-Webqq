@@ -35,6 +35,6 @@ else{
     print "\n";
 
     print "If you are using Centos, yum is the recommended way which is efficient and reliable:\n\n";
-    print "    yum -y install " . join(" ",map {s/::/-/;"perl-" . $_ } grep {$dependent_modules{$_}==0} keys %dependent_modules) . "\n";
+    print "    yum -y install " . join(" ",map {s/::/-/g;"perl-" . $_ } grep {$dependent_modules{$_}==0} keys %dependent_modules) . "\n";
     print "\n";
 }

@@ -1,10 +1,30 @@
-FROM perl:5.22
+FROM centos:7.0.1406
 MAINTAINER sjdy521 <sjdy521@163.com>
 WORKDIR /root
+USER root
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get update && apt-get install -y unzip
-RUN cpanm Encode::Locale IO::Socket::SSL Mojolicious
+RUN yum -y --nogpgcheck install \
+    make \
+    unzip \ 
+    wget \ 
+    tar \
+    perl \ 
+    perl-App-cpanminus \
+    perl-Crypt-OpenSSL-Bignum \
+    perl-Crypt-OpenSSL-RSA \
+    perl-Compress-Raw-Zlib \
+    perl-IO-Compress-Gzip \
+    perl-Digest-MD5 \
+    perl-Digest-SHA \
+    perl-Time-Piece \
+    perl-Time-Seconds \
+    perl-Time-HiRes \
+    perl-IO-Socket-SSL \
+    perl-Encode-Locale \
+    perl-Term-ANSIColor && \
+    yum clean all
+RUN cpanm Test::More Webqq::Encryption Mojolicious
 RUN wget -q https://github.com/sjdy521/Mojo-Webqq/archive/master.zip -OMojo-Webqq.zip \
     && unzip -qo Mojo-Webqq.zip \
     && cd Mojo-Webqq-master \
