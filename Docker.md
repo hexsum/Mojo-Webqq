@@ -30,7 +30,7 @@
   | MOJO_WEBQQ_PWD                   | QQ账号密码的MD5   | 无                                |
   | MOJO_WEBQQ_LOGIN_TYPE            | 登录方式          | qrlogin（login表示密码登录）      |
   | MOJO_WEBQQ_LOG_LEVEL             | 日志级别          | info                              |
-  | MOJO_WEBQQ_LOG_PATH              | 日志保存路径      | STDOUT                            |
+  | MOJO_WEBQQ_LOG_PATH              | 日志保存路径      | STDERR                            |
   | MOJO_WEBQQ_LOG_ENCODING          | 日志编码          | utf8                              |
   | MOJO_WEBQQ_QRCODE_PATH           | 二维码保存路径    | /tmp/mojo_webqq_qrcode_default.png|
   | MOJO_WEBQQ_PLUGIN_OPENQQ_PORT    | Openqq插件监听端口| 5000                              |
