@@ -12,7 +12,13 @@
 
 2. ***运行镜像***
 
-        docker run -it  --env MOJO_WEBQQ_LOG_ENCODING=utf8 -p 5000:5000 -v /tmp:/tmp sjdy521/mojo-webqq 
+    二维码登录方式（默认）
+
+        docker run -it -p 5000:5000 -v /tmp:/tmp sjdy521/mojo-webqq 
+        
+    账号密码登录方式 
+    
+        docker run -it  --env MOJO_WEBQQ_ACCOUNT=123456 --env MOJO_WEBQQ_PWD=xxxx --env MOJO_WEBQQ_LOGIN_TYPE=login  -p 5000:5000 -v /tmp:/tmp sjdy521/mojo-webqq 
 
   为了能够方便查看日志，获取容器中下载的二维码文件等，建议把宿主的/tmp目录挂载到docker的/tmp上，同时设置容器的端口映射
 
@@ -20,6 +26,9 @@
   
   | 环境变量                         | 作用              | 默认值                            |
   | ---------------------------------|:------------------| :---------------------------------|
+  | MOJO_WEBQQ_ACCOUNT               | QQ账号            | 无                                |
+  | MOJO_WEBQQ_PWD                   | QQ账号密码的MD5   | 无                                |
+  | MOJO_WEBQQ_LOGIN_TYPE            | 登录方式          | qrlogin（login表示密码登录）      |
   | MOJO_WEBQQ_LOG_LEVEL             | 日志级别          | info                              |
   | MOJO_WEBQQ_LOG_PATH              | 日志保存路径      | STDOUT                            |
   | MOJO_WEBQQ_LOG_ENCODING          | 日志编码          | utf8                              |
