@@ -169,6 +169,8 @@ Mojo-Webqq v2.1.8 [![Build Status](https://travis-ci.org/sjdy521/Mojo-Webqq.svg?
         $ sudo apt-get install libssl-dev
     
     搞定了编译和运行环境之后，再重新回到 步骤2 安装Mojo::Webqq即可
+
+    请尽量在root下安装使用，非root下安装使用参考[FAQ](https://github.com/sjdy521/Mojo-Webqq/blob/master/FAQ.md#11-%E9%9D%9Eroot%E8%B4%A6%E5%8F%B7%E5%AE%89%E8%A3%85%E5%90%8E%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98)
     
     如果仍然有问题，Linux上可以尝试执行如下脚本进行依赖模块检查
     
