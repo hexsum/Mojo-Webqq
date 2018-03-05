@@ -5,6 +5,12 @@ our $PRIORITY = 100;
 use POSIX ();
 sub do_speak_limit{
     my($client,$data,$speak_counter,$msg) = @_;
+
+    $data->{is_new_group_notice} //= 1;
+    $data->{is_new_group_member_notice} //= 1;
+    $data->{is_lose_group_member_notice} //= 1;
+    $data->{is_group_member_property_change_notice} //= 0;
+
     my $gid = $msg->group->id;
     my $sender_id = $msg->sender->id;
 

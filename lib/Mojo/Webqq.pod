@@ -1404,7 +1404,7 @@ QQ群每日签到插件
         is_new_group_notice => 1,         #可选，是否发送新加入群提醒消息，默认 1
         is_new_group_member_notice => 1,  #可选，是否发送新增群成员提醒消息，默认 1
         is_lose_group_member_notice => 1, #可选，是否发送退出群成员离开提醒消息，默认 1
-        is_group_member_property_change_notice => 1, #可选，是否发送群名片变更提醒消息，默认 1
+        is_group_member_property_change_notice => 0, #可选，是否发送群名片变更提醒消息，默认 0
         new_group_member => '欢迎新成员 @%s 入群[鼓掌][鼓掌][鼓掌]', #新成员入群欢迎语，%s会被替换成群成员名称
         lose_group_member => '很遗憾 @%s 离开了本群[流泪][流泪][流泪]', #成员离群提醒
         speak_limit => {#发送消息频率限制
