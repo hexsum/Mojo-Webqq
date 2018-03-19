@@ -102,7 +102,7 @@ sub call {
 		
 		
 		
-        if($result->{error} eq 'invalid session') {	
+        if($result->{error} eq 'invalid session' or $result->{error} eq 'session timeout') {	
 			my $newtokenres = $client->http_get('https://raw.githubusercontent.com/heipidage/HwPushForMojo/master/hw_access_token_gcm.txt');
             if($newtokenres)  {
                 open(my $fhw, '>',$hwfile) or die "Could not open file '$hwfile' $!";
