@@ -128,7 +128,7 @@ sub _http_request{
     else{
         my $tx;
         my $cb = pop if ref $_[-1] eq "CODE";
-        for(my $i=0;$i<=$opt{ua_retry_times};$i++){
+        for(my $i=1;$i<=$opt{ua_retry_times};$i++){
 
             #fix bug Mojo::IOLoop already running Mojo/UserAgent.pm
             #https://github.com/kraih/mojo/issues/1029

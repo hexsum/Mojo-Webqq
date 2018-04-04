@@ -596,63 +596,72 @@ sub msg_put{
         or  $msg->{type} eq "discuss_message"
     ){
         $msg->{raw_content} = [];
-        my $msg_content;
-        shift @{ $msg->{content} };
-        for my $c (@{ $msg->{content} }){
-            if(ref $c eq 'ARRAY'){
-                if($c->[0] eq 'cface'){
-                    push @{$msg->{raw_content}},{
-                        type    =>  'cface',
-                        content =>  '[图片]',
-                        name    =>  $c->[1]{name},
-                        file_id =>  $c->[1]{file_id},
-                        key     =>  $c->[1]{key},
-                        server  =>  $c->[1]{server},
-                    };
-                    $c="[图片]";
-                }
-                elsif($c->[0] eq 'offpic'){
-                    push @{$msg->{raw_content}},{
-                        type        =>  'offpic',
-                        content     =>  '[图片]',
-                        file_path   =>  $c->[1]{file_path},
-                    };
-                    $c="[图片]";
-                }
-                elsif($c->[0] eq 'face'){
-                    push @{$msg->{raw_content}},{
-                        type    =>  'face',
-                        content =>  $self->face_to_txt($c),
-                        id      =>  $c->[1],
-                    }; 
-                    $c=$self->face_to_txt($c);
-                }
-                else{
-                    push @{$msg->{raw_content}},{
-                        type    =>  'unknown',
-                        content =>  '[未识别内容]',
-                    };
-                    $c = "[未识别内容]";
-                }
-            }
-            #elsif($c eq " "){
-            #    next;
-            #}
-            else{
-                $c=$self->xmlescape_parse($c);
-                #$c=~s/ $//;   
-                $c=~s/\r\n/\n/g;
-                my $res = $self->emoji_parse($c);
-                push @{$msg->{raw_content}},@$res;
-                $c = join "",map{$_->{content}} @$res;
-                #push @{$msg->{raw_content}},{
-                #    type    =>  'txt',
-                #    content =>  $c,
-                #};
-            }
-            $msg_content .= $c;
+        if(@{ $msg->{content} } == 1 and ref $msg->{content}[0] eq "ARRAY" and $msg->{content}[0][0] eq 'font'){
+            push @{$msg->{raw_content}},{
+                type        =>  'txt',
+                content     =>  '[图片]',
+            };
+            $msg->{content} = '[图片]';
         }
-        $msg->{content} = $msg_content;
+        else{
+            my $msg_content;
+            shift @{ $msg->{content} };
+            for my $c (@{ $msg->{content} }){
+                if(ref $c eq 'ARRAY'){
+                    if($c->[0] eq 'cface'){
+                        push @{$msg->{raw_content}},{
+                            type    =>  'cface',
+                            content =>  '[图片]',
+                            name    =>  $c->[1]{name},
+                            file_id =>  $c->[1]{file_id},
+                            key     =>  $c->[1]{key},
+                            server  =>  $c->[1]{server},
+                        };
+                        $c="[图片]";
+                    }
+                    elsif($c->[0] eq 'offpic'){
+                        push @{$msg->{raw_content}},{
+                            type        =>  'offpic',
+                            content     =>  '[图片]',
+                            file_path   =>  $c->[1]{file_path},
+                        };
+                        $c="[图片]";
+                    }
+                    elsif($c->[0] eq 'face'){
+                        push @{$msg->{raw_content}},{
+                            type    =>  'face',
+                            content =>  $self->face_to_txt($c),
+                            id      =>  $c->[1],
+                        }; 
+                        $c=$self->face_to_txt($c);
+                    }
+                    else{
+                        push @{$msg->{raw_content}},{
+                            type    =>  'unknown',
+                            content =>  '[未识别内容]',
+                        };
+                        $c = "[未识别内容]";
+                    }
+                }
+                #elsif($c eq " "){
+                #    next;
+                #}
+                else{
+                    $c=$self->xmlescape_parse($c);
+                    #$c=~s/ $//;   
+                    $c=~s/\r\n/\n/g;
+                    my $res = $self->emoji_parse($c);
+                    push @{$msg->{raw_content}},@$res;
+                    $c = join "",map{$_->{content}} @$res;
+                    #push @{$msg->{raw_content}},{
+                    #    type    =>  'txt',
+                    #    content =>  $c,
+                    #};
+                }
+                $msg_content .= $c;
+            }
+            $msg->{content} = $msg_content;
+        }
     }
     if($msg->{type} eq "friend_message"){
         my $sender = $self->search_friend(id=>$msg->{sender_id});
