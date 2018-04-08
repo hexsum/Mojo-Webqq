@@ -111,7 +111,8 @@ sub Mojo::Webqq::face_to_txt{
     my $face = shift;
     if(ref $face eq 'ARRAY'){
         return "[未知表情]" if $face->[0] ne "face";
-        return "[系统表情]" unless exists $FACE_MAP{$face->[1]};
+        return "[表情]" if $face->[1] == 0;
+        return "[表情]" unless exists $FACE_MAP{$face->[1]};
         return "[" . $FACE_MAP{$face->[1]} . "]"; 
     }
     else{
