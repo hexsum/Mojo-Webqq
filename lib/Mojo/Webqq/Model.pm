@@ -28,8 +28,10 @@ use Mojo::Webqq::Model::Remote::_kick_group_member;
 use Mojo::Webqq::Model::Remote::_set_group_member_card;
 use Mojo::Webqq::Model::Remote::_shutup_group_member;
 use Mojo::Webqq::Model::Remote::_qiandao;
-
 use Encode ();
+
+$Mojo::Webqq::Model::LAST_GROUP_UPDATE_TIME = undef;
+
 sub time33 {
     use integer;
     my $self = shift;
@@ -552,6 +554,10 @@ sub update_group {
     my $self = shift;
     if(ref $_[0] eq "Mojo::Webqq::Group"){
         my $group = shift;
+        if( defined $group->_last_update_time and time - $group->_last_update_time <= $self->update_group_min_interval){
+            $self->warn("更新群组[ " . $group->name  .  " ]频率过快，不符合最小间隔");
+            return;
+        }
         my %p = @_;
         $p{is_blocking} = 1 if not defined $p{is_blocking};
         $p{is_update_group_member} = 1 if not defined $p{is_update_group_member} ;
@@ -633,12 +639,19 @@ sub update_group {
             $self->update_group_ext(%p);
         }
     };
+
+    if(defined $Mojo::Webqq::Model::LAST_GROUP_UPDATE_TIME and time - $Mojo::Webqq::Model::LAST_GROUP_UPDATE_TIME < $self->update_group_min_interval){
+        $self->warn("更新群组频率过快，不符合最小间隔"); 
+        return;
+    }
     if($p{is_blocking}){
         my $group_list = $self->_get_group_list_info(); 
         $handle->($group_list);
+        $Mojo::Webqq::Model::LAST_GROUP_UPDATE_TIME  = time;
     }
     else{
         $self->_get_group_list_info($handle);
+        $Mojo::Webqq::Model::LAST_GROUP_UPDATE_TIME = time;
     }
 }
 

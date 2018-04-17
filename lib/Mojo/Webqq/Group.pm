@@ -20,6 +20,7 @@ has [qw(
 )];
 has member => sub{[]};
 has _is_hold_member_ext => 0;
+has _last_update_time => undef;
 sub member_count {0+@{$_[0]->member}}
 sub number {$_[0]->uid}
 sub AUTOLOAD {
@@ -173,6 +174,7 @@ sub update{
             }
         }
     }
+    $self->_last_update_time(time);
     $self;
 }
 
