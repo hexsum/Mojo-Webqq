@@ -66,7 +66,6 @@ has is_update_group_member_ext => 0;                         #是否定期更新
 has is_update_friend        => 1;                            #是否定期更新好友信息
 has is_update_discuss       => 1;                            #是否定期更新讨论组信息
 has update_interval         => 600;                          #定期更新的时间间隔
-has update_group_min_interval => 5;                         #群组更新的最小时间间隔（防止死循环）
 
 has encrypt_method      => "perl";     #perl|js
 has tmpdir              => sub {$ENV{MOJO_WEBQQ_TMPDIR} || File::Spec->tmpdir();};

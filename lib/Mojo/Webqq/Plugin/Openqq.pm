@@ -272,7 +272,7 @@ sub call{
     any [qw(GET POST)] => '/openqq/send_friend_message'         => sub{
         my $c = shift;
         my $p = $c->params;
-        my $friend = $client->search_friend(id=>$p->{id},uid=>$p->{uid});
+        my $friend = $client->search_friend(id=>$p->{id},uid=>$p->{uid},name=>$p->{name},displayname=>$p->{displayname});
         if(defined $friend){
             if($p->{async}){
                 $client->send_friend_message($friend,$p->{content},sub{$_[1]->from("api")});
@@ -304,7 +304,7 @@ sub call{
     any [qw(GET POST)] => 'openqq/send_group_message'    => sub{
         my $c = shift;
         my $p = $c->params;
-        my $group = $client->search_group(id=>$p->{id},uid=>$p->{uid},);
+        my $group = $client->search_group(id=>$p->{id},uid=>$p->{uid},name=>$p->{name},displayname=>$p->{displayname});
         if(defined $group){
             if($p->{async}){
                 $client->send_group_message($group,$p->{content},sub{$_[1]->from("api")});
