@@ -680,7 +680,7 @@ Content-Type: application/json
 |--------|:------------------------------------------|
 |uri     |/openqq/shutup_group_member|
 |请求方法|GET\|POST|
-|请求参数|**time**: 禁言时长，最低60秒（单位：秒）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_uid**: 成员的qq（多个成员qq用逗号分割）<br>**group_id**: 群组的id<br>**group_uid**: 群组的号码<br>|
+|请求参数|**time**: 禁言时长，最低1分钟（单位：分钟）<br>**member_id**: 成员的id（多个成员id用逗号分割）<br>**member_uid**: 成员的qq（多个成员qq用逗号分割）<br>**group_id**: 群组的id<br>**group_uid**: 群组的号码<br>|
 |数据格式|application/x-www-form-urlencoded|
 |调用示例|http://127.0.0.1:5000/openqq/shutup_group_member?group_uid=xxxxxx&member_uid=xxxx,xxxx<br>http://127.0.0.1:5000/openqq/shutup_group_member?group_id=xxxxxx&member_id=xxxx,xxxx&time=120|
 

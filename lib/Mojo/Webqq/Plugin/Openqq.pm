@@ -460,7 +460,7 @@ sub call{
                 }
                 push @members,$member;
             }
-            if($group->shutup_group_member($p->{time},@members)){
+            if($group->shutup_group_member($p->{time} * 60 ,@members)){
                 $c->safe_render(json=>{code=>0,status=>"success"});
             }
             else{
