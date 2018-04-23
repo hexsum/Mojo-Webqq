@@ -84,20 +84,19 @@ sub call {
             }
 			);
 		} else {		
-			$client->http_post(
-                $client->gen_url($api_url,
-                    pass_through => 0,
-                    registration_id => Mojo::Util::url_escape($registration_id),
-                    restricted_package_namee => Mojo::Util::url_escape($pkgname),
-                    'extra.notify_effect' => 2,
-                    'extra.intent_uri' => $qq_package_url,
-                    title => Mojo::Util::url_escape($title),
-                    description => Mojo::Util::url_escape($message),
-                    payload => Mojo::Util::url_escape($message),
-                ),
-				{
-                    'Authorization'=>"key=$api_key",
-				    json=>1
+			$client->http_post($api_url, 
+				{'Authorization'=>"key=$api_key",
+				json=>1
+				},
+				form=>{
+                pass_through => 0,
+                registration_id => $registration_id,
+                restricted_package_namee => $pkgname,
+				'extra.notify_effect' => 2,
+				'extra.intent_uri' => $qq_package_url,
+				title => $title,
+				description => $message,
+                payload => $message,
 				},
 				sub{
                 my $json = shift;
