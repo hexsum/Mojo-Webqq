@@ -12,6 +12,8 @@ sub call {
     my $api_url = $data->{api_url} // 'https://api.xmpush.xiaomi.com/v2/message/regid';
    	my $api_key = 'hdtYlfMarG6GEObzPg+JNg==';
 	my $pkgname = 'com.swjtu.gcmformojo';
+	my $is_transparent = $data->{is_transparent} // 1;
+	my $qq_package_url = $data->{qq_package_url} // 'intent:#Intent;component=com.tencent.mobileqq/.activity.SplashActivity;end';
 	my $registration_id = $data->{registration_ids} // [];
     if(ref $registration_id ne 'ARRAY' or @{$registration_id} == 0){
         $client->die("[".__PACKAGE__."]registration_ids无效");
@@ -59,17 +61,18 @@ sub call {
         }
         return if !$title or !$message;
 		
-		$client->http_post($api_url, 
-			{'Authorization'=>"key=$api_key",
-			  json=>1
-			},
-            form=>{
+		if($is_transparent eq 1) {
+			$client->http_post($api_url, 
+				{'Authorization'=>"key=$api_key",
+				json=>1
+				},
+				form=>{
                 pass_through => 1,
                 registration_id => $registration_id,
                 restricted_package_namee => $pkgname,
                 payload=>$client->to_json({isAt=>$isAt,type=>$type,title=>$title,message=>$message,msgId=>$msgId,senderType=>$senderType}),
-            },
-            sub{
+				},
+				sub{
                 my $json = shift;
                 if(not defined $json){
                     $client->debug("[".__PACKAGE__."]小米消息推送失败: 返回结果异常");
@@ -79,9 +82,35 @@ sub call {
                     $client->debug("[".__PACKAGE__."]小米消息推送状态：$json->{error}");
                 }
             }
+			);
+		} else {		
+			$client->http_post($api_url, 
+				{'Authorization'=>"key=$api_key",
+				json=>1
+				},
+				form=>{
+                pass_through => 0,
+                registration_id => $registration_id,
+                restricted_package_namee => $pkgname,
+				extra.notify_effect => 2,
+				extra.intent_uri => $qq_package_url,
+				title => $title,
+				description => $message,
+                payload => $message,
+				},
+				sub{
+                my $json = shift;
+                if(not defined $json){
+                    $client->debug("[".__PACKAGE__."]小米消息推送失败: 返回结果异常");
+                    return;
+                }
+                else{
+                    $client->debug("[".__PACKAGE__."]小米消息推送状态：$json->{error}");
+                }
+            }
+			);
 	
-	
- 	);
+		}
 
    }); 
 
@@ -104,11 +133,13 @@ sub call {
             $title = "停止事件";
         }
         else{return}
-
-        $client->http_post($api_url,
-            {   'Authorization'=>"key=$api_key",
-                blocking=>1,
-		json=>1,
+		
+		
+		if($is_transparent eq 1) {
+			$client->http_post($api_url,
+				{   'Authorization'=>"key=$api_key",
+					blocking=>1,
+			json=>1,
                 ua_connect_timeout=>5,
                 ua_request_timeout=>5,
                 ua_inactivity_timeout=>5,
@@ -130,7 +161,38 @@ sub call {
                     $client->debug("[".__PACKAGE__."]小米消息推送状态：$json->{error}");
                 }
             }
-        ); 
+			); 
+		}
+		else {		
+		$client->http_post($api_url,
+				{   'Authorization'=>"key=$api_key",
+					blocking=>1,
+			json=>1,
+                ua_connect_timeout=>5,
+                ua_request_timeout=>5,
+                ua_inactivity_timeout=>5,
+                ua_retry_times=>1
+            },
+            form=>{
+				pass_through => 0,
+                registration_id => $registration_id,
+                restricted_package_namee => $pkgname,
+				title => $title,
+				description => $message,
+                payload => $message,
+            },
+            sub{
+                my $json = shift;
+                if(not defined $json){
+                    $client->debug("[".__PACKAGE__."]小米消息推送失败: 返回结果异常");
+                    return;
+                }
+                else{
+                    $client->debug("[".__PACKAGE__."]小米消息推送状态：$json->{error}");
+                }
+            }
+			); 
+		}
     });
 }
 1;
