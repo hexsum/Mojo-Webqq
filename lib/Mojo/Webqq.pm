@@ -299,7 +299,7 @@ sub new {
     });
     $self->on(model_update_fail=>sub{
         my $self = shift;
-        $self->relogin() if $self->login_type eq 'login';
+        $self->relogin();
     });
     $self->on(before_send_message=>sub{
         my($self,$msg) = @_;
