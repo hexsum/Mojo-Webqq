@@ -555,6 +555,10 @@ sub parse_receive_msg {
         $self->_relink();
     }
 
+    elsif ($json->{retcode} == 100000){
+        $self->info("检测到登录状态失效(2)，尝试重新登录");
+        $self->relogin();
+    }   
     #可以忽略的消息，暂时不做任何处理
     #elsif ($json->{retcode} == 102
     #    or $json->{retcode} == 109
