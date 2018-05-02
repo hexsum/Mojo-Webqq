@@ -20,6 +20,10 @@ has http_debug          => sub{$ENV{MOJO_WEBQQ_HTTP_DEBUG} || 0 };
 has ua_debug            => sub{$_[0]->http_debug};
 has ua_debug_req_body   => sub{$_[0]->ua_debug};
 has ua_debug_res_body   => sub{$_[0]->ua_debug};
+has ua_connect_timeout      => 10;
+has ua_request_timeout      => 120;
+has ua_inactivity_timeout   => 120;
+has model_update_timeout    => 15;#sub{$_[0]->ua_request_timeout};
 has log_level           => 'info';     #debug|info|msg|warn|error|fatal
 has log_path            => undef;
 has log_encoding        => undef;      #utf8|gbk|...
@@ -145,8 +149,9 @@ has ua                      => sub {
     Mojo::UserAgent->new(
         proxy              => sub{ my $proxy = Mojo::UserAgent::Proxy->new;$proxy->detect;$proxy}->(),
         max_redirects      => 7,
-        request_timeout    => 120,
-        inactivity_timeout => 120,
+        connect_timeout    => $self->ua_connect_timeout,
+        request_timeout    => $self->ua_request_timeout,
+        inactivity_timeout => $self->ua_inactivity_timeout,
         transactor => $transactor,
     );
 };

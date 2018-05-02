@@ -2,7 +2,12 @@ sub Mojo::Webqq::Model::_get_user_friends{
     my $self = shift;
     my $callback = shift;
     my $api_url = 'http://s.web2.qq.com/api/get_user_friends2';
-    my $headers = {Referer=>'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',json=>1};
+    my $headers = {
+        Referer=>'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
+        json=>1,
+        ua_request_timeout => $self->model_update_timeout,
+        ua_retry_times => 3,
+    };
     my %r = (
         hash        => $self->hash($self->ptwebqq,$self->uid),  
         vfwebqq     => $self->vfwebqq,

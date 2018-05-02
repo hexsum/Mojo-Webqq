@@ -13,6 +13,8 @@ sub Mojo::Webqq::Model::_get_discuss_info {
     my $headers = {
         Referer  => 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2',
         json     => 1,
+        ua_request_timeout => $self->model_update_timeout,
+        ua_retry_times => 3,
     };
     
     my $is_blocking = ref $callback eq "CODE"?0:1;

@@ -264,6 +264,13 @@ sub call{
         }
         else{return 1} 
     };
+    options '/*' => sub{
+        my $c = shift;
+        $c->res->headers->header("Access-Control-Allow-Origin" => "*");
+        $c->res->headers->header("Access-Control-Allow-Methods" => "OPTIONS, HEAD, GET, POST");
+        $c->res->headers->header("Access-Control-Allow-Headers" => "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization");
+        $c->rendered(200);
+    };
     get '/openqq/get_user_info'     => sub {$_[0]->safe_render(json=>$client->user->to_json_hash());};
     get '/openqq/get_friend_info'   => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->friend}]); };
     get '/openqq/get_group_info'    => sub {$_[0]->safe_render(json=>[map {$_->to_json_hash()} @{$client->group}]); };
@@ -516,7 +523,7 @@ sub call{
         });
         $client->timer(3=>sub{$client->stop()});#3秒后再执行，让客户端可以收到该api的响应
     };
-    any '/*whatever'  => sub{whatever=>'',$_[0]->safe_render(text=>"request error",status=>403)};
+    any '/*'  => sub{$_[0]->safe_render(text=>"api not found",status=>403)};
     package Mojo::Webqq::Plugin::Openqq;
     $server = Mojo::Webqq::Server->new();   
     $server->app($server->build_app("Mojo::Webqq::Plugin::Openqq::App"));
