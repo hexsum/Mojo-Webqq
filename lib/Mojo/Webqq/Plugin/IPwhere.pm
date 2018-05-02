@@ -58,8 +58,8 @@ sub call {
     $client->on(receive_message=>sub{
         my($client,$msg)=@_;
         return if not $msg->allow_plugin;
-        return if $msg->content !~ /IPwhere\s*($ipre)/;
-        my $arg= $1 if $msg->content=~ /IPwhere\s*($ipre)/;
+        return if $msg->content !~ /^(ipwhere|IPwhere)\s*($ipre)/;
+        my $arg= $1 if $msg->content=~ /^(ipwhere|IPwhere)\s*($ipre)/;
         $reply= Encode::encode("utf8",squery($arg));
 #       $reply.=Encode::encode("utf8",gquery($arg)); # 如果需要解析纯真数据库，吧本行注释去掉
         $msg->reply($reply,sub{$_[1]->from("bot")}) if $reply;
