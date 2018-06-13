@@ -24,11 +24,11 @@ RUN yum -y --nogpgcheck install \
     perl-Encode-Locale \
     perl-Term-ANSIColor && \
     yum clean all
-RUN cpanm -vn Test::More Webqq::Encryption Mojolicious MIME::Lite Mojo::SMTP::Client Mojo::IRC::Server::Chinese 
+RUN cpanm -vn Test::More IO::Socket::SSL Webqq::Encryption Mojolicious MIME::Lite Mojo::SMTP::Client Mojo::IRC::Server::Chinese 
 RUN wget -q https://github.com/sjdy521/Mojo-Webqq/archive/master.zip -OMojo-Webqq.zip \
     && unzip -qo Mojo-Webqq.zip \
     && cd Mojo-Webqq-master \
-    && cpanm . \
+    && cpanm -v . \
     && cd .. \
     && rm -rf Mojo-Webqq-master Mojo-Webqq.zip
 CMD perl -MMojo::Webqq -e 'Mojo::Webqq->new(log_encoding=>"utf8")->load(["ShowMsg","UploadQRcode"])->load("Openqq",data=>{listen=>[{port=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_PORT}//5000}],post_api=>$ENV{MOJO_WEBQQ_PLUGIN_OPENQQ_POST_API}})->run'
