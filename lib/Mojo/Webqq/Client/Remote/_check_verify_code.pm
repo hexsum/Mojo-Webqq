@@ -3,7 +3,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
     return 1 if $self->login_type eq "qrlogin";
     $self->info("检查验证码...") if $self->login_type eq "login";
     my $api_url = 'https://ssl.ptlogin2.qq.com/check';
-    my $headers = {Referer=>'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'};
+    my $headers = {Referer=>'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2F' . $seld->domain . '%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'};
 
     my @query_string = (
         regmaster   => '',
@@ -14,7 +14,7 @@ sub Mojo::Webqq::Client::_check_verify_code{
         js_ver      =>  10233,
         js_type     =>  1,
         login_sig   =>  $self->pt_login_sig,
-        u1          =>  'http%3A%2F%2Fw.qq.com%2Fproxy.html',
+        u1          =>  'http%3A%2F%2F' . $self->domain . ' %2Fproxy.html',
         r           =>  rand(),
         pt_uistyle  => 40,
         pt_jstoken  => 485008785,

@@ -9,6 +9,7 @@ use Time::HiRes qw(gettimeofday);
 use File::Spec ();
 use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Plugin Mojo::Webqq::Request Mojo::Webqq::Util Mojo::Webqq::Model::Ext);
 
+has domain              => 'web2.qq.com';
 has account             => sub{ $ENV{MOJO_WEBQQ_ACCOUNT} || 'default'};
 has start_time          => time;
 has pwd                 => undef;

@@ -17,7 +17,7 @@ sub Mojo::Webqq::Client::_get_qrlogin_pic {
         pt_3rd_aid => 0,
     );  
     my $url = $self->gen_url($api,@query_string);
-    my $data = $self->http_get($url,{Referer=>'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001',ua_debug_res_body=>0});
+    my $data = $self->http_get($url,{Referer=>'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2F' . $self->domain .  '%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001',ua_debug_res_body=>0});
     if( not defined $data){
         $self->error("登录二维码下载失败");
         return 0;

@@ -6,7 +6,7 @@ sub Mojo::Webqq::Client::logout {
         pt4_hkey    => $self->time33($self->skey),
         pt4_ptcz    => $self->hash33($self->search_cookie("ptcz")),
         deep_logout => 1
-    )),{Referer => 'http://w.qq.com/'});
+    )),{Referer => 'http://'. $self->domain . '/'});
     #my $expire = 0 - time;
     #$self->ua->cookie_jar->add(
     #    Mojo::Cookie::Response->new(name=>"superuin",value=>undef,path=>"/",domain=>"qq.com",expires=>$expire),

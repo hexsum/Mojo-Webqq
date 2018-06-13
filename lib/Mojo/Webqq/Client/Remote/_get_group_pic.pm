@@ -78,6 +78,6 @@ sub Mojo::Webqq::Client::_get_group_pic {
         };
         $self->error("[Mojo::Webqq::Client::_get_group_pic] $@") if $@;
     };
-    $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://w.qq.com/'},$callback);
+    $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://'. $self->domain .  '/'},$callback);
 };
 1;

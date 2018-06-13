@@ -50,6 +50,6 @@ sub Mojo::Webqq::Client::_get_offpic {
         };
         $self->error("[Mojo::Webqq::Client::_get_offpic] $@") if $@;
     };
-    $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://w.qq.com/'},$callback);
+    $self->http_get($self->gen_url($api,@query_string),{Referer=>'http://'. $self->domain . '/'},$callback);
 };
 1;

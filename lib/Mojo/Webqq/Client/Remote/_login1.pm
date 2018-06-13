@@ -3,9 +3,9 @@ sub Mojo::Webqq::Client::_login1{
     my $login_type = $self->login_type;
     $self->info("正在进行登录(1)...") if $login_type eq "login";
     if($login_type eq "qrlogin"){
-        my $headers = {Referer => 'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2Fw.qq.com%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'};
+        my $headers = {Referer => 'https://xui.ptlogin2.qq.com/cgi-bin/xlogin?daid=164&target=self&style=40&pt_disable_pwd=1&mibao_css=m_webqq&appid=501004106&enable_qlogin=0&no_verifyimg=1&s_url=http%3A%2F%2F' . $self->domain .  '%2Fproxy.html&f_url=loginerroralert&strong_login=1&login_state=10&t=20131024001'};
         my @query_string = (
-            u1              => 'http%3A%2F%2Fw.qq.com%2Fproxy.html',
+            u1              => 'http%3A%2F%2F' . $self->domain  . '%2Fproxy.html',
             ptqrtoken       => $self->hash33($self->search_cookie("qrsig")),
             ptredirect      => 0,
             h               => 1,
