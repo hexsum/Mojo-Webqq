@@ -53,7 +53,8 @@
 [ShowQRcode]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::ShowQRcode
 [SmartReply]: https://metacpan.org/pod/distribution/Mojo-Webqq/doc/Webqq.pod#Mojo::Webqq::Plugin::SmartReply
 [IPWhere]: https://git.oschina.net/ijz/Mojo-Webqq-IPwhere
-[LCMD]: https://git.oschina.net/ijz/Mojo-Webqq-LCMD
-[PW]: http://git.oschina.net/ijz/pullword/blob/master/example/PW.pm
+[LCMD]: https://gitee.com/ijz/Mojo-Webqq-LCMD
+[SCH]: https://gitee.com/ijz/Mojo-Webqq-CollegePoint
+[PW]: http://gitee.com/ijz/pullword/blob/master/example/PW.pm
 [PostQRcodeToTelegram]: https://github.com/sjdy521/Mojo-Webqq/blob/master/lib/Mojo/Webqq.pod#Mojo::Webqq::Plugin::PostQRcodeToTelegram
 [GCM]: http://www.coolapk.com/apk/com.swjtu.gcmformojo
