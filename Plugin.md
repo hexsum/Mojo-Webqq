@@ -27,6 +27,7 @@
 |[SmartReply]        |0        |已发布      |sjdy521       |智能聊天回复
 |[IPWhere]           |1        |已发布      |bollwarm      |IP库查询
 |[LCMD]              |1        |已发布      |bollwarm      |linux命令使用方法查询
+|[SCH]               |1        |已发布      |bollwarm      |查询高校录取分数线
 |[PW]                |1        |已发布      |bollwarm      |在线分词pullword插件,pullword,分词 关键词触发
 |[PostQRcodeToTelegram]|0      |已发布      |HubertZhang   |二维码通过Telegram Bot发至指定账户或频道或群组
 
