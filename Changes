@@ -1,3 +1,6 @@
+2018-07-20 Mojo::Webqq v2.2.3
+1）主域名恢复至原来的w.qq.com解决无法正常登录问题
+
 2018-06-29 Mojo::Webqq v2.2.2
 1）更新依赖关系，解决 IO::Socket::SSL 2.009+ required for TLS support 问题
 2）增加高校分数线插件

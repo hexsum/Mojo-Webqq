@@ -1,7 +1,7 @@
 package Mojo::Webqq;
 use strict;
 use Carp ();
-$Mojo::Webqq::VERSION = "2.2.2";
+$Mojo::Webqq::VERSION = "2.2.3";
 use Mojo::Webqq::Base 'Mojo::EventEmitter';
 use Mojo::Webqq::Log;
 use Mojo::Webqq::Cache;
@@ -9,7 +9,7 @@ use Time::HiRes qw(gettimeofday);
 use File::Spec ();
 use base qw(Mojo::Webqq::Model Mojo::Webqq::Client Mojo::Webqq::Plugin Mojo::Webqq::Request Mojo::Webqq::Util Mojo::Webqq::Model::Ext);
 
-has domain              => 'web2.qq.com';
+has domain              => 'w.qq.com';
 has account             => sub{ $ENV{MOJO_WEBQQ_ACCOUNT} || 'default'};
 has start_time          => time;
 has pwd                 => undef;
