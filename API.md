@@ -11,8 +11,8 @@
 |[/openqq/get_group_basic_info](API.md#获取群组基础数据)          |running |获取群组基础数据(不包含群成员)|
 |[/openqq/get_discuss_info](API.md#获取讨论组数据)  | running  | 获取讨论组数据 |
 |数据搜索相关                  |        |                |
-|[/openwx/search_friend](API.md#搜索好友)        |running |搜索好友对象|
-|[/openwx/search_group](API.md#搜索群组)        |running |搜索群组对象|
+|[/openqq/search_friend](API.md#搜索好友)        |running |搜索好友对象|
+|[/openqq/search_group](API.md#搜索群组)        |running |搜索群组对象|
 |群组管理相关                  |        |                |
 |[/openqq/shutup_group_member](API.md#群成员禁言)        |running |群成员禁言         |
 |[/openqq/kick_group_member](API.md#踢除群成员)        |running |踢除群成员|
