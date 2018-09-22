@@ -186,7 +186,7 @@ screen -U -r xxx
 
 2）把相关环境变量写入启动文件中，执行命令如下：
 
-         echo 'eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"' >>~/.bashrc
+         echo 'eval "$(perl -I $HOME/perl5/lib/perl5 -Mlocal::lib)"' >>~/.bashrc
 
 #### 12. 使用账号密码的方法无法成功登录
 
