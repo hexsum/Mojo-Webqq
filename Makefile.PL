@@ -17,8 +17,8 @@ WriteMakefile(
         "Digest::MD5"           => 0,
         #"Term::ANSIColor"       => 0,
         "Encode::Locale"        => 0,
-        "IO::Socket::SSL"       => '1.94',
-        "Mojolicious"           => '7.69',
+        "IO::Socket::SSL"       => '2.009',
+        "Mojolicious"           => '7.83',
         #"Webqq::Encryption"     => '1.5',
     }, # e.g., Module::Name => 1.1
     dist              => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
