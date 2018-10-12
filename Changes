@@ -1,3 +1,6 @@
+2018-10-09 Mojo::Webqq v2.2.5
+1）增加一个版本号来修复版本上传cpan冲突问题
+
 2018-10-09 Mojo::Webqq v2.2.4
 1）IO::Socket::SSL依赖模块版本最低2.009
 2）Mojolicious依赖模块版本最低7.83
