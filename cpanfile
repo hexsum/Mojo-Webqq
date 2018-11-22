@@ -7,6 +7,6 @@ requires 'Digest::SHA';
 requires 'Digest::MD5';
 requires 'Encode::Locale';
 requires 'IO::Socket::SSL', '>= 2.009';
-requires 'Mojolicious','>= 7.83';
+requires 'Mojolicious','>= 8.02';
 recommends 'Term::ANSIColor';
-conflicts 'Mojolicious','< 7.83'; 
+conflicts 'Mojolicious','< 8.02'; 

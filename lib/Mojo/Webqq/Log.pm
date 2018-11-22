@@ -147,11 +147,10 @@ sub new {
   return $self;
 }
  
-sub _log { shift->emit('message', shift, @_) }
+sub _log { shift->emit('message', shift, ref $_[0] eq 'CODE' ? $_[0]() : @_) }
  
 sub _message {
   my ($self, $level) = (shift, shift);
- 
   return unless $self->_now($level);
  
   my $max     = $self->max_history_size;

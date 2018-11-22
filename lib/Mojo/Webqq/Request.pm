@@ -110,7 +110,7 @@ sub _http_request{
             my($ua,$tx) = @_;
             _ua_debug($self,$ua,$tx,\%opt,0) if $opt{ua_debug};
             $self->save_cookie();
-            if(defined $tx and $tx->success){
+            if(defined $tx and $tx->result->is_success){
                 my $r = $opt{json}?$self->from_json($tx->res->body):$tx->res->body;
                 $cb->($r,$ua,$tx);
             }
@@ -151,7 +151,7 @@ sub _http_request{
             }
             _ua_debug($self,$ua,$tx,\%opt,1) if $opt{ua_debug};
             $self->save_cookie();
-            if(defined $tx and $tx->success){
+            if(defined $tx and $tx->result->is_success){
                 my $r = $opt{json}?$self->from_json($tx->res->body):$tx->res->body;
                 $cb->($r,$ua,$tx) if defined $cb;
                 return wantarray?($r,$self->ua,$tx):$r;
