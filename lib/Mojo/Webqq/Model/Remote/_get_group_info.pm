@@ -3,7 +3,7 @@ sub Mojo::Webqq::Model::_get_group_info {
     my $self = shift;
     my $gcode = shift;
     my $callback = shift;
-    my $api_url = 'http://s.web2.qq.com/api/get_group_info_ext2';
+    my $api_url = 'https://s.web2.qq.com/api/get_group_info_ext2';
     my @query_string  = (
         gcode   =>  $gcode,
         vfwebqq =>  $self->vfwebqq,
@@ -11,7 +11,7 @@ sub Mojo::Webqq::Model::_get_group_info {
     ); 
 
     my $headers = {
-        Referer => 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
+        Referer => 'https://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
         json=>1,
         ua_request_timeout => $self->model_update_timeout,
         ua_retry_times => 3,
