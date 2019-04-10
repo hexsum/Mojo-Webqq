@@ -1,7 +1,7 @@
 sub Mojo::Webqq::Model::_get_discuss_list_info {
     my $self = shift;
     my $callback = shift;
-    my $api_url = 'http://s.web2.qq.com/api/get_discus_list';   
+    my $api_url = 'https://s.web2.qq.com/api/get_discus_list';   
     my @query_string = (
         clientid    =>  $self->clientid,
         psessionid  =>  $self->psessionid,
@@ -10,7 +10,7 @@ sub Mojo::Webqq::Model::_get_discuss_list_info {
     );
      
     my $headers = {
-        Referer  => 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
+        Referer  => 'https://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1',
         json     => 1,
     };
     my $is_blocking = ref $callback eq "CODE"?0:1;
