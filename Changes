@@ -1,3 +1,6 @@
+2019-04-10 Mojo::Webqq v2.2.7
+1）修复接收请求异常引起的程序终止的严重bug
+
 2018-11-22 Mojo::Webqq v2.2.6
 1）修复Mojo::Transaction::success is DEPRECATED的问题
 2）Mojolicious最低依赖版本提升至v8.02
